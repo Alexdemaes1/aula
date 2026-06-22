@@ -1,4 +1,4 @@
-# Mini-LMS
+# Aula
 
 Plataforma de cursos online con vídeo bajo demanda, pagos con Stripe y gestión completa desde un panel de administración.
 
@@ -13,8 +13,8 @@ Plataforma de cursos online con vídeo bajo demanda, pagos con Stripe y gestión
 
 ```bash
 # 1. Clonar e instalar
-git clone https://github.com/TU_USUARIO/mini-lms.git
-cd mini-lms
+git clone https://github.com/TU_USUARIO/aula.git
+cd aula
 npm install
 
 # 2. Configurar variables de entorno

@@ -19,10 +19,16 @@ const playfairDisplay = Playfair_Display({
   display: 'swap',
 })
 
+function getSiteUrl(): URL {
+  const raw = process.env.NEXT_PUBLIC_SITE_URL
+  try {
+    if (raw) return new URL(raw)
+  } catch {}
+  return new URL('https://aula-kappa-nine.vercel.app')
+}
+
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aula-kappa-nine.vercel.app'
-  ),
+  metadataBase: getSiteUrl(),
   title: {
     default: 'Tian Ying Fa — Tai Ji, Qi Gong y Medicina Natural',
     template: '%s | Tian Ying Fa',

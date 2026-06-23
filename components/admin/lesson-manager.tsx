@@ -65,6 +65,7 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
     if (!lesson?.notes_pdf_path) return
     await removeNotesAction(lesson.id, courseId, lesson.notes_pdf_path)
     toast.success('Apuntes eliminados')
+    router.refresh()
   }
 
   return (

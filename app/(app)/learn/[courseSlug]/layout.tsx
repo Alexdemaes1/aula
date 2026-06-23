@@ -59,16 +59,16 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
       <link rel="preconnect" href="https://www.youtube.com" />
       <link rel="preconnect" href="https://www.youtube-nocookie.com" />
       <link rel="dns-prefetch" href="https://i.ytimg.com" />
-    <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      <LessonSidebar
-        courseSlug={courseSlug}
-        courseTitle={course.title}
-        lessons={sidebarLessons}
-      />
-      <div className="flex-1 overflow-y-auto">
-        {children}
+      <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
+        <LessonSidebar
+          courseSlug={courseSlug}
+          courseTitle={course.title}
+          lessons={sidebarLessons}
+        />
+        <div className="flex-1 overflow-y-auto">
+          {children}
+        </div>
       </div>
-    </div>
     </>
   )
 }

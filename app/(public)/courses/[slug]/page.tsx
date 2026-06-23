@@ -112,6 +112,13 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
           <PurchaseSuccessBanner courseId={course.id} />
         )}
 
+        {compra === 'cancelada' && (
+          <div className="mb-6 rounded-lg bg-yellow-50 border border-yellow-200 px-4 py-3 text-sm text-yellow-800 flex items-center gap-3">
+            <span>⚠️</span>
+            <span>El pago fue cancelado. Puedes volver a intentarlo cuando quieras.</span>
+          </div>
+        )}
+
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Columna principal */}
           <div className="lg:col-span-2 space-y-6">

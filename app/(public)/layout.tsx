@@ -6,7 +6,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="flex-1">{children}</main>
       <footer className="border-t py-6 text-center text-xs text-muted-foreground">
-        © {new Date().getFullYear()} Mini-LMS
+        © {new Date().getFullYear()} Aula
       </footer>
     </div>
   )

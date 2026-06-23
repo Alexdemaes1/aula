@@ -25,7 +25,7 @@ export async function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-bold text-lg">
           <BookOpen className="size-5" />
-          Mini-LMS
+          Aula
         </Link>
 
         <nav className="flex items-center gap-1">

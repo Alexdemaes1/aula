@@ -15,10 +15,10 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: 'Mini-LMS',
-    template: '%s | Mini-LMS',
+    default: 'Aula',
+    template: '%s | Aula',
   },
-  description: 'Plataforma de cursos en línea',
+  description: 'Plataforma de formación online con cursos en vídeo y seguimiento de progreso.',
 }
 
 export default function RootLayout({

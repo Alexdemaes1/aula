@@ -2,24 +2,17 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, BookOpen, LayoutDashboard, User, Settings, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { logoutAction } from '@/app/actions/auth'
 
 interface MobileMenuProps {
   isLoggedIn: boolean
+  isAdmin?: boolean
+  email?: string
 }
 
-const publicLinks = [
-  { href: '/cursos', label: 'Cursos' },
-  { href: '/about', label: 'El centro' },
-]
-
-const authLinks = [
-  { href: '/login', label: 'Entrar' },
-  { href: '/register', label: 'Comenzar gratis' },
-]
-
-export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
+export function MobileMenu({ isLoggedIn, isAdmin, email }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
 
   useEffect(() => {
@@ -31,7 +24,17 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
     return () => document.removeEventListener('keydown', onKey)
   }, [open])
 
-  if (isLoggedIn) return null
+  const navLinks = isLoggedIn
+    ? [
+        { href: '/cursos', label: 'Cursos', icon: BookOpen },
+        { href: '/dashboard', label: 'Mi formación', icon: LayoutDashboard },
+        { href: '/account', label: 'Mi cuenta', icon: User },
+        ...(isAdmin ? [{ href: '/admin', label: 'Administración', icon: Settings }] : []),
+      ]
+    : [
+        { href: '/cursos', label: 'Cursos', icon: BookOpen },
+        { href: '/about', label: 'El centro', icon: null },
+      ]
 
   return (
     <>
@@ -47,14 +50,19 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
 
       {open && (
         <>
-          {/* Overlay */}
           <div
-            className="fixed inset-0 z-40 bg-black/30 sm:hidden"
+            className="fixed inset-0 z-40 bg-black/40 sm:hidden"
             onClick={() => setOpen(false)}
             aria-hidden="true"
           />
-          {/* Panel */}
-          <div id="mobile-nav-panel" className="fixed top-0 right-0 z-50 h-full w-64 bg-background border-l shadow-xl sm:hidden flex flex-col" role="dialog" aria-modal="true" aria-label="Menú de navegación">
+          <div
+            id="mobile-nav-panel"
+            className="fixed top-0 right-0 z-50 h-full w-72 bg-background border-l shadow-xl sm:hidden flex flex-col"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menú de navegación"
+          >
+            {/* Cabecera del panel */}
             <div className="flex items-center justify-between px-4 h-14 border-b">
               <span className="font-semibold font-heading text-sm">Menú</span>
               <button
@@ -65,34 +73,63 @@ export function MobileMenu({ isLoggedIn }: MobileMenuProps) {
                 <X className="size-5" />
               </button>
             </div>
-            <nav className="flex-1 p-4 space-y-1">
-              {publicLinks.map(({ href, label }) => (
+
+            {/* Email del usuario logueado */}
+            {isLoggedIn && email && (
+              <div className="px-4 py-3 bg-muted/40 border-b">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-wider mb-0.5">Conectado como</p>
+                <p className="text-sm font-medium truncate">{email}</p>
+              </div>
+            )}
+
+            {/* Links de navegación */}
+            <nav className="flex-1 p-4 space-y-0.5" aria-label="Navegación principal">
+              {navLinks.map(({ href, label, icon: Icon }) => (
                 <Link
                   key={href}
                   href={href}
                   onClick={() => setOpen(false)}
-                  className="flex items-center px-3 py-2.5 rounded-md text-sm hover:bg-accent hover:text-accent-foreground transition-colors"
+                  className="flex items-center gap-3 px-3 py-3.5 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
                 >
+                  {Icon
+                    ? <Icon className="size-4 text-muted-foreground flex-shrink-0" />
+                    : <span className="size-4 flex-shrink-0" />
+                  }
                   {label}
                 </Link>
               ))}
             </nav>
+
+            {/* Botones de acción (login/logout) */}
             <div className="p-4 border-t space-y-2">
-              {authLinks.map(({ href, label }, i) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className={cn(
-                    'flex items-center justify-center w-full px-4 py-2.5 rounded-md text-sm font-medium transition-colors',
-                    i === 0
-                      ? 'border hover:bg-accent'
-                      : 'bg-primary text-primary-foreground hover:opacity-90'
-                  )}
-                >
-                  {label}
-                </Link>
-              ))}
+              {isLoggedIn ? (
+                <form action={logoutAction}>
+                  <button
+                    type="submit"
+                    className="flex w-full items-center gap-3 px-3 py-3.5 rounded-md text-sm font-medium text-destructive hover:bg-destructive/10 transition-colors"
+                  >
+                    <LogOut className="size-4 flex-shrink-0" />
+                    Cerrar sesión
+                  </button>
+                </form>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center w-full px-4 py-3 rounded-md text-sm font-medium border hover:bg-accent transition-colors"
+                  >
+                    Iniciar sesión
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-center w-full px-4 py-3 rounded-md text-sm font-medium bg-primary text-primary-foreground hover:opacity-90 transition-opacity"
+                  >
+                    Comenzar gratis
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </>

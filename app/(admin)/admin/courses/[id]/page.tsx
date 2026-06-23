@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CourseForm } from '@/components/admin/course-form'
 import { LessonManager } from '@/components/admin/lesson-manager'
+import { CourseAnalytics } from '@/components/admin/course-analytics'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CoverUpload } from '@/components/admin/cover-upload'
 import { DeleteCourseButton } from '@/components/admin/delete-course-button'
@@ -22,14 +23,13 @@ export default async function EditCoursePage({ params }: PageProps) {
   const { id } = await params
   const db = createAdminClient()
 
-  const { data: course } = await db.from('courses').select('*').eq('id', id).single()
-  if (!course) notFound()
+  const [{ data: course }, { data: lessons }, { count: enrolledCount }] = await Promise.all([
+    db.from('courses').select('*').eq('id', id).single(),
+    db.from('lessons').select('*').eq('course_id', id).order('position'),
+    db.from('enrollments').select('*', { count: 'exact', head: true }).eq('course_id', id).eq('status', 'active'),
+  ])
 
-  const { data: lessons } = await db
-    .from('lessons')
-    .select('*')
-    .eq('course_id', id)
-    .order('position')
+  if (!course) notFound()
 
   return (
     <div className="space-y-6">
@@ -51,6 +51,7 @@ export default async function EditCoursePage({ params }: PageProps) {
             Lecciones ({lessons?.length ?? 0})
           </TabsTrigger>
           <TabsTrigger value="cover">Portada</TabsTrigger>
+          <TabsTrigger value="analytics">Análisis</TabsTrigger>
         </TabsList>
 
         <TabsContent value="details" className="mt-6 max-w-2xl">
@@ -63,6 +64,10 @@ export default async function EditCoursePage({ params }: PageProps) {
 
         <TabsContent value="cover" className="mt-6 max-w-md">
           <CoverUpload courseId={id} currentUrl={course.cover_url} />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-6">
+          <CourseAnalytics courseId={id} enrolledCount={enrolledCount ?? 0} />
         </TabsContent>
       </Tabs>
     </div>

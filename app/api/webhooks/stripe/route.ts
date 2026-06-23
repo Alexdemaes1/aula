@@ -44,6 +44,7 @@ export async function POST(request: NextRequest) {
       status: 'active',
       amount_paid_cents: session.amount_total ?? 0,
       stripe_session_id: session.id,
+      payment_intent_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
     })
 
     if (error) {

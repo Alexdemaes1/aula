@@ -6,6 +6,8 @@ import { z } from 'zod'
 import { requireAdmin } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { slugify } from '@/lib/utils/format'
+import { getStripe } from '@/lib/stripe'
+import { notify } from '@/lib/notify'
 
 // ── Cursos ────────────────────────────────────────────────
 
@@ -263,4 +265,117 @@ export async function updateUserRoleAction(userId: string, role: 'admin' | 'stud
   const db = createAdminClient()
   await db.from('profiles').update({ role }).eq('id', userId)
   revalidatePath('/admin/users')
+}
+
+// ── Matriculación manual ───────────────────────────────────
+
+export async function manualEnrollAction(
+  userId: string,
+  courseId: string
+): Promise<{ error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+  const { error } = await db.from('enrollments').insert({
+    user_id: userId,
+    course_id: courseId,
+    status: 'active',
+    amount_paid_cents: 0,
+  })
+  if (error && error.code !== '23505') return { error: error.message }
+  revalidatePath('/admin/users')
+  revalidatePath('/admin/purchases')
+  return {}
+}
+
+// ── Reembolso ─────────────────────────────────────────────
+
+export async function refundEnrollmentAction(
+  enrollmentId: string
+): Promise<{ error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const { data: enrollment } = await db
+    .from('enrollments')
+    .select('payment_intent_id, amount_paid_cents')
+    .eq('id', enrollmentId)
+    .single()
+
+  if (!enrollment?.payment_intent_id) {
+    return { error: 'Esta compra no tiene payment_intent_id. Procesa el reembolso manualmente en el panel de Stripe.' }
+  }
+
+  try {
+    await getStripe().refunds.create({ payment_intent: enrollment.payment_intent_id })
+  } catch (e: unknown) {
+    return { error: e instanceof Error ? e.message : 'Error al procesar el reembolso en Stripe' }
+  }
+
+  await db.from('enrollments').update({ status: 'refunded' }).eq('id', enrollmentId)
+  await notify('💸 Reembolso procesado', `Matrícula ${enrollmentId} — ${(enrollment.amount_paid_cents / 100).toFixed(2)} €`, { priority: 2, tags: ['arrows_counterclockwise'] })
+  revalidatePath('/admin/purchases')
+  return {}
+}
+
+// ── Reordenar lecciones ───────────────────────────────────
+
+export async function reorderLessonAction(
+  lessonId: string,
+  direction: 'up' | 'down',
+  courseId: string
+): Promise<void> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const { data: current } = await db
+    .from('lessons')
+    .select('position')
+    .eq('id', lessonId)
+    .single()
+  if (!current) return
+
+  const targetPosition = current.position + (direction === 'down' ? 1 : -1)
+  const { data: adjacent } = await db
+    .from('lessons')
+    .select('id')
+    .eq('course_id', courseId)
+    .eq('position', targetPosition)
+    .single()
+  if (!adjacent) return
+
+  await db.rpc('swap_lesson_positions', { lesson_a: lessonId, lesson_b: adjacent.id })
+  revalidatePath(`/admin/courses/${courseId}`)
+}
+
+// ── Configuración del sitio ───────────────────────────────
+
+export async function updateSiteConfigAction(
+  _prev: unknown,
+  formData: FormData
+): Promise<{ message?: string; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const keys = ['contact_phone', 'contact_email', 'contact_address', 'schedule', 'ntfy_topic']
+  const rows = keys
+    .filter(k => formData.has(k))
+    .map(k => ({ key: k, value: String(formData.get(k) ?? ''), updated_at: new Date().toISOString() }))
+
+  const { error } = await db.from('site_config').upsert(rows, { onConflict: 'key' })
+  if (error) return { error: error.message }
+
+  revalidatePath('/')
+  return { message: 'Configuración guardada correctamente.' }
+}
+
+// ── Prueba de notificación ────────────────────────────────
+
+export async function testNotifyAction(): Promise<{ message?: string; error?: string }> {
+  await requireAdmin()
+  try {
+    await notify('🧪 Prueba', 'Panel admin Tian Ying Fa operativo', { priority: 3, tags: ['white_check_mark'] })
+    return { message: 'Notificación enviada correctamente.' }
+  } catch {
+    return { error: 'No se pudo enviar la notificación. Comprueba el topic de ntfy.' }
+  }
 }

@@ -1,10 +1,21 @@
 'use server'
 
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notify } from '@/lib/notify'
+
+// Devuelve la URL base del dominio actual del request (resuelve el problema de PKCE:
+// el code_verifier se guarda en cookie del dominio donde se hace signup, así que
+// emailRedirectTo debe apuntar al mismo dominio para que el callback lo encuentre).
+async function getSiteUrl(): Promise<string> {
+  const hdrs = await headers()
+  const host = hdrs.get('x-forwarded-host') ?? hdrs.get('host') ?? 'localhost:3000'
+  const proto = host.startsWith('localhost') || host.startsWith('127.') ? 'http' : 'https'
+  return `${proto}://${host}`
+}
 
 const loginSchema = z.object({
   email: z.string().email('Email inválido'),
@@ -58,13 +69,14 @@ export async function registerAction(
     return { error: parsed.error.issues[0].message }
   }
 
+  const siteUrl = await getSiteUrl()
   const supabase = await createClient()
   const { data: signUpData, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.full_name },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')}/auth/callback`,
+      emailRedirectTo: `${siteUrl}/auth/callback`,
     },
   })
 
@@ -98,9 +110,10 @@ export async function forgotPasswordAction(
     return { error: 'Introduce un email válido' }
   }
 
+  const siteUrl = await getSiteUrl()
   const supabase = await createClient()
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000')}/auth/callback?next=/reset-password`,
+    redirectTo: `${siteUrl}/auth/callback?next=/reset-password`,
   })
 
   // Siempre devolvemos éxito (no revelar si el email existe)

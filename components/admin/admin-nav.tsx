@@ -2,14 +2,15 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, LayoutDashboard, ShoppingBag, Users } from 'lucide-react'
+import { BookOpen, LayoutDashboard, Settings2, ShoppingBag, Users } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const links = [
-  { href: '/admin', label: 'Panel', icon: LayoutDashboard, exact: true },
-  { href: '/admin/courses', label: 'Cursos', icon: BookOpen },
-  { href: '/admin/users', label: 'Usuarios', icon: Users },
-  { href: '/admin/purchases', label: 'Compras', icon: ShoppingBag },
+  { href: '/admin',           label: 'Panel',        icon: LayoutDashboard, exact: true },
+  { href: '/admin/courses',   label: 'Cursos',        icon: BookOpen },
+  { href: '/admin/users',     label: 'Usuarios',      icon: Users },
+  { href: '/admin/purchases', label: 'Compras',       icon: ShoppingBag },
+  { href: '/admin/settings',  label: 'Configuración', icon: Settings2 },
 ]
 
 export function AdminNav() {

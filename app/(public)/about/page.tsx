@@ -114,18 +114,9 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { value: '25+', label: 'Años de experiencia' },
-                { value: '8', label: 'Disciplinas enseñadas' },
-                { value: '500+', label: 'Alumnos formados' },
-                { value: '4.9/5', label: 'Valoración media' },
-              ].map(({ value, label }) => (
-                <div key={label} className="rounded-lg border bg-card p-5 text-center">
-                  <p className="text-3xl font-bold text-primary mb-1 font-heading">{value}</p>
-                  <p className="text-xs text-muted-foreground">{label}</p>
-                </div>
-              ))}
+            <div className="rounded-lg border bg-card p-6 text-center">
+              <p className="text-4xl font-bold text-primary mb-1 font-heading">25+</p>
+              <p className="text-sm text-muted-foreground">Años de experiencia</p>
             </div>
           </div>
         </div>

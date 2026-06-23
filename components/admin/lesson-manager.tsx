@@ -1,6 +1,6 @@
 'use client'
 
-import { useActionState, useEffect, useState } from 'react'
+import { useActionState, useEffect, useOptimistic, useTransition, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import {
   createLessonAction,
@@ -8,6 +8,7 @@ import {
   deleteLessonAction,
   uploadNotesAction,
   removeNotesAction,
+  reorderLessonAction,
 } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -37,6 +38,7 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
   const action = isEdit ? updateLessonAction : createLessonAction
   const [state, formAction, pending] = useActionState(action, null)
   const [uploadingNotes, setUploadingNotes] = useState(false)
+  const [ytId, setYtId] = useState(lesson?.youtube_video_id ?? '')
   const router = useRouter()
 
   useEffect(() => {
@@ -84,12 +86,22 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
           <Input
             name="youtube_video_id"
             required
-            defaultValue={lesson?.youtube_video_id}
+            value={ytId}
+            onChange={e => setYtId(e.target.value)}
             placeholder="dQw4w9WgXcQ"
           />
           <p className="text-xs text-muted-foreground">
             La parte de la URL tras <code>v=</code>
           </p>
+          {ytId.length === 11 && (
+            <iframe
+              key={ytId}
+              src={`https://www.youtube-nocookie.com/embed/${ytId}`}
+              className="w-full aspect-video rounded-md border mt-2"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media"
+              allowFullScreen
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-2">
@@ -171,13 +183,34 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
 export function LessonManager({ courseId, lessons: initialLessons }: LessonManagerProps) {
   const [showNew, setShowNew] = useState(false)
   const [expanded, setExpanded] = useState<string | null>(null)
+  const [, startTransition] = useTransition()
   const router = useRouter()
+
+  const [optimisticLessons, moveLesson] = useOptimistic(
+    initialLessons,
+    (state, { id, dir }: { id: string; dir: 'up' | 'down' }) => {
+      const idx = state.findIndex(l => l.id === id)
+      const swapIdx = dir === 'up' ? idx - 1 : idx + 1
+      if (swapIdx < 0 || swapIdx >= state.length) return state
+      const next = [...state]
+      ;[next[idx], next[swapIdx]] = [next[swapIdx], next[idx]]
+      return next
+    }
+  )
 
   async function handleDelete(lessonId: string) {
     if (!confirm('¿Eliminar esta lección?')) return
     await deleteLessonAction(lessonId, courseId)
     toast.success('Lección eliminada')
     router.refresh()
+  }
+
+  function handleReorder(lessonId: string, dir: 'up' | 'down') {
+    startTransition(async () => {
+      moveLesson({ id: lessonId, dir })
+      await reorderLessonAction(lessonId, dir, courseId)
+      router.refresh()
+    })
   }
 
   const nextPosition = (initialLessons[initialLessons.length - 1]?.position ?? 0) + 1
@@ -219,13 +252,38 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
       )}
 
       <div className="space-y-2">
-        {initialLessons.map((lesson) => (
+        {optimisticLessons.map((lesson, index) => (
           <div key={lesson.id} className="rounded-lg border overflow-hidden">
             <div
               className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 select-none"
               onClick={() => setExpanded(expanded === lesson.id ? null : lesson.id)}
             >
-              <Badge variant="outline" className="w-8 justify-center text-xs">
+              {/* Botones de reordenación */}
+              <div
+                className="flex flex-col gap-0.5 shrink-0"
+                onClick={e => e.stopPropagation()}
+              >
+                <button
+                  type="button"
+                  disabled={index === 0}
+                  onClick={() => handleReorder(lesson.id, 'up')}
+                  className="text-muted-foreground hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  aria-label="Subir lección"
+                >
+                  <ChevronUp className="size-3.5" />
+                </button>
+                <button
+                  type="button"
+                  disabled={index === optimisticLessons.length - 1}
+                  onClick={() => handleReorder(lesson.id, 'down')}
+                  className="text-muted-foreground hover:text-foreground disabled:opacity-20 disabled:cursor-not-allowed"
+                  aria-label="Bajar lección"
+                >
+                  <ChevronDown className="size-3.5" />
+                </button>
+              </div>
+
+              <Badge variant="outline" className="w-8 justify-center text-xs shrink-0">
                 {lesson.position}
               </Badge>
               <span className="flex-1 font-medium text-sm">{lesson.title}</span>
@@ -246,11 +304,9 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
               >
                 <Trash2 className="size-3.5" />
               </Button>
-              {expanded === lesson.id ? (
-                <ChevronUp className="size-4 text-muted-foreground" />
-              ) : (
-                <ChevronDown className="size-4 text-muted-foreground" />
-              )}
+              <ChevronDown
+                className={`size-4 text-muted-foreground transition-transform ${expanded === lesson.id ? 'rotate-180' : ''}`}
+              />
             </div>
 
             {expanded === lesson.id && (

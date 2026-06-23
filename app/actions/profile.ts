@@ -17,8 +17,7 @@ export async function updateProfileAction(_prev: unknown, formData: FormData) {
   const db = createAdminClient()
   const { error } = await db
     .from('profiles')
-    .update({ full_name: parsed.data.full_name })
-    .eq('id', user.id)
+    .upsert({ id: user.id, full_name: parsed.data.full_name }, { onConflict: 'id' })
 
   if (error) return { error: error.message }
   revalidatePath('/account')

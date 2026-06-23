@@ -1,5 +1,6 @@
 import { Suspense } from 'react'
 import Link from 'next/link'
+import Image from 'next/image'
 import { getUser } from '@/lib/auth'
 import { CatalogSearch } from '@/components/catalog-search'
 import { CourseCatalog } from '@/components/course-catalog'
@@ -169,10 +170,13 @@ export default async function HomePage({ searchParams }: PageProps) {
                   <div className="absolute inset-0 rounded-full bg-brand-gold/5 blur-3xl scale-150" />
                   <div className="relative size-72 rounded-full border border-brand-gold/20 bg-brand-jade/10 flex items-center justify-center">
                     <div className="size-52 rounded-full border border-brand-gold/10 bg-brand-jade/10 flex items-center justify-center">
-                      <img
+                      <Image
                         src="/logo.png"
                         alt="Tian Ying Fa"
+                        width={128}
+                        height={128}
                         className="size-32 object-contain drop-shadow-2xl opacity-90"
+                        priority
                       />
                     </div>
                   </div>

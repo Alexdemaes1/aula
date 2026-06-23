@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Navbar } from '@/components/navbar'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             {/* Brand */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
-                <img src="/logo.png" alt="Tian Ying Fa" className="size-9 object-contain" />
+                <Image src="/logo.png" alt="Tian Ying Fa" width={36} height={36} className="size-9 object-contain" />
                 <div>
                   <span className="font-bold text-base block font-heading">Tian Ying Fa</span>
                   <span className="text-[9px] text-brand-gold/70 tracking-widest uppercase">Centro de salud natural</span>

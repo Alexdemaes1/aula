@@ -21,3 +21,18 @@ export const getPublishedCourses = unstable_cache(
   ['published-courses'],
   { revalidate: 300 }
 )
+
+export const getCourse = unstable_cache(
+  async (slug: string): Promise<Course | null> => {
+    const db = createAdminClient()
+    const { data } = await db
+      .from('courses')
+      .select('*')
+      .eq('slug', slug)
+      .eq('is_published', true)
+      .single()
+    return (data as Course) ?? null
+  },
+  ['course-detail'],
+  { revalidate: 300 }
+)

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { unstable_cache } from 'next/cache'
 import { getUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -36,7 +37,7 @@ export async function Navbar() {
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
         <Link href="/" className="flex items-center gap-2.5">
-          <img src="/logo.png" alt="Tian Ying Fa" className="size-8 object-contain" />
+          <Image src="/logo.png" alt="Tian Ying Fa" width={32} height={32} className="size-8 object-contain" priority />
           <div className="leading-tight">
             <span className="font-bold text-sm tracking-tight font-heading block">Tian Ying Fa</span>
             <span className="text-[9px] text-muted-foreground tracking-widest uppercase hidden sm:block">Centro de salud natural</span>

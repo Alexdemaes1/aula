@@ -1,9 +1,9 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
 import Image from 'next/image'
-import { createClient } from '@/lib/supabase/server'
 import { getUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getCourse } from '@/lib/data/courses'
 import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -23,39 +23,27 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { slug } = await params
-  const supabase = await createClient()
-  const { data } = await supabase
-    .from('courses')
-    .select('title,description,cover_url')
-    .eq('slug', slug)
-    .single()
+  const course = await getCourse(slug)
 
   return {
-    title: data?.title ?? 'Curso',
-    description: data?.description,
+    title: course?.title ?? 'Curso',
+    description: course?.description,
     openGraph: {
-      title: data?.title,
-      description: data?.description ?? undefined,
-      images: data?.cover_url ? [{ url: data.cover_url, width: 1280, height: 720 }] : [],
+      title: course?.title,
+      description: course?.description ?? undefined,
+      images: course?.cover_url ? [{ url: course.cover_url, width: 1280, height: 720 }] : [],
     },
   }
 }
 
 export default async function CourseDetailPage({ params, searchParams }: PageProps) {
-  const [{ slug }, { compra }, supabase, user] = await Promise.all([
+  const [{ slug }, { compra }, user] = await Promise.all([
     params,
     searchParams,
-    createClient(),
     getUser(),
   ])
 
-  const { data: course } = await supabase
-    .from('courses')
-    .select('*')
-    .eq('slug', slug)
-    .eq('is_published', true)
-    .single()
-
+  const course = await getCourse(slug)
   if (!course) notFound()
 
   let isEnrolled = false

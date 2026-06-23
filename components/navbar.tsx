@@ -23,9 +23,9 @@ export async function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-          <BookOpen className="size-5" />
-          Aula
+        <Link href="/" className="flex items-center gap-2">
+          <img src="/logo.png" alt="Aula" className="size-8 object-contain" />
+          <span className="font-bold text-lg tracking-tight">Aula</span>
         </Link>
 
         <nav className="flex items-center gap-1">

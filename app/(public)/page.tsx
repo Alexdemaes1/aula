@@ -53,21 +53,23 @@ export default async function CatalogPage({ searchParams }: PageProps) {
     <>
       {!user && (
         <section className="relative bg-slate-900 text-white overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-10%,rgba(99,102,241,0.3),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(217,166,72,0.15),transparent)]" />
           <div className="relative max-w-4xl mx-auto px-6 py-24 sm:py-32 text-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-sm text-white/70 mb-8">
-              <BookOpen className="size-3.5" />
-              Plataforma de formación online
+            <div className="flex justify-center mb-8">
+              <img src="/logo.png" alt="Aula" className="size-24 object-contain drop-shadow-2xl" />
             </div>
             <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-6">
               Aprende lo que quieras,{' '}
-              <span className="text-indigo-400">cuando quieras.</span>
+              <span className="text-amber-400">cuando quieras.</span>
             </h1>
             <p className="text-lg text-slate-300 max-w-xl mx-auto mb-10 leading-relaxed">
               Cursos en vídeo con seguimiento de progreso, materiales descargables y acceso de por vida.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/register" className={cn(buttonVariants({ size: 'lg' }), 'text-base px-8')}>
+              <Link
+                href="/register"
+                className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md bg-amber-400 text-slate-900 font-semibold hover:bg-amber-300 transition-colors"
+              >
                 Empezar gratis
               </Link>
               <a
@@ -79,15 +81,15 @@ export default async function CatalogPage({ searchParams }: PageProps) {
             </div>
             <div className="mt-16 grid grid-cols-3 gap-6 max-w-xs mx-auto">
               <div className="text-center">
-                <p className="text-2xl font-bold">&#8734;</p>
+                <p className="text-2xl font-bold text-amber-400">&#8734;</p>
                 <p className="text-xs text-slate-400 mt-1">Acceso vitalicio</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">HD</p>
+                <p className="text-2xl font-bold text-amber-400">HD</p>
                 <p className="text-xs text-slate-400 mt-1">Vídeo HD</p>
               </div>
               <div className="text-center">
-                <p className="text-2xl font-bold">PDF</p>
+                <p className="text-2xl font-bold text-amber-400">PDF</p>
                 <p className="text-xs text-slate-400 mt-1">Materiales PDF</p>
               </div>
             </div>

@@ -172,18 +172,11 @@ export default async function HomePage({ searchParams }: PageProps) {
                     Ver cursos
                   </a>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-white/10">
-                  {[
-                    { value: '25+', label: 'Años de experiencia' },
-                    { value: '500+', label: 'Alumnos formados' },
-                    { value: '8', label: 'Disciplinas' },
-                    { value: '4.9', label: 'Valoración' },
-                  ].map(({ value, label }) => (
-                    <div key={label}>
-                      <p className="text-xl font-bold text-brand-gold">{value}</p>
-                      <p className="text-[11px] text-white/50 mt-0.5 leading-tight">{label}</p>
-                    </div>
-                  ))}
+                <div className="pt-6 border-t border-white/10">
+                  <div>
+                    <p className="text-xl font-bold text-brand-gold">25+</p>
+                    <p className="text-[11px] text-white/50 mt-0.5 leading-tight">Años de experiencia</p>
+                  </div>
                 </div>
               </div>
 
@@ -372,8 +365,8 @@ export default async function HomePage({ searchParams }: PageProps) {
                 Comienza tu camino<br />hacia el equilibrio
               </h2>
               <p className="text-white/70 mb-10 leading-relaxed">
-                Únete a más de 500 alumnos que practican Tai Ji, Qi Gong y meditación
-                bajo la guía del Sifu Salvador Montiel.
+                Aprende Tai Ji, Qi Gong y meditación bajo la guía del Sifu Salvador Montiel,
+                con más de 25 años de experiencia en disciplinas orientales.
               </p>
               <Link
                 href="/register"

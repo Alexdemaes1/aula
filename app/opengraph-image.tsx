@@ -58,14 +58,10 @@ export default async function Image() {
           </span>
         </div>
 
-        {/* Stats */}
-        <div style={{ display: 'flex', gap: '48px', marginTop: '48px' }}>
-          {[['25+', 'Años'], ['500+', 'Alumnos'], ['8', 'Disciplinas']].map(([v, l]) => (
-            <div key={l} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-              <span style={{ color: '#B98F35', fontSize: '28px', fontWeight: 700 }}>{v}</span>
-              <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px' }}>{l}</span>
-            </div>
-          ))}
+        {/* Años de experiencia */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '48px', alignItems: 'baseline' }}>
+          <span style={{ color: '#B98F35', fontSize: '28px', fontWeight: 700 }}>25+</span>
+          <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px' }}>Años de experiencia</span>
         </div>
       </div>
     ),

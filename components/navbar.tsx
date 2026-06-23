@@ -49,6 +49,9 @@ export async function Navbar() {
           <MobileMenu isLoggedIn={!!user} />
           {user ? (
             <>
+              <Link href="/cursos" className={`${buttonVariants({ variant: 'ghost', size: 'sm' })} hidden sm:inline-flex`}>
+                Cursos
+              </Link>
               <Link href="/dashboard" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
                 <LayoutDashboard className="size-4 mr-1.5" />
                 Mi formación

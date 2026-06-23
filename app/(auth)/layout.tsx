@@ -33,18 +33,6 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </p>
             <footer className="text-sm text-brand-gold/80 tracking-wide">— Lao Tzu</footer>
           </blockquote>
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-white/10">
-            {[
-              { v: '25+', l: 'Años' },
-              { v: '500+', l: 'Alumnos' },
-              { v: '8', l: 'Disciplinas' },
-            ].map(({ v, l }) => (
-              <div key={l}>
-                <p className="text-lg font-bold text-brand-gold font-heading">{v}</p>
-                <p className="text-xs text-white/40">{l}</p>
-              </div>
-            ))}
-          </div>
         </div>
       </div>
 

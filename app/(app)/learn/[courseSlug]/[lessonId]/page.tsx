@@ -91,7 +91,7 @@ export default async function LessonPage({ params }: PageProps) {
             </Badge>
             <h1 className="text-2xl font-bold">{lesson.title}</h1>
             {lesson.description && (
-              <p className="text-muted-foreground">{lesson.description}</p>
+              <p className="text-muted-foreground whitespace-pre-wrap">{lesson.description}</p>
             )}
           </div>
 

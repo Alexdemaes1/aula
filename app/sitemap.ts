@@ -4,7 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 export const revalidate = 3600
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aula-kappa-nine.vercel.app'
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
   const db = createAdminClient()
 
   const { data: courses } = await db

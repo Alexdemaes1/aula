@@ -14,7 +14,7 @@ import { formatPrice } from '@/lib/utils/format'
 import { BookOpen, CheckCircle, Clock, Lock } from 'lucide-react'
 
 const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aula-kappa-nine.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
 
 interface PageProps {
   params: Promise<{ slug: string }>
@@ -102,7 +102,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
         <Breadcrumbs
           items={[
             { label: 'Inicio', href: '/' },
-            { label: 'Cursos', href: '/#cursos' },
+            { label: 'Cursos', href: '/cursos' },
             { label: course.title },
           ]}
         />
@@ -139,7 +139,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
             {course.description && (
               <div>
                 <h2 className="font-semibold mb-2">Descripción</h2>
-                <p className="text-muted-foreground leading-relaxed">{course.description}</p>
+                <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{course.description}</p>
               </div>
             )}
 

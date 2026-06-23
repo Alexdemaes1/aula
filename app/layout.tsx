@@ -24,7 +24,7 @@ function getSiteUrl(): URL {
   try {
     if (raw) return new URL(raw)
   } catch {}
-  return new URL('https://aula-kappa-nine.vercel.app')
+  return new URL('https://tianyingfa.vercel.app')
 }
 
 export const metadata: Metadata = {

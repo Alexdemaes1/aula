@@ -107,12 +107,14 @@ const FAQ = [
   },
 ]
 
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
+
 const organizationJsonLd = {
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'Tian Ying Fa',
-  url: 'https://aula-kappa-nine.vercel.app',
-  logo: 'https://aula-kappa-nine.vercel.app/logo.png',
+  url: SITE_URL,
+  logo: `${SITE_URL}/logo.png`,
   description:
     'Centro de cursos online de Tai Ji Quan, Qi Gong, meditación y medicina natural con el Sifu Salvador Montiel.',
   contactPoint: {

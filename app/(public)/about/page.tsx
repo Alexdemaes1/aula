@@ -13,7 +13,7 @@ const localBusinessJsonLd = {
   name: 'Centro Tian Ying Fa',
   description:
     'Centro de salud natural con más de 25 años de formación en Tai Ji Quan, Qi Gong, medicina natural y artes marciales chinas bajo la dirección del Sifu Salvador Montiel.',
-  url: 'https://aula-kappa-nine.vercel.app',
+  url: process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app',
   telephone: '+34696799639',
   email: 'centrotianyingfa@gmail.com',
   address: {

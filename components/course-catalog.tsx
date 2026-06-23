@@ -1,0 +1,56 @@
+import { getPublishedCourses } from '@/lib/data/courses'
+import { createAdminClient } from '@/lib/supabase/admin'
+import { CourseCard } from '@/components/course-card'
+import { BookOpen } from 'lucide-react'
+
+interface Props {
+  q?: string
+  userId?: string
+}
+
+export async function CourseCatalog({ q, userId }: Props) {
+  const courses = await getPublishedCourses(q)
+
+  let enrolledIds = new Set<string>()
+  if (userId) {
+    const db = createAdminClient()
+    const { data: enrollments } = await db
+      .from('enrollments')
+      .select('course_id')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+    enrolledIds = new Set(enrollments?.map((e) => e.course_id) ?? [])
+  }
+
+  if (courses.length === 0) {
+    return (
+      <div className="flex flex-col items-center justify-center py-24 text-center">
+        <BookOpen className="size-12 text-muted-foreground/30 mb-4" />
+        <h2 className="text-lg font-semibold">
+          {q ? 'No se encontraron cursos' : 'Próximamente habrá cursos disponibles'}
+        </h2>
+        <p className="text-muted-foreground text-sm mt-1">
+          {q ? 'Prueba con otro término de búsqueda.' : 'Vuelve pronto, estamos preparando el contenido.'}
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <>
+      <p className="text-sm text-muted-foreground mb-6">
+        {courses.length} {courses.length === 1 ? 'curso disponible' : 'cursos disponibles'}
+        {q ? ` para "${q}"` : ''}
+      </p>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {courses.map((course) => (
+          <CourseCard
+            key={course.id}
+            course={course}
+            enrolled={enrolledIds.has(course.id)}
+          />
+        ))}
+      </div>
+    </>
+  )
+}

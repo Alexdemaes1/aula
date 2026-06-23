@@ -1,23 +1,35 @@
 import Link from 'next/link'
+import { unstable_cache } from 'next/cache'
 import { getUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 import { Separator } from '@/components/ui/separator'
-import { BookOpen, LayoutDashboard, Settings } from 'lucide-react'
+import { LayoutDashboard, Settings } from 'lucide-react'
+
+function getCachedUserRole(userId: string) {
+  return unstable_cache(
+    async () => {
+      const supabase = createAdminClient()
+      const { data } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', userId)
+        .single()
+      return data?.role ?? null
+    },
+    [`profile-role-${userId}`],
+    { revalidate: 60, tags: [`profile-${userId}`] }
+  )()
+}
 
 export async function Navbar() {
   const user = await getUser()
   let isAdmin = false
 
   if (user) {
-    const supabase = createAdminClient()
-    const { data } = await supabase
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    isAdmin = data?.role === 'admin'
+    const role = await getCachedUserRole(user.id)
+    isAdmin = role === 'admin'
   }
 
   return (
@@ -49,8 +61,15 @@ export async function Navbar() {
             </>
           ) : (
             <>
-              <Link href="/login" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>Entrar</Link>
-              <Link href="/register" className={buttonVariants({ size: 'sm' })}>Regístrate</Link>
+              <Link href="/about" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                Sobre nosotros
+              </Link>
+              <Link href="/login" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                Entrar
+              </Link>
+              <Link href="/register" className={buttonVariants({ size: 'sm' })}>
+                Regístrate
+              </Link>
             </>
           )}
         </nav>

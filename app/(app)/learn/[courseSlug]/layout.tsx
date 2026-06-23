@@ -1,4 +1,9 @@
+import type { Metadata } from 'next'
 import { notFound, redirect } from 'next/navigation'
+
+export const metadata: Metadata = {
+  robots: { index: false, follow: false },
+}
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { LessonSidebar } from '@/components/lesson-sidebar'

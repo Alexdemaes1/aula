@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { BookOpen, ArrowRight } from 'lucide-react'
+import { BookOpen, ArrowRight, Trophy, Clock, CheckCircle, GraduationCap } from 'lucide-react'
 
 export const metadata = { title: 'Mis cursos' }
 
@@ -25,32 +25,66 @@ export default async function DashboardPage() {
   ])
 
   const firstName = profile?.full_name?.split(' ')[0] ?? null
-
   const courseIds = enrollments?.map((e) => (e.courses as any)?.id).filter(Boolean) ?? []
 
-  const progressData = await Promise.all(
-    courseIds.map(async (courseId) => {
-      const { data: lessons } = await db
-        .from('lessons')
-        .select('id')
-        .eq('course_id', courseId)
+  let progressMap = new Map<string, { total: number; done: number }>()
+  let totalWatchedSeconds = 0
+  let totalLessonsCompleted = 0
 
-      const { data: completed } = await db
-        .from('lesson_progress')
-        .select('id')
-        .eq('user_id', user.id)
-        .in('lesson_id', lessons?.map((l) => l.id) ?? [])
-        .eq('completed', true)
+  if (courseIds.length > 0) {
+    // Batch query: todas las lecciones de todos los cursos matriculados
+    const { data: allLessons } = await db
+      .from('lessons')
+      .select('id, course_id')
+      .in('course_id', courseIds)
 
-      return {
-        courseId,
-        total: lessons?.length ?? 0,
-        done: completed?.length ?? 0,
-      }
-    })
-  )
+    const allLessonIds = allLessons?.map((l) => l.id) ?? []
 
-  const progressMap = new Map(progressData.map((p) => [p.courseId, p]))
+    // Batch query: todo el progreso de esas lecciones
+    const { data: allProgress } = allLessonIds.length > 0
+      ? await db
+          .from('lesson_progress')
+          .select('lesson_id, watched_seconds, completed')
+          .eq('user_id', user.id)
+          .in('lesson_id', allLessonIds)
+      : { data: [] }
+
+    const progressByLesson = new Map(
+      (allProgress ?? []).map((p) => [p.lesson_id, p])
+    )
+
+    totalWatchedSeconds =
+      (allProgress ?? []).reduce((acc, p) => acc + (p.watched_seconds ?? 0), 0)
+    totalLessonsCompleted =
+      (allProgress ?? []).filter((p) => p.completed).length
+
+    // Agrupar lecciones por curso
+    const lessonsByCourse = new Map<string, string[]>()
+    for (const lesson of allLessons ?? []) {
+      const existing = lessonsByCourse.get(lesson.course_id) ?? []
+      existing.push(lesson.id)
+      lessonsByCourse.set(lesson.course_id, existing)
+    }
+
+    for (const courseId of courseIds) {
+      const lessonIds = lessonsByCourse.get(courseId) ?? []
+      const total = lessonIds.length
+      const done = lessonIds.filter((id) => progressByLesson.get(id)?.completed).length
+      progressMap.set(courseId, { total, done })
+    }
+  }
+
+  const coursesCompleted = courseIds.filter((id) => {
+    const prog = progressMap.get(id)
+    return prog && prog.total > 0 && prog.done === prog.total
+  }).length
+
+  const hoursLearned = Math.floor(totalWatchedSeconds / 3600)
+  const minutesLearned = Math.floor((totalWatchedSeconds % 3600) / 60)
+  const timeLabel =
+    hoursLearned > 0
+      ? `${hoursLearned}h ${minutesLearned}m`
+      : `${minutesLearned}m`
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
@@ -64,6 +98,28 @@ export default async function DashboardPage() {
             : 'Todavía no tienes ningún curso'}
         </p>
       </div>
+
+      {/* Estadísticas (solo si hay cursos) */}
+      {enrollments && enrollments.length > 0 && (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+          {[
+            { icon: GraduationCap, label: 'Cursos adquiridos', value: enrollments.length },
+            { icon: Trophy, label: 'Cursos completados', value: coursesCompleted },
+            { icon: CheckCircle, label: 'Lecciones vistas', value: totalLessonsCompleted },
+            { icon: Clock, label: 'Tiempo aprendiendo', value: timeLabel },
+          ].map(({ icon: Icon, label, value }) => (
+            <div key={label} className="rounded-xl border bg-card p-4 flex items-start gap-3">
+              <div className="size-9 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                <Icon className="size-4 text-primary" />
+              </div>
+              <div>
+                <p className="text-xl font-bold">{value}</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{label}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {!enrollments?.length ? (
         <div className="flex flex-col items-center justify-center py-24 text-center border rounded-xl border-dashed">

@@ -43,6 +43,7 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
 
   revalidatePath('/admin/courses')
   revalidatePath('/')
+
   redirect(`/admin/courses/${data.id}`)
 }
 
@@ -69,6 +70,7 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
   revalidatePath('/admin/courses')
   revalidatePath('/')
   revalidatePath(`/courses/${parsed.data.slug}`)
+
   return { success: 'Curso actualizado' }
 }
 
@@ -97,6 +99,7 @@ export async function deleteCourseAction(id: string) {
   await db.from('courses').delete().eq('id', id)
   revalidatePath('/admin/courses')
   revalidatePath('/')
+
   redirect('/admin/courses')
 }
 
@@ -124,6 +127,7 @@ export async function uploadCoverAction(courseId: string, formData: FormData) {
   await db.from('courses').update({ cover_url: urlData.publicUrl }).eq('id', courseId)
   revalidatePath('/admin/courses')
   revalidatePath('/')
+
   return { success: urlData.publicUrl }
 }
 

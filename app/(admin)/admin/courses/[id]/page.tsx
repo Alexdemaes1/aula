@@ -5,7 +5,7 @@ import { LessonManager } from '@/components/admin/lesson-manager'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { CoverUpload } from '@/components/admin/cover-upload'
 import { DeleteCourseButton } from '@/components/admin/delete-course-button'
-import { Badge } from '@/components/ui/badge'
+import { TogglePublishedButton } from '@/components/admin/toggle-published-button'
 
 interface PageProps {
   params: Promise<{ id: string }>
@@ -38,9 +38,7 @@ export default async function EditCoursePage({ params }: PageProps) {
           <h1 className="text-2xl font-bold">{course.title}</h1>
           <p className="text-muted-foreground text-sm">/{course.slug}</p>
         </div>
-        <Badge variant={course.is_published ? 'default' : 'outline'}>
-          {course.is_published ? 'Publicado' : 'Borrador'}
-        </Badge>
+        <TogglePublishedButton courseId={id} isPublished={course.is_published} />
         <div className="ml-auto">
           <DeleteCourseButton courseId={id} courseTitle={course.title} />
         </div>

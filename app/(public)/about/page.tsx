@@ -7,6 +7,41 @@ export const metadata = {
   description: 'Conoce el Centro Tian Ying Fa — más de 25 años fusionando la salud natural moderna con el legado de las disciplinas orientales de élite. Sifu Salvador Montiel.',
 }
 
+const localBusinessJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'HealthAndBeautyBusiness',
+  name: 'Centro Tian Ying Fa',
+  description:
+    'Centro de salud natural con más de 25 años de formación en Tai Ji Quan, Qi Gong, medicina natural y artes marciales chinas bajo la dirección del Sifu Salvador Montiel.',
+  url: 'https://aula-kappa-nine.vercel.app',
+  telephone: '+34696799639',
+  email: 'centrotianyingfa@gmail.com',
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: 'Av. del País Valencia 155-1',
+    addressLocality: 'Algemesí',
+    postalCode: '46680',
+    addressRegion: 'Valencia',
+    addressCountry: 'ES',
+  },
+  geo: {
+    '@type': 'GeoCoordinates',
+    latitude: 39.1856,
+    longitude: -0.4333,
+  },
+  openingHoursSpecification: [
+    {
+      '@type': 'OpeningHoursSpecification',
+      dayOfWeek: ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+      opens: '09:00',
+      closes: '21:00',
+    },
+  ],
+  priceRange: '€€',
+  currenciesAccepted: 'EUR',
+  paymentAccepted: 'Cash, Credit Card',
+}
+
 const VALUES = [
   {
     icon: Leaf,
@@ -28,6 +63,10 @@ const VALUES = [
 export default function AboutPage() {
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(localBusinessJsonLd) }}
+      />
       {/* Hero */}
       <section className="relative bg-brand-dark text-white overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,oklch(0.28_0.09_165/0.25),transparent)]" />

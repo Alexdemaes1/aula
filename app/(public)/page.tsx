@@ -107,11 +107,31 @@ const FAQ = [
   },
 ]
 
+const organizationJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'Tian Ying Fa',
+  url: 'https://aula-kappa-nine.vercel.app',
+  logo: 'https://aula-kappa-nine.vercel.app/logo.png',
+  description:
+    'Centro de cursos online de Tai Ji Quan, Qi Gong, meditación y medicina natural con el Sifu Salvador Montiel.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    telephone: '+34696799639',
+    contactType: 'customer service',
+    availableLanguage: 'Spanish',
+  },
+}
+
 export default async function HomePage({ searchParams }: PageProps) {
   const [{ q }, user] = await Promise.all([searchParams, getUser()])
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
       {!user && (
         <>
           {/* Hero */}

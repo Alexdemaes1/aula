@@ -79,9 +79,17 @@ export default async function LessonPage({ params }: PageProps) {
         <div className="flex flex-col items-center justify-center h-full p-8 text-center">
           <Lock className="size-12 text-muted-foreground/30 mb-4" />
           <h2 className="text-lg font-semibold mb-2">Lección bloqueada</h2>
-          <p className="text-muted-foreground text-sm">
+          <p className="text-muted-foreground text-sm mb-4">
             Completa la lección anterior para desbloquear esta.
           </p>
+          {lessonIndex > 0 && (
+            <a
+              href={`/learn/${courseSlug}/${allLessons[lessonIndex - 1].id}`}
+              className="text-sm text-primary underline hover:no-underline"
+            >
+              ← Ir a la lección anterior
+            </a>
+          )}
         </div>
       ) : (
         <div className="max-w-3xl mx-auto px-6 py-8 space-y-6">

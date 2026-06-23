@@ -68,7 +68,7 @@ export async function Navbar() {
               <Link href="/about" className={`${buttonVariants({ variant: 'ghost', size: 'sm' })} hidden sm:inline-flex`}>
                 El centro
               </Link>
-              <Link href="/#cursos" className={`${buttonVariants({ variant: 'ghost', size: 'sm' })} hidden sm:inline-flex`}>
+              <Link href="/cursos" className={`${buttonVariants({ variant: 'ghost', size: 'sm' })} hidden sm:inline-flex`}>
                 Cursos
               </Link>
               <Link href="/login" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>

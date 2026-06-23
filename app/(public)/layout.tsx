@@ -35,7 +35,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               </h4>
               <ul className="space-y-2.5 text-sm text-white/60">
                 <li>
-                  <Link href="/#cursos" className="hover:text-brand-gold transition-colors">
+                  <Link href="/cursos" className="hover:text-brand-gold transition-colors">
                     Cursos
                   </Link>
                 </li>

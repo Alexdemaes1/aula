@@ -24,7 +24,13 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               </p>
               <p className="text-xs text-white/30">
                 Av. del País Valencia 155-1, 46680 Algemesí, Valencia<br />
-                696 799 639 · centrotianyingfa@gmail.com
+                <a href="https://wa.me/34696799639" className="hover:text-brand-gold transition-colors" target="_blank" rel="noopener noreferrer">
+                  WhatsApp 696 799 639
+                </a>{' '}
+                ·{' '}
+                <a href="mailto:centrotianyingfa@gmail.com" className="hover:text-brand-gold transition-colors">
+                  centrotianyingfa@gmail.com
+                </a>
               </p>
             </div>
 

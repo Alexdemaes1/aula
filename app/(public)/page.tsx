@@ -169,7 +169,7 @@ export default async function HomePage({ searchParams }: PageProps) {
                     Ver cursos
                   </a>
                 </div>
-                <div className="grid grid-cols-4 gap-6 pt-6 border-t border-white/10">
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 pt-6 border-t border-white/10">
                   {[
                     { value: '25+', label: 'Años de experiencia' },
                     { value: '500+', label: 'Alumnos formados' },

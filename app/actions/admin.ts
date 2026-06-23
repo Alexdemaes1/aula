@@ -249,6 +249,7 @@ export async function toggleCoursePublishedAction(courseId: string, currentlyPub
   await db.from('courses').update({ is_published: !currentlyPublished }).eq('id', courseId)
   revalidatePath('/admin/courses')
   revalidatePath('/')
+  revalidatePath('/cursos')
   if (course?.slug) revalidatePath(`/courses/${course.slug}`)
 }
 

@@ -46,8 +46,11 @@ export async function POST(request: NextRequest) {
       stripe_session_id: session.id,
     })
 
-    // ON CONFLICT es idempotente — el campo stripe_session_id es UNIQUE
-    if (error && !error.message.includes('duplicate')) {
+    if (error) {
+      // Replay de Stripe: matrícula ya existe → idempotente, no notificar de nuevo
+      if (error.message.includes('duplicate') || error.code === '23505') {
+        return NextResponse.json({ received: true })
+      }
       console.error('[webhook] Error al matricular:', error)
       notify('🚨 Webhook Stripe — error al matricular', `${error.message}\nSession: ${session.id}`, { priority: 5, tags: ['rotating_light'] })
       return NextResponse.json({ error: 'Error al procesar' }, { status: 500 })

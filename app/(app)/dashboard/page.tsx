@@ -129,8 +129,8 @@ export default async function DashboardPage() {
           <p className="text-sm text-muted-foreground mb-4">
             Explora el catálogo y adquiere tu primer curso
           </p>
-          <Link href="/" className={buttonVariants()}>
-            Ver catálogo
+          <Link href="/cursos" className={buttonVariants()}>
+            Ver cursos
           </Link>
         </div>
       ) : (

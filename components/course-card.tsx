@@ -25,8 +25,9 @@ export function CourseCard({ course, enrolled }: CourseCardProps) {
               sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             />
           ) : (
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-primary/5">
-              <BookOpen className="size-12 text-primary/30" />
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-brand-dark to-brand-jade gap-2">
+              <span className="text-3xl text-brand-gold/60 font-heading">天</span>
+              <BookOpen className="size-6 text-white/20" />
             </div>
           )}
           {enrolled && (

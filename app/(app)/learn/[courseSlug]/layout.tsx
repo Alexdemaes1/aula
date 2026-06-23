@@ -65,6 +65,9 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
   })
 
   return (
+    <>
+      <link rel="preconnect" href="https://www.youtube-nocookie.com" />
+      <link rel="preconnect" href="https://i.ytimg.com" />
     <div className="flex h-screen overflow-hidden">
       <LessonSidebar
         courseSlug={courseSlug}
@@ -75,5 +78,6 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
         {children}
       </div>
     </div>
+    </>
   )
 }

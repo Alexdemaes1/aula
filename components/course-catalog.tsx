@@ -9,18 +9,14 @@ interface Props {
 }
 
 export async function CourseCatalog({ q, userId }: Props) {
-  const courses = await getPublishedCourses(q)
-
-  let enrolledIds = new Set<string>()
-  if (userId) {
-    const db = createAdminClient()
-    const { data: enrollments } = await db
-      .from('enrollments')
-      .select('course_id')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-    enrolledIds = new Set(enrollments?.map((e) => e.course_id) ?? [])
-  }
+  const db = createAdminClient()
+  const [courses, { data: enrollments }] = await Promise.all([
+    getPublishedCourses(q),
+    userId
+      ? db.from('enrollments').select('course_id').eq('user_id', userId).eq('status', 'active')
+      : Promise.resolve({ data: [] as { course_id: string }[] }),
+  ])
+  const enrolledIds = new Set(enrollments?.map((e) => e.course_id) ?? [])
 
   if (courses.length === 0) {
     return (

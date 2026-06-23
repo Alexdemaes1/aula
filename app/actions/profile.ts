@@ -21,5 +21,6 @@ export async function updateProfileAction(_prev: unknown, formData: FormData) {
 
   if (error) return { error: error.message }
   revalidatePath('/account')
+  revalidatePath('/dashboard')
   return { success: 'Nombre actualizado' }
 }

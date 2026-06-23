@@ -45,6 +45,7 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
 
   revalidatePath('/admin/courses')
   revalidatePath('/')
+  revalidatePath('/cursos')
 
   redirect(`/admin/courses/${data.id}`)
 }
@@ -72,6 +73,7 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
 
   revalidatePath('/admin/courses')
   revalidatePath('/')
+  revalidatePath('/cursos')
   revalidatePath(`/courses/${parsed.data.slug}`)
 
   return { success: 'Curso actualizado' }
@@ -102,6 +104,7 @@ export async function deleteCourseAction(id: string) {
   await db.from('courses').delete().eq('id', id)
   revalidatePath('/admin/courses')
   revalidatePath('/')
+  revalidatePath('/cursos')
 
   redirect('/admin/courses')
 }

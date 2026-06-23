@@ -6,7 +6,7 @@ import { z } from 'zod'
 
 const schema = z.object({
   lessonId: z.string().uuid(),
-  deltaSeconds: z.number().int().min(0).max(10),
+  deltaSeconds: z.number().int().min(0).max(15),
   position: z.number().int().min(0),
   reachedEnd: z.boolean(),
 })
@@ -43,8 +43,8 @@ export async function POST(request: NextRequest) {
   if (!enrollment) return NextResponse.json({ error: 'Sin acceso' }, { status: 403 })
 
   const prevWatched = current?.watched_seconds ?? 0
-  // Tope anti-inflado: máximo 6 s por tick de 5 s
-  const added = Math.min(deltaSeconds, 6)
+  // Tope anti-inflado: máximo 12 s por tick de 10 s
+  const added = Math.min(deltaSeconds, 12)
   const newWatched = prevWatched + added
   const completed =
     current?.completed ||

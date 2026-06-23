@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useCallback, useState } from 'react'
+import { useEffect, useRef, useCallback, useState, useId } from 'react'
 import { Progress } from '@/components/ui/progress'
 import { CheckCircle, Clock } from 'lucide-react'
 import { useRouter } from 'next/navigation'
@@ -50,8 +50,11 @@ export function YouTubePlayer({
   courseSlug,
   nextLessonId,
 }: YouTubePlayerProps) {
+  const uid = useId().replace(/:/g, '')
+  const playerId = `yt-player-${uid}`
   const playerRef = useRef<YouTubePlayerInstance | null>(null)
   const watchedRef = useRef(initialWatched)
+  const completedRef = useRef(initialCompleted)
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>(undefined)
   const [watched, setWatched] = useState(initialWatched)
   const [completed, setCompleted] = useState(initialCompleted)
@@ -69,7 +72,8 @@ export function YouTubePlayer({
           const data = await res.json()
           watchedRef.current = data.watchedSeconds
           setWatched(data.watchedSeconds)
-          if (data.completed && !completed) {
+          if (data.completed && !completedRef.current) {
+            completedRef.current = true
             setCompleted(true)
             router.refresh()
           }
@@ -78,11 +82,12 @@ export function YouTubePlayer({
         // silenciar errores de red
       }
     },
-    [lessonId, completed, router]
+    [lessonId, router]
   )
 
   useEffect(() => {
     watchedRef.current = initialWatched
+    completedRef.current = initialCompleted
     setWatched(initialWatched)
     setCompleted(initialCompleted)
   }, [lessonId, initialWatched, initialCompleted])
@@ -91,7 +96,7 @@ export function YouTubePlayer({
     let apiReady = false
 
     function initPlayer() {
-      playerRef.current = new window.YT.Player('yt-player', {
+      playerRef.current = new window.YT.Player(playerId, {
         videoId,
         playerVars: { rel: 0, modestbranding: 1, fs: 1 },
         events: {
@@ -104,9 +109,9 @@ export function YouTubePlayer({
               intervalRef.current = setInterval(() => {
                 if (document.visibilityState === 'visible' && playerRef.current) {
                   const pos = Math.floor(playerRef.current.getCurrentTime())
-                  sendHeartbeat(5, pos, false)
+                  sendHeartbeat(10, pos, false)
                 }
-              }, 5000)
+              }, 10000)
             }
 
             if (data === ENDED && playerRef.current) {
@@ -117,6 +122,18 @@ export function YouTubePlayer({
         },
       })
     }
+
+    function flushOnHide() {
+      if (document.visibilityState === 'hidden' && playerRef.current) {
+        const state = playerRef.current.getPlayerState()
+        const PLAYING = 1
+        if (state === PLAYING) {
+          const pos = Math.floor(playerRef.current.getCurrentTime())
+          sendHeartbeat(10, pos, false)
+        }
+      }
+    }
+    document.addEventListener('visibilitychange', flushOnHide)
 
     if (window.YT?.Player) {
       initPlayer()
@@ -131,17 +148,22 @@ export function YouTubePlayer({
 
     return () => {
       clearInterval(intervalRef.current)
+      document.removeEventListener('visibilitychange', flushOnHide)
       playerRef.current?.destroy()
     }
-  }, [videoId, sendHeartbeat])
+  }, [videoId, sendHeartbeat, playerId])
 
   const percent = minWatchSeconds > 0 ? Math.min(100, Math.round((watched / minWatchSeconds) * 100)) : 100
   const remaining = Math.max(0, minWatchSeconds - watched)
 
   return (
     <div className="space-y-3">
-      <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-        <div id="yt-player" className="w-full h-full" />
+      <div
+        className="aspect-video w-full rounded-xl overflow-hidden bg-black"
+        role="application"
+        aria-label="Reproductor de vídeo"
+      >
+        <div id={playerId} className="w-full h-full" />
       </div>
 
       {completed && (

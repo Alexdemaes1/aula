@@ -48,32 +48,34 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
   if (!course) notFound()
 
   let isEnrolled = false
-  let lessons: { id: string; title: string; position: number }[] = []
-
   const adminClient = createAdminClient()
 
-  // Siempre cargamos las lecciones (vista previa para no-matriculados, completo para matriculados)
-  const { data: allLessons } = await adminClient
-    .from('lessons')
-    .select('id, title, position')
-    .eq('course_id', course.id)
-    .order('position')
+  // Todas las queries en paralelo: lecciones (siempre), perfil+matrícula (solo si hay usuario)
+  const [{ data: allLessons }, profileData, enrollmentData] = await Promise.all([
+    adminClient
+      .from('lessons')
+      .select('id, title, position')
+      .eq('course_id', course.id)
+      .order('position'),
+    user
+      ? adminClient.from('profiles').select('role').eq('id', user.id).single()
+      : Promise.resolve({ data: null }),
+    user
+      ? adminClient
+          .from('enrollments')
+          .select('id')
+          .eq('user_id', user.id)
+          .eq('course_id', course.id)
+          .eq('status', 'active')
+          .maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
 
   if (user) {
-    const [{ data: profile }, { data: enrollment }] = await Promise.all([
-      adminClient.from('profiles').select('role').eq('id', user.id).single(),
-      adminClient
-        .from('enrollments')
-        .select('id')
-        .eq('user_id', user.id)
-        .eq('course_id', course.id)
-        .eq('status', 'active')
-        .maybeSingle(),
-    ])
-    isEnrolled = profile?.role === 'admin' || !!enrollment
+    isEnrolled = profileData.data?.role === 'admin' || !!enrollmentData.data
   }
 
-  lessons = allLessons ?? []
+  const lessons = allLessons ?? []
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -106,11 +108,25 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
     },
   }
 
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Inicio', item: SITE_URL },
+      { '@type': 'ListItem', position: 2, name: 'Cursos', item: `${SITE_URL}/cursos` },
+      { '@type': 'ListItem', position: 3, name: course.title, item: `${SITE_URL}/courses/${course.slug}` },
+    ],
+  }
+
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
       <div className="max-w-5xl mx-auto px-4 sm:px-6 py-10">
         <Breadcrumbs

@@ -23,6 +23,7 @@ export function AdminNav() {
           <Link
             key={href}
             href={href}
+            aria-current={isActive ? 'page' : undefined}
             className={cn(
               'flex items-center gap-2.5 px-3 py-2 text-sm rounded-md transition-colors',
               isActive

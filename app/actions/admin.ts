@@ -16,6 +16,7 @@ const courseSchema = z.object({
   price_cents: z.coerce.number().int().min(0),
   currency: z.string().default('eur'),
   is_published: z.coerce.boolean().default(false),
+  cover_url: z.string().url('URL de imagen inválida').optional().or(z.literal('')).transform(v => v || null),
 })
 
 export async function createCourseAction(_prev: unknown, formData: FormData) {
@@ -30,6 +31,7 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
     is_published: formData.get('is_published') === 'true',
+    cover_url: String(formData.get('cover_url') ?? ''),
   }
 
   const parsed = courseSchema.safeParse(raw)
@@ -59,6 +61,7 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
     is_published: formData.get('is_published') === 'true',
+    cover_url: String(formData.get('cover_url') ?? ''),
   }
 
   const parsed = courseSchema.safeParse(raw)

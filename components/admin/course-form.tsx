@@ -111,6 +111,18 @@ export function CourseForm({ course }: CourseFormProps) {
         </div>
       </div>
 
+      <div className="space-y-2">
+        <Label htmlFor="cover_url">URL de imagen de portada</Label>
+        <Input
+          id="cover_url"
+          name="cover_url"
+          type="url"
+          defaultValue={course?.cover_url ?? ''}
+          placeholder="https://ejemplo.com/imagen.jpg"
+        />
+        <p className="text-xs text-muted-foreground">Opcional. Imagen en formato 16:9 (ej: 1280×720 px).</p>
+      </div>
+
       <div className="flex items-center gap-3">
         <Switch
           id="is_published"

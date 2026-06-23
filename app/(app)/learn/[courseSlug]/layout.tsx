@@ -26,17 +26,16 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
 
   if (!course) notFound()
 
-  // Verificar matrícula
-  const { data: enrollment } = await db
-    .from('enrollments')
-    .select('id')
-    .eq('user_id', user.id)
-    .eq('course_id', course.id)
-    .eq('status', 'active')
-    .maybeSingle()
-
-  // Admin puede ver sin matrícula
-  const { data: profile } = await db.from('profiles').select('role').eq('id', user.id).single()
+  const [{ data: enrollment }, { data: profile }] = await Promise.all([
+    db
+      .from('enrollments')
+      .select('id')
+      .eq('user_id', user.id)
+      .eq('course_id', course.id)
+      .eq('status', 'active')
+      .maybeSingle(),
+    db.from('profiles').select('role').eq('id', user.id).single(),
+  ])
   const isAdmin = profile?.role === 'admin'
 
   if (!enrollment && !isAdmin) {

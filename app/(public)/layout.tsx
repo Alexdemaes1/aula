@@ -7,8 +7,8 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       <Navbar />
       <main className="flex-1">{children}</main>
       <footer className="border-t bg-brand-dark text-white">
-        <div className="max-w-7xl mx-auto px-6 py-14">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* Brand */}
             <div className="lg:col-span-2">
               <div className="flex items-center gap-2.5 mb-4">
@@ -81,7 +81,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             </div>
           </div>
 
-          <div className="border-t border-white/10 mt-12 pt-6 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/30">
+          <div className="border-t border-white/10 mt-8 pt-4 flex flex-col sm:flex-row justify-between items-center gap-3 text-xs text-white/30">
             <span>© {new Date().getFullYear()} Centro Tian Ying Fa. Todos los derechos reservados.</span>
             <span className="font-heading italic text-white/20">天鹰发</span>
           </div>

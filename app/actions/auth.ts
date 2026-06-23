@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { notify } from '@/lib/notify'
 
 const loginSchema = z.object({
@@ -58,7 +59,7 @@ export async function registerAction(
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({
+  const { data: signUpData, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
@@ -69,6 +70,14 @@ export async function registerAction(
 
   if (error) {
     return { error: error.message }
+  }
+
+  // Guardar nombre explícitamente; el trigger de DB puede no copiarlo de user_metadata
+  if (signUpData.user?.id) {
+    const admin = createAdminClient()
+    await admin
+      .from('profiles')
+      .upsert({ id: signUpData.user.id, full_name: parsed.data.full_name }, { onConflict: 'id' })
   }
 
   notify('👤 Nuevo registro', `${parsed.data.email} (${parsed.data.full_name})`, {

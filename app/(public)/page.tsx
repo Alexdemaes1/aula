@@ -107,8 +107,7 @@ const FAQ = [
 ]
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const { q } = await searchParams
-  const user = await getUser()
+  const [{ q }, user] = await Promise.all([searchParams, getUser()])
 
   return (
     <>

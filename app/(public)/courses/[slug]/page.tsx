@@ -42,11 +42,12 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function CourseDetailPage({ params, searchParams }: PageProps) {
-  const { slug } = await params
-  const { compra } = await searchParams
-
-  const supabase = await createClient()
-  const user = await getUser()
+  const [{ slug }, { compra }, supabase, user] = await Promise.all([
+    params,
+    searchParams,
+    createClient(),
+    getUser(),
+  ])
 
   const { data: course } = await supabase
     .from('courses')
@@ -62,25 +63,17 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
 
   if (user) {
     const adminClient = createAdminClient()
-    const { data: profile } = await adminClient
-      .from('profiles')
-      .select('role')
-      .eq('id', user.id)
-      .single()
-    const isAdmin = profile?.role === 'admin'
-
-    if (isAdmin) {
-      isEnrolled = true
-    } else {
-      const { data: enrollment } = await adminClient
+    const [{ data: profile }, { data: enrollment }] = await Promise.all([
+      adminClient.from('profiles').select('role').eq('id', user.id).single(),
+      adminClient
         .from('enrollments')
         .select('id')
         .eq('user_id', user.id)
         .eq('course_id', course.id)
         .eq('status', 'active')
-        .maybeSingle()
-      isEnrolled = !!enrollment
-    }
+        .maybeSingle(),
+    ])
+    isEnrolled = profile?.role === 'admin' || !!enrollment
 
     if (isEnrolled) {
       const { data } = await adminClient

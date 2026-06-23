@@ -154,15 +154,16 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                 <h2 className="font-semibold mb-3">Contenido del curso</h2>
                 <div className="space-y-1">
                   {lessons.map((lesson, i) => (
-                    <div
+                    <Link
                       key={lesson.id}
-                      className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50"
+                      href={`/learn/${course.slug}/${lesson.id}`}
+                      className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors group"
                     >
                       <span className="size-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium flex-shrink-0">
                         {i + 1}
                       </span>
-                      <span className="text-sm">{lesson.title}</span>
-                    </div>
+                      <span className="text-sm group-hover:underline">{lesson.title}</span>
+                    </Link>
                   ))}
                 </div>
               </div>

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
@@ -145,15 +146,18 @@ export default async function DashboardPage() {
               <Card key={e.id} className="overflow-hidden">
                 {course.cover_url ? (
                   <div className="aspect-video relative overflow-hidden bg-muted">
-                    <img
+                    <Image
                       src={course.cover_url}
                       alt={course.title}
-                      className="object-cover w-full h-full"
+                      fill
+                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
                     />
                   </div>
                 ) : (
-                  <div className="aspect-video bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                    <BookOpen className="size-10 text-primary/20" />
+                  <div className="aspect-video bg-gradient-to-br from-brand-dark to-brand-jade flex flex-col items-center justify-center gap-2">
+                    <span className="text-2xl text-brand-gold/60 font-heading">天</span>
+                    <BookOpen className="size-5 text-white/20" />
                   </div>
                 )}
                 <CardContent className="p-4 space-y-3">

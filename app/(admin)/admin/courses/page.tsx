@@ -1,10 +1,10 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buttonVariants } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Plus, Pencil } from 'lucide-react'
 import { formatPrice, formatDate } from '@/lib/utils/format'
+import { TogglePublishedButton } from '@/components/admin/toggle-published-button'
 
 export const metadata = { title: 'Cursos — Admin' }
 
@@ -57,9 +57,7 @@ export default async function AdminCoursesPage() {
                   <TableCell>{formatPrice(c.price_cents, c.currency)}</TableCell>
                   <TableCell>{c.lesson_count}</TableCell>
                   <TableCell>
-                    <Badge variant={c.is_published ? 'default' : 'outline'}>
-                      {c.is_published ? 'Publicado' : 'Borrador'}
-                    </Badge>
+                    <TogglePublishedButton courseId={c.id} isPublished={c.is_published} />
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm">{formatDate(c.created_at)}</TableCell>
                   <TableCell>

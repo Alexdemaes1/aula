@@ -242,6 +242,16 @@ export async function removeNotesAction(lessonId: string, courseId: string, path
   revalidatePath(`/admin/courses/${courseId}`)
 }
 
+export async function toggleCoursePublishedAction(courseId: string, currentlyPublished: boolean) {
+  await requireAdmin()
+  const db = createAdminClient()
+  const { data: course } = await db.from('courses').select('slug').eq('id', courseId).single()
+  await db.from('courses').update({ is_published: !currentlyPublished }).eq('id', courseId)
+  revalidatePath('/admin/courses')
+  revalidatePath('/')
+  if (course?.slug) revalidatePath(`/courses/${course.slug}`)
+}
+
 // ── Usuarios ───────────────────────────────────────────────
 
 export async function updateUserRoleAction(userId: string, role: 'admin' | 'student') {

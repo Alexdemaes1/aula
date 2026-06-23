@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { BuyButton } from '@/components/buy-button'
 import { Breadcrumbs } from '@/components/breadcrumbs'
+import { PurchaseSuccessBanner } from '@/components/purchase-success-banner'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/utils/format'
 import { BookOpen, CheckCircle, Clock, Lock } from 'lucide-react'
@@ -108,9 +109,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
         />
 
         {compra === 'ok' && !isEnrolled && (
-          <div className="mb-6 rounded-lg bg-green-50 border border-green-200 px-4 py-3 text-sm text-green-800">
-            Pago recibido. Tu acceso se activará en unos segundos — recarga si no aparece el botón.
-          </div>
+          <PurchaseSuccessBanner courseId={course.id} />
         )}
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">

@@ -40,6 +40,11 @@ export const metadata: Metadata = {
     locale: 'es_ES',
     siteName: 'Tian Ying Fa',
   },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@tianyingfa',
+    creator: '@tianyingfa',
+  },
 }
 
 export default function RootLayout({

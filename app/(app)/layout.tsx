@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { requireUser } from '@/lib/auth'
 import { LogoutButton } from '@/components/logout-button'
 import { Separator } from '@/components/ui/separator'
@@ -13,7 +14,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <header className="sticky top-0 z-10 bg-background border-b">
         <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/dashboard" className="flex items-center gap-2">
-            <img src="/logo.png" alt="Tian Ying Fa" className="size-7 object-contain" />
+            <Image src="/logo.png" alt="Tian Ying Fa" width={28} height={28} className="size-7 object-contain" priority />
             <span className="font-semibold text-sm font-heading">Tian Ying Fa</span>
           </Link>
           <div className="flex items-center gap-3">

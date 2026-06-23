@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
@@ -11,7 +12,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         <div className="relative">
           <Link href="/" className="flex items-center gap-3">
-            <img src="/logo.png" alt="Tian Ying Fa" className="size-10 object-contain" />
+            <Image src="/logo.png" alt="Tian Ying Fa" width={40} height={40} className="size-10 object-contain" />
             <div>
               <span className="font-bold text-lg tracking-tight block font-heading">Tian Ying Fa</span>
               <span className="text-[10px] text-brand-gold/80 tracking-widest uppercase">Centro de salud natural</span>
@@ -48,7 +49,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           {/* Logo móvil */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <img src="/logo.png" alt="Tian Ying Fa" className="size-8 object-contain" />
+              <Image src="/logo.png" alt="Tian Ying Fa" width={32} height={32} className="size-8 object-contain" />
               <span className="font-bold text-lg tracking-tight font-heading">Tian Ying Fa</span>
             </Link>
           </div>

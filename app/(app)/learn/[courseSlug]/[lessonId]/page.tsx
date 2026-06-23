@@ -22,18 +22,15 @@ export async function generateMetadata({ params }: PageProps) {
 }
 
 export default async function LessonPage({ params }: PageProps) {
-  const { courseSlug, lessonId } = await params
-  const user = await requireUser()
+  const [{ courseSlug, lessonId }, user] = await Promise.all([params, requireUser()])
   const db = createAdminClient()
 
-  const { data: course } = await db
-    .from('courses')
-    .select('id, title, slug')
-    .eq('slug', courseSlug)
-    .single()
+  const [{ data: course }, { data: profile }] = await Promise.all([
+    db.from('courses').select('id, title, slug').eq('slug', courseSlug).single(),
+    db.from('profiles').select('role').eq('id', user.id).single(),
+  ])
   if (!course) notFound()
 
-  const { data: profile } = await db.from('profiles').select('role').eq('id', user.id).single()
   const isAdmin = profile?.role === 'admin'
 
   if (!isAdmin) {

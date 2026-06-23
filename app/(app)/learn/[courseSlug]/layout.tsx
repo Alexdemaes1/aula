@@ -6,6 +6,7 @@ export const metadata: Metadata = {
 }
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole } from '@/lib/data/learn'
 import { LessonSidebar } from '@/components/lesson-sidebar'
 
 interface LayoutProps {
@@ -18,43 +19,32 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
   const user = await requireUser()
   const db = createAdminClient()
 
-  const { data: course } = await db
-    .from('courses')
-    .select('id, title, slug')
-    .eq('slug', courseSlug)
-    .single()
-
+  const course = await getCourseBySlug(courseSlug)
   if (!course) notFound()
 
-  const [{ data: enrollment }, { data: profile }] = await Promise.all([
+  const [enrollment, role, lessons, allProgress] = await Promise.all([
     db
       .from('enrollments')
       .select('id')
       .eq('user_id', user.id)
       .eq('course_id', course.id)
       .eq('status', 'active')
-      .maybeSingle(),
-    db.from('profiles').select('role').eq('id', user.id).single(),
+      .maybeSingle()
+      .then((r) => r.data),
+    getUserRole(user.id),
+    getLessonsByCourse(course.id),
+    getLessonProgress(user.id),
   ])
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = role === 'admin'
 
   if (!enrollment && !isAdmin) {
     redirect(`/courses/${courseSlug}`)
   }
 
-  // Lecciones con progreso
-  const [{ data: lessons }, { data: progresses }] = await Promise.all([
-    db.from('lessons').select('id, title, position').eq('course_id', course.id).order('position'),
-    db
-      .from('lesson_progress')
-      .select('lesson_id, completed')
-      .eq('user_id', user.id),
-  ])
+  const progressMap = new Map(allProgress.map((p) => [p.lesson_id, p.completed]))
 
-  const progressMap = new Map(progresses?.map((p) => [p.lesson_id, p.completed]) ?? [])
-
-  const sidebarLessons = (lessons ?? []).map((lesson, idx) => {
-    const prevCompleted = idx === 0 || progressMap.get((lessons ?? [])[idx - 1]?.id) === true
+  const sidebarLessons = lessons.map((lesson, idx) => {
+    const prevCompleted = idx === 0 || progressMap.get(lessons[idx - 1]?.id) === true
     return {
       id: lesson.id,
       title: lesson.title,

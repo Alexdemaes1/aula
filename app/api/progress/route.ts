@@ -24,15 +24,15 @@ export async function POST(request: NextRequest) {
 
   const adminClient = createAdminClient()
 
-  // Verificar matrícula
-  const { data: lesson } = await adminClient
-    .from('lessons')
-    .select('course_id, min_watch_seconds')
-    .eq('id', lessonId)
-    .single()
+  // Paralelo: lesson data + progreso actual (ambos solo necesitan lessonId + userId)
+  const [{ data: lesson }, { data: current }] = await Promise.all([
+    adminClient.from('lessons').select('course_id, min_watch_seconds').eq('id', lessonId).single(),
+    adminClient.from('lesson_progress').select('watched_seconds, completed').eq('user_id', user.id).eq('lesson_id', lessonId).maybeSingle(),
+  ])
 
   if (!lesson) return NextResponse.json({ error: 'Lección no encontrada' }, { status: 404 })
 
+  // Verificar matrícula (necesita lesson.course_id)
   const { data: enrollment } = await adminClient
     .from('enrollments')
     .select('id')
@@ -42,14 +42,6 @@ export async function POST(request: NextRequest) {
     .maybeSingle()
 
   if (!enrollment) return NextResponse.json({ error: 'Sin acceso' }, { status: 403 })
-
-  // Obtener progreso actual
-  const { data: current } = await adminClient
-    .from('lesson_progress')
-    .select('watched_seconds, completed')
-    .eq('user_id', user.id)
-    .eq('lesson_id', lessonId)
-    .maybeSingle()
 
   const prevWatched = current?.watched_seconds ?? 0
   // Tope anti-inflado: máximo 6 s por tick de 5 s

@@ -176,7 +176,14 @@ export default function AboutPage() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground mt-8">
-            Horario: L–V 9:00–21:00 · Tel/WhatsApp: 696 799 639 · centrotianyingfa@gmail.com
+            Horario: L–V 9:00–21:00 ·{' '}
+            <a href="https://wa.me/34696799639" className="hover:text-foreground transition-colors" target="_blank" rel="noopener noreferrer">
+              WhatsApp 696 799 639
+            </a>{' '}
+            ·{' '}
+            <a href="mailto:centrotianyingfa@gmail.com" className="hover:text-foreground transition-colors">
+              centrotianyingfa@gmail.com
+            </a>
           </p>
         </div>
       </section>
@@ -198,7 +205,7 @@ export default function AboutPage() {
             >
               Crear cuenta gratis
             </Link>
-            <Link href="/#cursos" className={`inline-flex items-center justify-center text-base px-8 h-11 rounded-md border border-white/20 text-white hover:bg-white/5 transition-colors`}>
+            <Link href="/cursos" className={`inline-flex items-center justify-center text-base px-8 h-11 rounded-md border border-white/20 text-white hover:bg-white/5 transition-colors`}>
               Ver cursos
             </Link>
           </div>

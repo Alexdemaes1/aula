@@ -12,6 +12,7 @@ export default async function Image() {
 
   return new ImageResponse(
     (
+      // Satori: todo div con varios hijos necesita display:flex explícito
       <div
         style={{
           background: '#0f2e25',
@@ -22,72 +23,45 @@ export default async function Image() {
           alignItems: 'flex-start',
           justifyContent: 'center',
           padding: '80px',
-          position: 'relative',
         }}
       >
-        {/* Glow sutil */}
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            background:
-              'radial-gradient(ellipse 60% 60% at 80% 50%, rgba(185,143,53,0.08) 0%, transparent 70%)',
-          }}
-        />
-
         {/* Logo + nombre */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '40px' }}>
-          <img src={logoSrc} width={80} height={80} style={{ objectFit: 'contain' }} />
-          <div style={{ display: 'flex', flexDirection: 'column' }}>
-            <span style={{ color: 'white', fontSize: '32px', fontWeight: 700, letterSpacing: '-0.5px' }}>
+          <img src={logoSrc} width={72} height={72} style={{ objectFit: 'contain' }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <span style={{ color: 'white', fontSize: '30px', fontWeight: 700 }}>
               Tian Ying Fa
             </span>
-            <span style={{ color: 'rgba(185,143,53,0.8)', fontSize: '13px', letterSpacing: '4px', textTransform: 'uppercase' }}>
-              Centro de salud natural
+            <span style={{ color: 'rgba(185,143,53,0.8)', fontSize: '12px', letterSpacing: '4px' }}>
+              CENTRO DE SALUD NATURAL
             </span>
           </div>
         </div>
 
-        {/* Línea separadora dorada */}
-        <div style={{ width: '48px', height: '2px', background: 'rgba(185,143,53,0.5)', marginBottom: '32px' }} />
+        {/* Línea dorada */}
+        <div style={{ display: 'flex', width: '48px', height: '2px', background: 'rgba(185,143,53,0.5)', marginBottom: '32px' }} />
 
-        {/* Headline */}
-        <div
-          style={{
-            color: 'white',
-            fontSize: '56px',
-            fontWeight: 700,
-            lineHeight: 1.1,
-            maxWidth: '720px',
-            marginBottom: '20px',
-          }}
-        >
-          Transforma tu cuerpo,{' '}
-          <span style={{ color: '#B98F35' }}>mente y energía.</span>
+        {/* Headline — dos spans en flex para evitar nodos de texto mixtos */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', maxWidth: '760px', marginBottom: '20px' }}>
+          <span style={{ color: 'white', fontSize: '54px', fontWeight: 700, lineHeight: 1.1 }}>
+            Transforma tu cuerpo,&nbsp;
+          </span>
+          <span style={{ color: '#B98F35', fontSize: '54px', fontWeight: 700, lineHeight: 1.1 }}>
+            mente y energía.
+          </span>
         </div>
 
         {/* Subtítulo */}
-        <div
-          style={{
-            color: 'rgba(255,255,255,0.55)',
-            fontSize: '24px',
-            maxWidth: '640px',
-          }}
-        >
-          Tai Ji · Qi Gong · Meditación · Medicina Natural
+        <div style={{ display: 'flex' }}>
+          <span style={{ color: 'rgba(255,255,255,0.55)', fontSize: '24px' }}>
+            Tai Ji · Qi Gong · Meditación · Medicina Natural
+          </span>
         </div>
 
         {/* Stats */}
         <div style={{ display: 'flex', gap: '48px', marginTop: '48px' }}>
-          {[
-            ['25+', 'Años'],
-            ['500+', 'Alumnos'],
-            ['8', 'Disciplinas'],
-          ].map(([v, l]) => (
-            <div key={l} style={{ display: 'flex', flexDirection: 'column' }}>
+          {[['25+', 'Años'], ['500+', 'Alumnos'], ['8', 'Disciplinas']].map(([v, l]) => (
+            <div key={l} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
               <span style={{ color: '#B98F35', fontSize: '28px', fontWeight: 700 }}>{v}</span>
               <span style={{ color: 'rgba(255,255,255,0.35)', fontSize: '14px' }}>{l}</span>
             </div>

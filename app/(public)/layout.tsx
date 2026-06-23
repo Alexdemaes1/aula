@@ -7,7 +7,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1">{children}</main>
+      <main id="main-content" className="flex-1">{children}</main>
       <WhatsAppButton />
       <footer className="border-t bg-brand-dark text-white">
         <div className="max-w-7xl mx-auto px-6 py-8">

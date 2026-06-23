@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'Política de cookies',
-  description: 'Política de cookies de Aula — qué cookies usamos y para qué.',
+  description: 'Política de cookies de Tian Ying Fa — qué cookies usamos y para qué.',
 }
 
 export default function CookiesPage() {

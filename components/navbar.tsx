@@ -19,7 +19,7 @@ function getCachedUserRole(userId: string) {
       return data?.role ?? null
     },
     [`profile-role-${userId}`],
-    { revalidate: 60, tags: [`profile-${userId}`] }
+    { revalidate: 60 }
   )()
 }
 
@@ -35,9 +35,12 @@ export async function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <img src="/logo.png" alt="Aula" className="size-8 object-contain" />
-          <span className="font-bold text-lg tracking-tight">Aula</span>
+        <Link href="/" className="flex items-center gap-2.5">
+          <img src="/logo.png" alt="Tian Ying Fa" className="size-8 object-contain" />
+          <div className="leading-tight">
+            <span className="font-bold text-sm tracking-tight font-heading block">Tian Ying Fa</span>
+            <span className="text-[9px] text-muted-foreground tracking-widest uppercase hidden sm:block">Centro de salud natural</span>
+          </div>
         </Link>
 
         <nav className="flex items-center gap-1">
@@ -45,7 +48,7 @@ export async function Navbar() {
             <>
               <Link href="/dashboard" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
                 <LayoutDashboard className="size-4 mr-1.5" />
-                Mis cursos
+                Mi formación
               </Link>
               {isAdmin && (
                 <>
@@ -62,13 +65,16 @@ export async function Navbar() {
           ) : (
             <>
               <Link href="/about" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
-                Sobre nosotros
+                El centro
+              </Link>
+              <Link href="/#cursos" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                Cursos
               </Link>
               <Link href="/login" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
                 Entrar
               </Link>
               <Link href="/register" className={buttonVariants({ size: 'sm' })}>
-                Regístrate
+                Comenzar
               </Link>
             </>
           )}

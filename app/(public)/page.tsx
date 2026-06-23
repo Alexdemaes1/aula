@@ -3,12 +3,12 @@ import Link from 'next/link'
 import { getUser } from '@/lib/auth'
 import { CatalogSearch } from '@/components/catalog-search'
 import { CourseCatalog } from '@/components/course-catalog'
-import { Leaf, Brain, Heart, Video, FileDown, Award } from 'lucide-react'
+import { Brain, Leaf, Heart, Video, Shield, Flame } from 'lucide-react'
 
 export const metadata = {
-  title: 'Aula — Cursos de meditación y vida saludable',
+  title: 'Tian Ying Fa — Tai Ji, Qi Gong y Medicina Natural',
   description:
-    'Aprende meditación, mindfulness y hábitos saludables con cursos en vídeo de instructores expertos. Acceso vitalicio, sin suscripción.',
+    'Cursos online de Tai Ji Quan, Qi Gong, meditación y medicina natural con el Sifu Salvador Montiel. Más de 25 años formando en la tradición oriental de élite.',
 }
 
 interface PageProps {
@@ -19,9 +19,9 @@ function CatalogSkeleton() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="rounded-xl border bg-card overflow-hidden animate-pulse">
+        <div key={i} className="rounded-lg border bg-card overflow-hidden animate-pulse">
           <div className="aspect-video bg-muted" />
-          <div className="p-4 space-y-3">
+          <div className="p-5 space-y-3">
             <div className="h-5 bg-muted rounded w-3/4" />
             <div className="h-4 bg-muted rounded w-1/2" />
             <div className="h-9 bg-muted rounded" />
@@ -35,74 +35,74 @@ function CatalogSkeleton() {
 const FEATURES = [
   {
     icon: Brain,
-    title: 'Meditación guiada',
-    desc: 'Técnicas probadas para calmar la mente y reducir el estrés en el día a día.',
+    title: 'Tai Ji Quan',
+    desc: 'La práctica ancestral que armoniza cuerpo y mente a través del movimiento consciente y la respiración.',
   },
   {
     icon: Leaf,
-    title: 'Vida saludable',
-    desc: 'Hábitos que transforman tu bienestar físico y mental de forma duradera.',
+    title: 'Qi Gong',
+    desc: 'Ejercicios energéticos para cultivar el qi vital, fortalecer el sistema inmune y reducir el estrés profundo.',
   },
   {
     icon: Heart,
-    title: 'Bienestar integral',
-    desc: 'Un enfoque holístico que cuida tu cuerpo, tu mente y tu espíritu.',
+    title: 'Meditación y paz mental',
+    desc: 'Técnicas orientales de introspección para transformar tu relación con la mente y encontrar el equilibrio.',
+  },
+  {
+    icon: Flame,
+    title: 'Medicina natural',
+    desc: 'Fundamentos de medicina tradicional china y salud natural aplicados al bienestar cotidiano.',
+  },
+  {
+    icon: Shield,
+    title: 'Artes marciales chinas',
+    desc: 'Kung Fu, defensa personal y disciplina marcial bajo la guía directa del Sifu Salvador Montiel.',
   },
   {
     icon: Video,
-    title: 'Vídeo HD on demand',
-    desc: 'Aprende cuando quieras, desde donde quieras, al ritmo que más te convenga.',
-  },
-  {
-    icon: FileDown,
-    title: 'Apuntes descargables',
-    desc: 'PDFs con resúmenes y ejercicios para reforzar el aprendizaje fuera de pantalla.',
-  },
-  {
-    icon: Award,
-    title: 'Certificado de finalización',
-    desc: 'Acredita tu formación con un certificado oficial de Aula al completar el curso.',
+    title: 'Formación online HD',
+    desc: 'Aprende desde cualquier lugar y a tu ritmo, con acceso vitalicio y materiales descargables.',
   },
 ]
 
 const TESTIMONIALS = [
   {
-    body: 'Los cursos de meditación de Aula han cambiado completamente mi manera de gestionar el estrés. En tres semanas noté una diferencia enorme.',
-    name: 'María González',
-    role: 'Psicóloga clínica',
+    body: 'Llevo practicando Qi Gong con el Sifu Montiel casi un año. La claridad mental que he ganado es difícil de describir. Los cursos online tienen la misma presencia que en persona.',
+    name: 'Ana Ferrer',
+    role: 'Médica de familia, Valencia',
   },
   {
-    body: 'La calidad del contenido es excepcional. Los vídeos son claros, los apuntes muy completos y la plataforma es muy fácil de usar.',
-    name: 'Carlos Martínez',
-    role: 'Ingeniero de software',
+    body: 'El programa para ejecutivos me cambió la vida. Aprendí a gestionar el estrés con herramientas reales que uso cada mañana. La inversión más valiosa que he hecho.',
+    name: 'Marcos Ruiz',
+    role: 'Director financiero, Madrid',
   },
   {
-    body: 'Llevo años buscando un curso de alimentación consciente que fuera práctico y cercano. Por fin lo encontré. Totalmente recomendable.',
-    name: 'Laura Sánchez',
-    role: 'Nutricionista',
+    body: 'Empecé con el Tai Ji sin saber nada. La metodología del Sifu es excepcional — técnica impecable y una paciencia infinita. Mi cuerpo y mi mente son otro.',
+    name: 'Carmen López',
+    role: 'Enfermera, Algemesí',
   },
 ]
 
 const FAQ = [
   {
+    q: '¿Necesito tener experiencia previa en artes marciales o meditación?',
+    a: 'No es necesario. Todos nuestros cursos están diseñados desde cero. El Sifu Montiel lleva más de 25 años enseñando a personas de todo nivel y condición.',
+  },
+  {
     q: '¿Cuánto tiempo tengo acceso a los cursos?',
-    a: 'El acceso es de por vida. Una vez adquieres un curso, puedes verlo las veces que quieras, sin fecha de caducidad.',
+    a: 'El acceso es de por vida. Una vez adquieres un curso, puedes revisarlo todas las veces que necesites, sin fecha de caducidad.',
   },
   {
-    q: '¿Necesito conocimientos previos?',
-    a: 'No. Todos nuestros cursos están diseñados para cualquier nivel. Cada curso indica claramente su nivel de dificultad.',
+    q: '¿Puedo practicar aunque no tenga mucho espacio en casa?',
+    a: 'Sí. El Tai Ji, el Qi Gong y la meditación pueden practicarse en espacios reducidos. Con un par de metros cuadrados es más que suficiente para comenzar.',
   },
   {
-    q: '¿Puedo descargar los vídeos?',
-    a: 'Los vídeos se visualizan en streaming. Sí puedes descargar los apuntes PDF de cada lección.',
+    q: '¿Hay alguna suscripción mensual?',
+    a: 'No. Cada curso se compra con un pago único y el acceso es vitalicio. Sin cargos recurrentes ni sorpresas.',
   },
   {
-    q: '¿Hay algún tipo de suscripción?',
-    a: 'No. Cada curso se compra de forma independiente con un pago único. Sin sorpresas ni cargos recurrentes.',
-  },
-  {
-    q: '¿Puedo pedir reembolso?',
-    a: 'Sí, tienes 14 días desde la compra para solicitar un reembolso completo si no estás satisfecho.',
+    q: '¿Puedo combinar los cursos con sesiones presenciales en el centro?',
+    a: 'Sí. Los cursos online son perfectamente complementarios a las clases presenciales en nuestro centro de Algemesí (Valencia).',
   },
 ]
 
@@ -115,76 +115,103 @@ export default async function HomePage({ searchParams }: PageProps) {
       {!user && (
         <>
           {/* Hero */}
-          <section className="relative bg-slate-900 text-white overflow-hidden">
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,rgba(217,166,72,0.15),transparent)]" />
-            <div className="relative max-w-4xl mx-auto px-6 py-24 sm:py-32 text-center">
-              <div className="flex justify-center mb-8">
-                <img
-                  src="/logo.png"
-                  alt="Aula"
-                  className="size-24 object-contain drop-shadow-2xl"
-                />
+          <section className="relative bg-brand-dark text-white overflow-hidden">
+            {/* Gradiente sutil tipo pintura china */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_30%_50%,oklch(0.28_0.09_165/0.25),transparent)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_60%_at_80%_50%,oklch(0.72_0.14_85/0.08),transparent)]" />
+            <div className="relative max-w-6xl mx-auto px-6 py-24 sm:py-36 grid lg:grid-cols-2 gap-12 items-center">
+              {/* Contenido */}
+              <div>
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-gold/30 bg-brand-gold/10 text-brand-gold text-xs font-medium mb-8 tracking-wide uppercase">
+                  Centro Tian Ying Fa · Algemesí, Valencia
+                </div>
+                <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-tight mb-6 font-heading">
+                  Transforma tu cuerpo,
+                  <br />
+                  <span className="text-brand-gold">mente y energía.</span>
+                </h1>
+                <p className="text-lg text-white/70 max-w-lg mb-10 leading-relaxed">
+                  Cursos online de Tai Ji Quan, Qi Gong, meditación y medicina natural
+                  con el Sifu Salvador Montiel — más de 25 años fusionando la tradición
+                  oriental con la salud natural moderna.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-3 mb-14">
+                  <Link
+                    href="/register"
+                    className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md bg-brand-gold text-brand-dark font-semibold hover:opacity-90 transition-opacity"
+                  >
+                    Comenzar ahora
+                  </Link>
+                  <a
+                    href="#cursos"
+                    className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md border border-white/20 text-white hover:bg-white/5 transition-colors"
+                  >
+                    Ver cursos
+                  </a>
+                </div>
+                <div className="grid grid-cols-4 gap-6 pt-6 border-t border-white/10">
+                  {[
+                    { value: '25+', label: 'Años de experiencia' },
+                    { value: '500+', label: 'Alumnos formados' },
+                    { value: '8', label: 'Disciplinas' },
+                    { value: '4.9', label: 'Valoración' },
+                  ].map(({ value, label }) => (
+                    <div key={label}>
+                      <p className="text-xl font-bold text-brand-gold">{value}</p>
+                      <p className="text-[11px] text-white/50 mt-0.5 leading-tight">{label}</p>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <h1 className="text-4xl sm:text-6xl font-bold tracking-tight leading-tight mb-6 font-heading">
-                Encuentra tu centro.{' '}
-                <span className="text-amber-400">Aprende a vivir mejor.</span>
-              </h1>
-              <p className="text-lg text-slate-300 max-w-xl mx-auto mb-10 leading-relaxed">
-                Cursos de meditación, mindfulness y vida saludable con instructores expertos.
-                Aprende a tu ritmo con acceso vitalicio.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-3 justify-center">
-                <Link
-                  href="/register"
-                  className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md bg-amber-400 text-slate-900 font-semibold hover:bg-amber-300 transition-colors"
-                >
-                  Empezar gratis
-                </Link>
-                <a
-                  href="#cursos"
-                  className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md border border-white/20 bg-white/5 text-white hover:bg-white/10 transition-colors"
-                >
-                  Ver cursos
-                </a>
-              </div>
-              <div className="mt-16 flex flex-wrap justify-center gap-10">
-                {[
-                  { value: '12+', label: 'Instructores expertos' },
-                  { value: '500+', label: 'Alumnos activos' },
-                  { value: '50h+', label: 'Contenido en vídeo' },
-                  { value: '4.9/5', label: 'Valoración media' },
-                ].map(({ value, label }) => (
-                  <div key={label} className="text-center">
-                    <p className="text-2xl font-bold text-amber-400">{value}</p>
-                    <p className="text-xs text-slate-400 mt-1">{label}</p>
+
+              {/* Logo centrado en columna derecha */}
+              <div className="hidden lg:flex items-center justify-center">
+                <div className="relative">
+                  <div className="absolute inset-0 rounded-full bg-brand-gold/5 blur-3xl scale-150" />
+                  <div className="relative size-72 rounded-full border border-brand-gold/20 bg-brand-jade/10 flex items-center justify-center">
+                    <div className="size-52 rounded-full border border-brand-gold/10 bg-brand-jade/10 flex items-center justify-center">
+                      <img
+                        src="/logo.png"
+                        alt="Tian Ying Fa"
+                        className="size-32 object-contain drop-shadow-2xl opacity-90"
+                      />
+                    </div>
                   </div>
-                ))}
+                </div>
               </div>
             </div>
           </section>
+
+          {/* Separador con cita */}
+          <div className="bg-primary text-primary-foreground py-8 text-center px-6">
+            <p className="text-sm sm:text-base italic font-heading tracking-wide max-w-2xl mx-auto">
+              "En Tian Ying Fa fusionamos el rigor de la salud natural moderna con el legado de disciplinas orientales de élite."
+            </p>
+            <p className="text-primary-foreground/70 text-xs mt-2 tracking-widest uppercase">
+              — Sifu Salvador Montiel
+            </p>
+          </div>
 
           {/* Features */}
           <section className="py-20 bg-background">
             <div className="max-w-6xl mx-auto px-6">
               <div className="text-center mb-14">
                 <h2 className="text-3xl font-bold tracking-tight font-heading">
-                  Todo lo que necesitas para transformar tu bienestar
+                  Disciplinas que transforman
                 </h2>
                 <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
-                  Una plataforma diseñada para acompañarte en cada paso de tu camino hacia
-                  una vida más consciente y saludable.
+                  Cada curso está diseñado bajo la filosofía integral de Tian Ying Fa:
+                  optimizar cuerpo, mente y energía de forma duradera.
                 </p>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                 {FEATURES.map(({ icon: Icon, title, desc }) => (
-                  <div key={title} className="flex gap-4">
-                    <div className="flex-shrink-0 size-10 rounded-lg bg-amber-400/10 flex items-center justify-center">
-                      <Icon className="size-5 text-amber-600" />
+                  <div key={title} className="group p-6 rounded-lg border bg-card hover:border-primary/30 hover:shadow-sm transition-all">
+                    <div className="size-10 rounded-md bg-primary/8 flex items-center justify-center mb-4">
+                      <Icon className="size-5 text-primary" />
                     </div>
-                    <div>
-                      <h3 className="font-semibold mb-1">{title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
-                    </div>
+                    <h3 className="font-semibold mb-2">{title}</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
@@ -198,32 +225,32 @@ export default async function HomePage({ searchParams }: PageProps) {
                 Empieza en tres pasos
               </h2>
               <p className="text-muted-foreground mb-14 max-w-xl mx-auto">
-                Sin complicaciones. En menos de dos minutos puedes estar viendo tu primera lección.
+                Sin complicaciones. En minutos puedes estar aprendiendo del Sifu Salvador Montiel desde casa.
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
                 {[
                   {
-                    n: '1',
+                    n: '一',
                     title: 'Crea tu cuenta',
-                    desc: 'Regístrate gratis en menos de un minuto. Sin tarjeta de crédito.',
+                    desc: 'Regístrate gratis en menos de un minuto. Sin tarjeta de crédito requerida.',
                   },
                   {
-                    n: '2',
-                    title: 'Elige tu curso',
-                    desc: 'Explora el catálogo y selecciona el curso que más te inspire.',
+                    n: '二',
+                    title: 'Elige tu disciplina',
+                    desc: 'Explora el catálogo y selecciona el curso que mejor se adapte a tu momento.',
                   },
                   {
-                    n: '3',
-                    title: 'Aprende a tu ritmo',
-                    desc: 'Accede desde cualquier dispositivo, cuando tú quieras, sin límites.',
+                    n: '三',
+                    title: 'Practica a tu ritmo',
+                    desc: 'Accede desde cualquier dispositivo, cuando quieras, con acceso vitalicio.',
                   },
                 ].map(({ n, title, desc }) => (
                   <div key={n} className="flex flex-col items-center">
-                    <div className="size-14 rounded-full bg-amber-400 text-slate-900 text-xl font-bold flex items-center justify-center mb-4">
+                    <div className="size-14 rounded-full bg-primary text-primary-foreground text-xl font-bold flex items-center justify-center mb-4 font-heading tracking-wider">
                       {n}
                     </div>
                     <h3 className="font-semibold mb-2">{title}</h3>
-                    <p className="text-sm text-muted-foreground">{desc}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">{desc}</p>
                   </div>
                 ))}
               </div>
@@ -233,16 +260,16 @@ export default async function HomePage({ searchParams }: PageProps) {
       )}
 
       {/* Catálogo */}
-      <section id="cursos" className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
+      <section id="cursos" className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end gap-4">
           <div>
             <h2 className="text-2xl font-bold tracking-tight">
-              {user ? 'Catálogo de cursos' : 'Cursos disponibles'}
+              {user ? 'Tu formación' : 'Cursos disponibles'}
             </h2>
             <p className="text-muted-foreground mt-1 text-sm">
               {q
                 ? `Resultados para "${q}"`
-                : 'Meditación, mindfulness y vida saludable'}
+                : 'Tai Ji, Qi Gong, meditación y medicina natural'}
             </p>
           </div>
           <div className="sm:ml-auto">
@@ -268,13 +295,13 @@ export default async function HomePage({ searchParams }: PageProps) {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {TESTIMONIALS.map(({ body, name, role }) => (
-                  <div key={name} className="rounded-xl border bg-card p-6 space-y-4">
+                  <div key={name} className="rounded-lg border bg-card p-6 space-y-4">
                     <p className="text-sm text-muted-foreground leading-relaxed">
-                      <span className="text-amber-500 text-xl font-serif">"</span>
+                      <span className="text-brand-gold text-2xl font-heading leading-none mr-1">"</span>
                       {body}
-                      <span className="text-amber-500 text-xl font-serif">"</span>
+                      <span className="text-brand-gold text-2xl font-heading leading-none ml-1">"</span>
                     </p>
-                    <div>
+                    <div className="pt-2 border-t border-border">
                       <p className="font-semibold text-sm">{name}</p>
                       <p className="text-xs text-muted-foreground">{role}</p>
                     </div>
@@ -292,14 +319,14 @@ export default async function HomePage({ searchParams }: PageProps) {
               </h2>
               <div className="space-y-2">
                 {FAQ.map(({ q: question, a }) => (
-                  <details key={question} className="group border rounded-lg">
+                  <details key={question} className="group border rounded-lg bg-card">
                     <summary className="flex justify-between items-center cursor-pointer px-5 py-4 font-medium text-sm select-none list-none [&::-webkit-details-marker]:hidden">
                       {question}
                       <span className="ml-4 flex-shrink-0 text-muted-foreground transition-transform group-open:rotate-180">
                         ▾
                       </span>
                     </summary>
-                    <p className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed">
+                    <p className="px-5 pb-5 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
                       {a}
                     </p>
                   </details>
@@ -309,18 +336,19 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
 
           {/* CTA final */}
-          <section className="bg-slate-900 text-white py-20">
-            <div className="max-w-2xl mx-auto px-6 text-center">
-              <h2 className="text-3xl font-bold mb-4 font-heading">
-                ¿Listo para transformar tu bienestar?
+          <section className="bg-brand-dark text-white py-24 relative overflow-hidden">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_60%_at_50%_50%,oklch(0.28_0.09_165/0.20),transparent)]" />
+            <div className="relative max-w-2xl mx-auto px-6 text-center">
+              <h2 className="text-3xl sm:text-4xl font-bold mb-4 font-heading leading-tight">
+                Comienza tu camino<br />hacia el equilibrio
               </h2>
-              <p className="text-slate-300 mb-8 leading-relaxed">
-                Únete a más de 500 alumnos que ya están mejorando su vida con Aula.
-                Tu camino hacia el bienestar empieza aquí.
+              <p className="text-white/70 mb-10 leading-relaxed">
+                Únete a más de 500 alumnos que practican Tai Ji, Qi Gong y meditación
+                bajo la guía del Sifu Salvador Montiel.
               </p>
               <Link
                 href="/register"
-                className="inline-flex items-center justify-center text-base px-8 h-11 rounded-md bg-amber-400 text-slate-900 font-semibold hover:bg-amber-300 transition-colors"
+                className="inline-flex items-center justify-center text-base px-10 h-12 rounded-md bg-brand-gold text-brand-dark font-semibold hover:opacity-90 transition-opacity"
               >
                 Empezar ahora — es gratis
               </Link>

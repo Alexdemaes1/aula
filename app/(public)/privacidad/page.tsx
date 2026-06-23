@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'Política de privacidad',
-  description: 'Política de privacidad de Aula — cómo tratamos tus datos personales.',
+  description: 'Política de privacidad de Tian Ying Fa — cómo tratamos tus datos personales.',
 }
 
 export default function PrivacidadPage() {
@@ -12,7 +12,7 @@ export default function PrivacidadPage() {
       <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">1. Responsable del tratamiento</h2>
-          <p>Aula es el responsable del tratamiento de tus datos personales recogidos a través de esta plataforma.</p>
+          <p>Tian Ying Fa es el responsable del tratamiento de tus datos personales recogidos a través de esta plataforma.</p>
         </section>
 
         <section>

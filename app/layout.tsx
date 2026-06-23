@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { Geist, Geist_Mono, Lora } from 'next/font/google'
+import { Geist, Geist_Mono, Playfair_Display } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 })
 
-const lora = Lora({
-  variable: '--font-lora',
+const playfairDisplay = Playfair_Display({
+  variable: '--font-playfair',
   subsets: ['latin'],
   display: 'swap',
 })
@@ -24,15 +24,15 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? 'https://aula-kappa-nine.vercel.app'
   ),
   title: {
-    default: 'Aula — Cursos de meditación y vida saludable',
-    template: '%s | Aula',
+    default: 'Tian Ying Fa — Tai Ji, Qi Gong y Medicina Natural',
+    template: '%s | Tian Ying Fa',
   },
   description:
-    'Cursos online de meditación, mindfulness y vida saludable. Aprende a tu ritmo con instructores expertos y acceso vitalicio.',
+    'Centro Tian Ying Fa — cursos online de Tai Ji Quan, Qi Gong, meditación y medicina natural con el Sifu Salvador Montiel. Más de 25 años de experiencia en Algemesí, Valencia.',
   openGraph: {
     type: 'website',
     locale: 'es_ES',
-    siteName: 'Aula',
+    siteName: 'Tian Ying Fa',
   },
 }
 
@@ -44,7 +44,7 @@ export default function RootLayout({
   return (
     <html
       lang="es"
-      className={`${geistSans.variable} ${geistMono.variable} ${lora.variable} h-full antialiased`}
+      className={`${geistSans.variable} ${geistMono.variable} ${playfairDisplay.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
         {children}

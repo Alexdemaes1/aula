@@ -1,6 +1,6 @@
 export const metadata = {
   title: 'Términos de uso',
-  description: 'Términos y condiciones de uso de la plataforma Aula.',
+  description: 'Términos y condiciones de uso de la plataforma Tian Ying Fa.',
 }
 
 export default function TerminosPage() {
@@ -12,7 +12,7 @@ export default function TerminosPage() {
       <div className="space-y-8 text-sm text-muted-foreground leading-relaxed">
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">1. Aceptación de los términos</h2>
-          <p>Al acceder y usar Aula, aceptas estos términos de uso. Si no estás de acuerdo, no debes usar la plataforma.</p>
+          <p>Al acceder y usar Tian Ying Fa, aceptas estos términos de uso. Si no estás de acuerdo, no debes usar la plataforma.</p>
         </section>
 
         <section>
@@ -32,7 +32,7 @@ export default function TerminosPage() {
 
         <section>
           <h2 className="text-lg font-semibold text-foreground mb-2">5. Limitación de responsabilidad</h2>
-          <p>Aula proporciona el contenido con fines educativos. No somos responsables de los resultados individuales derivados del aprendizaje.</p>
+          <p>Tian Ying Fa proporciona el contenido con fines educativos. No somos responsables de los resultados individuales derivados del aprendizaje.</p>
         </section>
 
         <section>

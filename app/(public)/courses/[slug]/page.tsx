@@ -99,7 +99,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
     description: course.description ?? '',
     provider: {
       '@type': 'Organization',
-      name: 'Aula',
+      name: 'Tian Ying Fa',
       url: SITE_URL,
     },
     offers: {

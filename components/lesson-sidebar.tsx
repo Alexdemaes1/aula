@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X } from 'lucide-react'
@@ -27,6 +27,15 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons }: LessonSideba
   const [open, setOpen] = useState(false)
   const completed = lessons.filter((l) => l.completed).length
   const percent = lessons.length > 0 ? Math.round((completed / lessons.length) * 100) : 0
+
+  useEffect(() => {
+    if (!open) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
 
   return (
     <>

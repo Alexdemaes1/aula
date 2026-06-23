@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Navbar } from '@/components/navbar'
+import { WhatsAppButton } from '@/components/whatsapp-button'
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">{children}</main>
+      <WhatsAppButton />
       <footer className="border-t bg-brand-dark text-white">
         <div className="max-w-7xl mx-auto px-6 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

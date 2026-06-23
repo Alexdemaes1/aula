@@ -80,6 +80,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
     '@type': 'Course',
     name: course.title,
     description: course.description ?? '',
+    image: course.cover_url ?? undefined,
     provider: {
       '@type': 'Organization',
       name: 'Tian Ying Fa',
@@ -90,8 +91,19 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
       price: (course.price_cents / 100).toFixed(2),
       priceCurrency: (course.currency ?? 'eur').toUpperCase(),
       availability: 'https://schema.org/InStock',
+      url: `${SITE_URL}/courses/${course.slug}`,
     },
     url: `${SITE_URL}/courses/${course.slug}`,
+    numberOfCredits: lessons.length,
+    hasCourseInstance: {
+      '@type': 'CourseInstance',
+      courseMode: 'online',
+      instructor: {
+        '@type': 'Person',
+        name: 'Salvador Montiel',
+        jobTitle: 'Sifu',
+      },
+    },
   }
 
   return (

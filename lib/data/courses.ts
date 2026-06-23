@@ -2,17 +2,23 @@ import { unstable_cache } from 'next/cache'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { Course } from '@/types'
 
+type SortOption = 'newest' | 'price_asc' | 'price_desc'
+
 export const getPublishedCourses = unstable_cache(
-  async (q?: string): Promise<Course[]> => {
+  async (q?: string, sort?: SortOption): Promise<Course[]> => {
     const db = createAdminClient()
-    let query = db
-      .from('courses')
-      .select('*')
-      .eq('is_published', true)
-      .order('created_at', { ascending: false })
+    let query = db.from('courses').select('*').eq('is_published', true)
 
     if (q?.trim()) {
       query = query.ilike('title', `%${q.trim()}%`)
+    }
+
+    if (sort === 'price_asc') {
+      query = query.order('price_cents', { ascending: true })
+    } else if (sort === 'price_desc') {
+      query = query.order('price_cents', { ascending: false })
+    } else {
+      query = query.order('created_at', { ascending: false })
     }
 
     const { data } = await query

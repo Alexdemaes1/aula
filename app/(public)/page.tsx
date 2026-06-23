@@ -3,6 +3,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { getUser } from '@/lib/auth'
 import { CatalogSearch } from '@/components/catalog-search'
+import { CatalogSort } from '@/components/catalog-sort'
 import { CourseCatalog } from '@/components/course-catalog'
 import { Brain, Leaf, Heart, Video, Shield, Flame } from 'lucide-react'
 
@@ -13,7 +14,7 @@ export const metadata = {
 }
 
 interface PageProps {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; sort?: string }>
 }
 
 function CatalogSkeleton() {
@@ -126,7 +127,7 @@ const organizationJsonLd = {
 }
 
 export default async function HomePage({ searchParams }: PageProps) {
-  const [{ q }, user] = await Promise.all([searchParams, getUser()])
+  const [{ q, sort }, user] = await Promise.all([searchParams, getUser()])
 
   return (
     <>
@@ -297,14 +298,17 @@ export default async function HomePage({ searchParams }: PageProps) {
                 : 'Tai Ji, Qi Gong, meditación y medicina natural'}
             </p>
           </div>
-          <div className="sm:ml-auto">
+          <div className="sm:ml-auto flex items-center gap-2">
+            <Suspense>
+              <CatalogSort />
+            </Suspense>
             <Suspense>
               <CatalogSearch />
             </Suspense>
           </div>
         </div>
         <Suspense fallback={<CatalogSkeleton />}>
-          <CourseCatalog q={q} userId={user?.id} />
+          <CourseCatalog q={q} sort={sort} userId={user?.id} />
         </Suspense>
       </section>
 

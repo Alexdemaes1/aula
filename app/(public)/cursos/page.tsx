@@ -1,6 +1,7 @@
 import { Suspense } from 'react'
 import { getUser } from '@/lib/auth'
 import { CatalogSearch } from '@/components/catalog-search'
+import { CatalogSort } from '@/components/catalog-sort'
 import { CourseCatalog } from '@/components/course-catalog'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 
@@ -11,7 +12,7 @@ export const metadata = {
 }
 
 interface PageProps {
-  searchParams: Promise<{ q?: string }>
+  searchParams: Promise<{ q?: string; sort?: string }>
 }
 
 function CatalogSkeleton() {
@@ -32,7 +33,7 @@ function CatalogSkeleton() {
 }
 
 export default async function CursosPage({ searchParams }: PageProps) {
-  const [{ q }, user] = await Promise.all([searchParams, getUser()])
+  const [{ q, sort }, user] = await Promise.all([searchParams, getUser()])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -45,7 +46,10 @@ export default async function CursosPage({ searchParams }: PageProps) {
             {q ? `Resultados para "${q}"` : 'Tai Ji, Qi Gong, meditación y medicina natural'}
           </p>
         </div>
-        <div className="sm:ml-auto">
+        <div className="sm:ml-auto flex items-center gap-2">
+          <Suspense>
+            <CatalogSort />
+          </Suspense>
           <Suspense>
             <CatalogSearch />
           </Suspense>
@@ -53,7 +57,7 @@ export default async function CursosPage({ searchParams }: PageProps) {
       </div>
 
       <Suspense fallback={<CatalogSkeleton />}>
-        <CourseCatalog q={q} userId={user?.id} />
+        <CourseCatalog q={q} sort={sort} userId={user?.id} />
       </Suspense>
     </div>
   )

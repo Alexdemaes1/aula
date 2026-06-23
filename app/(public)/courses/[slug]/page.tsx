@@ -50,8 +50,16 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
   let isEnrolled = false
   let lessons: { id: string; title: string; position: number }[] = []
 
+  const adminClient = createAdminClient()
+
+  // Siempre cargamos las lecciones (vista previa para no-matriculados, completo para matriculados)
+  const { data: allLessons } = await adminClient
+    .from('lessons')
+    .select('id, title, position')
+    .eq('course_id', course.id)
+    .order('position')
+
   if (user) {
-    const adminClient = createAdminClient()
     const [{ data: profile }, { data: enrollment }] = await Promise.all([
       adminClient.from('profiles').select('role').eq('id', user.id).single(),
       adminClient
@@ -63,16 +71,9 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
         .maybeSingle(),
     ])
     isEnrolled = profile?.role === 'admin' || !!enrollment
-
-    if (isEnrolled) {
-      const { data } = await adminClient
-        .from('lessons')
-        .select('id, title, position')
-        .eq('course_id', course.id)
-        .order('position')
-      lessons = data ?? []
-    }
   }
+
+  lessons = allLessons ?? []
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -149,22 +150,40 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
               </div>
             )}
 
-            {isEnrolled && lessons.length > 0 && (
+            {lessons.length > 0 && (
               <div>
-                <h2 className="font-semibold mb-3">Contenido del curso</h2>
+                <h2 className="font-semibold mb-3">
+                  Contenido del curso
+                  <span className="ml-2 text-xs font-normal text-muted-foreground">
+                    ({lessons.length} {lessons.length === 1 ? 'lección' : 'lecciones'})
+                  </span>
+                </h2>
                 <div className="space-y-1">
-                  {lessons.map((lesson, i) => (
-                    <Link
-                      key={lesson.id}
-                      href={`/learn/${course.slug}/${lesson.id}`}
-                      className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors group"
-                    >
-                      <span className="size-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium flex-shrink-0">
-                        {i + 1}
-                      </span>
-                      <span className="text-sm group-hover:underline">{lesson.title}</span>
-                    </Link>
-                  ))}
+                  {lessons.map((lesson, i) =>
+                    isEnrolled ? (
+                      <Link
+                        key={lesson.id}
+                        href={`/learn/${course.slug}/${lesson.id}`}
+                        className="flex items-center gap-3 py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors group"
+                      >
+                        <span className="size-6 rounded-full bg-primary/10 text-primary text-xs flex items-center justify-center font-medium flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm group-hover:underline">{lesson.title}</span>
+                      </Link>
+                    ) : (
+                      <div
+                        key={lesson.id}
+                        className="flex items-center gap-3 py-2 px-3 rounded-lg"
+                      >
+                        <span className="size-6 rounded-full bg-muted text-muted-foreground text-xs flex items-center justify-center font-medium flex-shrink-0">
+                          {i + 1}
+                        </span>
+                        <span className="text-sm text-muted-foreground">{lesson.title}</span>
+                        <Lock className="size-3 ml-auto text-muted-foreground/40 flex-shrink-0" />
+                      </div>
+                    )
+                  )}
                 </div>
               </div>
             )}

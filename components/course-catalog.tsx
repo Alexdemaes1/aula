@@ -1,3 +1,4 @@
+import Link from 'next/link'
 import { getPublishedCourses } from '@/lib/data/courses'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { CourseCard } from '@/components/course-card'
@@ -30,6 +31,11 @@ export async function CourseCatalog({ q, sort, userId }: Props) {
         <p className="text-muted-foreground text-sm mt-1">
           {q ? 'Prueba con otro término de búsqueda.' : 'Vuelve pronto, estamos preparando el contenido.'}
         </p>
+        {q && (
+          <Link href="?" className="mt-4 text-sm text-primary underline hover:no-underline">
+            Ver todos los cursos
+          </Link>
+        )}
       </div>
     )
   }

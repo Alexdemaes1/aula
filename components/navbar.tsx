@@ -6,6 +6,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { buttonVariants } from '@/components/ui/button'
 import { LogoutButton } from '@/components/logout-button'
 import { Separator } from '@/components/ui/separator'
+import { MobileMenu } from '@/components/mobile-menu'
 import { LayoutDashboard, Settings } from 'lucide-react'
 
 function getCachedUserRole(userId: string) {
@@ -45,6 +46,7 @@ export async function Navbar() {
         </Link>
 
         <nav className="flex items-center gap-1">
+          <MobileMenu isLoggedIn={!!user} />
           {user ? (
             <>
               <Link href="/dashboard" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>

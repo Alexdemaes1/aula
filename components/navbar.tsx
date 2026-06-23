@@ -63,6 +63,9 @@ export async function Navbar() {
               <Link href="/cursos" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
                 Cursos
               </Link>
+              <Link href="/about" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
+                El centro
+              </Link>
               <Link href="/dashboard" className={buttonVariants({ variant: 'ghost', size: 'sm' })}>
                 <LayoutDashboard className="size-4 mr-1.5" />
                 Mi formación

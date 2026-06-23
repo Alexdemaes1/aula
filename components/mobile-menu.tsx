@@ -27,6 +27,7 @@ export function MobileMenu({ isLoggedIn, isAdmin, email }: MobileMenuProps) {
   const navLinks = isLoggedIn
     ? [
         { href: '/cursos', label: 'Cursos', icon: BookOpen },
+        { href: '/about', label: 'El centro', icon: null },
         { href: '/dashboard', label: 'Mi formación', icon: LayoutDashboard },
         { href: '/account', label: 'Mi cuenta', icon: User },
         ...(isAdmin ? [{ href: '/admin', label: 'Administración', icon: Settings }] : []),

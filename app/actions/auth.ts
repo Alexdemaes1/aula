@@ -63,7 +63,7 @@ export async function registerAction(
     password: parsed.data.password,
     options: {
       data: { full_name: parsed.data.full_name },
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
+      emailRedirectTo: `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   })
 
@@ -91,7 +91,7 @@ export async function forgotPasswordAction(
 
   const supabase = await createClient()
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
+    redirectTo: `${process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : process.env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/reset-password`,
   })
 
   // Siempre devolvemos éxito (no revelar si el email existe)

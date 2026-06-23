@@ -17,7 +17,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         </div>
         <AdminNav />
         <div className="p-3 border-t space-y-2">
-          <Link href="/" className="block text-xs text-muted-foreground hover:underline px-3 py-1">
+          <Link href="/cursos" className="block text-xs text-muted-foreground hover:underline px-3 py-1">
             ← Ver catálogo
           </Link>
           <div className="px-3">

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X } from 'lucide-react'
+import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
 
@@ -42,11 +42,16 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons }: LessonSideba
       {/* Botón toggle solo en móvil */}
       <button
         onClick={() => setOpen(true)}
-        className="fixed bottom-4 left-4 z-40 md:hidden flex items-center gap-2 px-3 py-2.5 rounded-full shadow-lg bg-primary text-primary-foreground text-xs font-medium"
+        className={cn(
+          'fixed bottom-4 left-4 z-40 md:hidden flex items-center gap-2 px-3 py-2.5 rounded-full shadow-lg text-xs font-medium',
+          percent === 100
+            ? 'bg-green-600 text-white'
+            : 'bg-primary text-primary-foreground'
+        )}
         aria-label="Ver lecciones"
       >
-        <Menu className="size-4" />
-        {completed}/{lessons.length}
+        {percent === 100 ? <Trophy className="size-4" /> : <Menu className="size-4" />}
+        {percent === 100 ? '¡Completado!' : `${completed}/${lessons.length}`}
       </button>
 
       {/* Overlay en móvil (empieza bajo el header) */}

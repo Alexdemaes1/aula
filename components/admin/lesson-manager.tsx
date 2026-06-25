@@ -17,8 +17,10 @@ import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Plus, Trash2, ChevronDown, ChevronUp, FileText, X, Loader2 } from 'lucide-react'
-import type { Lesson } from '@/types'
+import { MarkdownEditor } from '@/components/admin/markdown-editor'
+import { Plus, Trash2, ChevronDown, ChevronUp, FileText, Video, X, Loader2 } from 'lucide-react'
+import { cn } from '@/lib/utils'
+import type { Lesson, LessonContentType } from '@/types'
 import { toast } from 'sonner'
 
 interface LessonManagerProps {
@@ -38,6 +40,7 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
   const action = isEdit ? updateLessonAction : createLessonAction
   const [state, formAction, pending] = useActionState(action, null)
   const [uploadingNotes, setUploadingNotes] = useState(false)
+  const [type, setType] = useState<LessonContentType>(lesson?.content_type ?? 'video')
   const [ytId, setYtId] = useState(lesson?.youtube_video_id ?? '')
   const router = useRouter()
 
@@ -74,20 +77,42 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
     <form action={formAction} className="space-y-4">
       {isEdit && <input type="hidden" name="id" value={lesson.id} />}
       <input type="hidden" name="course_id" value={courseId} />
+      <input type="hidden" name="content_type" value={type} />
 
-      <div className="grid grid-cols-2 gap-4">
-        <div className="col-span-2 space-y-2">
-          <Label>Título *</Label>
-          <Input name="title" required defaultValue={lesson?.title} placeholder="Ej: Introducción al curso" />
+      <div className="space-y-2">
+        <Label>Título *</Label>
+        <Input name="title" required defaultValue={lesson?.title} placeholder="Ej: Introducción al curso" />
+      </div>
+
+      {/* Selector de tipo de contenido */}
+      <div className="space-y-2">
+        <Label>Tipo de contenido</Label>
+        <div className="inline-flex rounded-lg border p-0.5">
+          {(['video', 'text'] as const).map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setType(t)}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1 text-sm rounded-md transition-colors',
+                type === t ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'
+              )}
+            >
+              {t === 'video' ? <Video className="size-4" /> : <FileText className="size-4" />}
+              {t === 'video' ? 'Vídeo' : 'Texto'}
+            </button>
+          ))}
         </div>
+      </div>
 
+      {type === 'video' ? (
         <div className="space-y-2">
           <Label>ID de vídeo YouTube *</Label>
           <Input
             name="youtube_video_id"
             required
             value={ytId}
-            onChange={e => setYtId(e.target.value)}
+            onChange={(e) => setYtId(e.target.value)}
             placeholder="dQw4w9WgXcQ"
           />
           <p className="text-xs text-muted-foreground">
@@ -103,33 +128,32 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
             />
           )}
         </div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <div className="space-y-2">
-            <Label>Posición</Label>
-            <Input
-              name="position"
-              type="number"
-              min={1}
-              required
-              defaultValue={lesson?.position ?? nextPosition}
-            />
-          </div>
-          <div className="space-y-2">
-            <Label>Tiempo mínimo (min)</Label>
-            <Input
-              name="min_watch_minutes"
-              type="number"
-              min={0}
-              defaultValue={lesson ? Math.floor(lesson.min_watch_seconds / 60) : 0}
-            />
-          </div>
+      ) : (
+        <div className="space-y-2">
+          <Label>Contenido (Markdown) *</Label>
+          <MarkdownEditor name="body" defaultValue={lesson?.body ?? ''} rows={12} />
         </div>
+      )}
 
-        <div className="col-span-2 space-y-2">
-          <Label>Descripción</Label>
-          <Textarea name="description" rows={2} defaultValue={lesson?.description} />
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label>Posición</Label>
+          <Input name="position" type="number" min={1} required defaultValue={lesson?.position ?? nextPosition} />
         </div>
+        <div className="space-y-2">
+          <Label>{type === 'video' ? 'Tiempo mínimo (min)' : 'Tiempo de lectura (min)'}</Label>
+          <Input
+            name="min_watch_minutes"
+            type="number"
+            min={0}
+            defaultValue={lesson ? Math.floor(lesson.min_watch_seconds / 60) : 0}
+          />
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label>Descripción</Label>
+        <Textarea name="description" rows={2} defaultValue={lesson?.description} />
       </div>
 
       {isEdit && (
@@ -139,26 +163,14 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
             <div className="flex items-center gap-2">
               <FileText className="size-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Apuntes subidos</span>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="h-6 text-destructive"
-                onClick={handleRemoveNotes}
-              >
+              <Button type="button" variant="ghost" size="sm" className="h-6 text-destructive" onClick={handleRemoveNotes}>
                 <X className="size-3 mr-1" />
                 Quitar
               </Button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
-              <Input
-                type="file"
-                accept="application/pdf"
-                onChange={handleNotesUpload}
-                disabled={uploadingNotes}
-                className="text-sm"
-              />
+              <Input type="file" accept="application/pdf" onChange={handleNotesUpload} disabled={uploadingNotes} className="text-sm" />
               {uploadingNotes && <Loader2 className="size-4 animate-spin" />}
             </div>
           )}
@@ -189,7 +201,7 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
   const [optimisticLessons, moveLesson] = useOptimistic(
     initialLessons,
     (state, { id, dir }: { id: string; dir: 'up' | 'down' }) => {
-      const idx = state.findIndex(l => l.id === id)
+      const idx = state.findIndex((l) => l.id === id)
       const swapIdx = dir === 'up' ? idx - 1 : idx + 1
       if (swapIdx < 0 || swapIdx >= state.length) return state
       const next = [...state]
@@ -233,11 +245,7 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
             <CardTitle className="text-base">Nueva lección</CardTitle>
           </CardHeader>
           <CardContent>
-            <LessonForm
-              courseId={courseId}
-              nextPosition={nextPosition}
-              onDone={() => setShowNew(false)}
-            />
+            <LessonForm courseId={courseId} nextPosition={nextPosition} onDone={() => setShowNew(false)} />
           </CardContent>
         </Card>
       )}
@@ -258,11 +266,7 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
               className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-muted/50 select-none"
               onClick={() => setExpanded(expanded === lesson.id ? null : lesson.id)}
             >
-              {/* Botones de reordenación */}
-              <div
-                className="flex flex-col gap-0.5 shrink-0"
-                onClick={e => e.stopPropagation()}
-              >
+              <div className="flex flex-col gap-0.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                 <button
                   type="button"
                   disabled={index === 0}
@@ -287,12 +291,11 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
                 {lesson.position}
               </Badge>
               <span className="flex-1 font-medium text-sm">{lesson.title}</span>
-              {lesson.notes_pdf_path && (
-                <FileText className="size-3.5 text-muted-foreground" />
-              )}
-              <span className="text-xs text-muted-foreground hidden sm:block">
-                {lesson.youtube_video_id}
-              </span>
+              <Badge variant="secondary" className="text-xs gap-1 shrink-0">
+                {lesson.content_type === 'text' ? <FileText className="size-3" /> : <Video className="size-3" />}
+                {lesson.content_type === 'text' ? 'Texto' : 'Vídeo'}
+              </Badge>
+              {lesson.notes_pdf_path && <FileText className="size-3.5 text-muted-foreground" />}
               <Button
                 variant="ghost"
                 size="sm"
@@ -305,7 +308,7 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
                 <Trash2 className="size-3.5" />
               </Button>
               <ChevronDown
-                className={`size-4 text-muted-foreground transition-transform ${expanded === lesson.id ? 'rotate-180' : ''}`}
+                className={cn('size-4 text-muted-foreground transition-transform', expanded === lesson.id && 'rotate-180')}
               />
             </div>
 
@@ -313,11 +316,7 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
               <>
                 <Separator />
                 <div className="p-4">
-                  <LessonForm
-                    courseId={courseId}
-                    lesson={lesson}
-                    onDone={() => setExpanded(null)}
-                  />
+                  <LessonForm courseId={courseId} lesson={lesson} onDone={() => setExpanded(null)} />
                 </div>
               </>
             )}

@@ -6,6 +6,17 @@ export const getLessonsByCourse = cache(async (courseId: string) => {
   const db = createAdminClient()
   const { data } = await db
     .from('lessons')
+    .select('id, title, position, content_type')
+    .eq('course_id', courseId)
+    .order('position')
+  return data ?? []
+})
+
+// Cuestionarios de autoevaluación del curso (opcionales, fuera de la secuencia)
+export const getCourseQuizzes = cache(async (courseId: string) => {
+  const db = createAdminClient()
+  const { data } = await db
+    .from('quizzes')
     .select('id, title, position')
     .eq('course_id', courseId)
     .order('position')

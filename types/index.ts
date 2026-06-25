@@ -1,5 +1,7 @@
 export type UserRole = 'admin' | 'student'
 export type EnrollmentStatus = 'active' | 'refunded'
+export type LessonContentType = 'video' | 'text'
+export type QuizQuestionType = 'single' | 'multiple' | 'boolean'
 
 export interface Profile {
   id: string
@@ -26,11 +28,54 @@ export interface Lesson {
   course_id: string
   title: string
   description: string
-  youtube_video_id: string
+  content_type: LessonContentType
+  youtube_video_id: string | null
+  body: string | null
   position: number
   min_watch_seconds: number
   notes_pdf_path: string | null
   created_at: string
+}
+
+// ── Cuestionarios (autoevaluación opcional por curso) ──────
+export interface Quiz {
+  id: string
+  course_id: string
+  title: string
+  description: string
+  passing_score: number
+  max_attempts: number | null
+  position: number
+  created_at: string
+}
+
+export interface QuizOption {
+  id: string
+  question_id: string
+  label: string
+  is_correct: boolean
+  position: number
+}
+
+export interface QuizQuestion {
+  id: string
+  quiz_id: string
+  prompt: string
+  type: QuizQuestionType
+  explanation: string
+  position: number
+  created_at: string
+  options?: QuizOption[]
+}
+
+export interface QuizAttempt {
+  id: string
+  quiz_id: string
+  user_id: string
+  score: number
+  passed: boolean
+  answers: Record<string, string[]>
+  submitted_at: string
 }
 
 export interface Enrollment {

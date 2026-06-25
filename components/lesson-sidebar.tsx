@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X, Trophy } from 'lucide-react'
+import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X, Trophy, FileText, HelpCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
 
@@ -11,18 +11,25 @@ interface SidebarLesson {
   id: string
   title: string
   position: number
+  contentType?: 'video' | 'text'
   completed: boolean
   unlocked: boolean
   current?: boolean
+}
+
+interface SidebarQuiz {
+  id: string
+  title: string
 }
 
 interface LessonSidebarProps {
   courseSlug: string
   courseTitle: string
   lessons: SidebarLesson[]
+  quizzes?: SidebarQuiz[]
 }
 
-export function LessonSidebar({ courseSlug, courseTitle, lessons }: LessonSidebarProps) {
+export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }: LessonSidebarProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
   const completed = lessons.filter((l) => l.completed).length
@@ -118,7 +125,13 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons }: LessonSideba
                       {lesson.completed ? (
                         <CheckCircle className={cn('size-4', isCurrent ? 'text-green-300' : 'text-green-500')} />
                       ) : isCurrent ? (
-                        <Play className="size-4 fill-current text-primary-foreground/80" />
+                        lesson.contentType === 'text' ? (
+                          <FileText className="size-4 text-primary-foreground/80" />
+                        ) : (
+                          <Play className="size-4 fill-current text-primary-foreground/80" />
+                        )
+                      ) : lesson.contentType === 'text' ? (
+                        <FileText className="size-4 text-muted-foreground" />
                       ) : (
                         <Circle className="size-4 text-muted-foreground" />
                       )}
@@ -140,6 +153,31 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons }: LessonSideba
             )
           })}
         </nav>
+
+        {quizzes.length > 0 && (
+          <div className="border-t p-2">
+            <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Autoevaluación
+            </p>
+            {quizzes.map((q) => {
+              const isCurrent = pathname.includes(q.id)
+              return (
+                <Link
+                  key={q.id}
+                  href={`/learn/${courseSlug}/quiz/${q.id}`}
+                  onClick={() => setOpen(false)}
+                  className={cn(
+                    'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors',
+                    isCurrent ? 'bg-primary text-primary-foreground' : 'hover:bg-accent hover:text-accent-foreground'
+                  )}
+                >
+                  <HelpCircle className="size-4 flex-shrink-0" />
+                  <span className="leading-tight line-clamp-2">{q.title}</span>
+                </Link>
+              )
+            })}
+          </div>
+        )}
 
         {percent === 100 && (
           <div className="p-4 border-t">

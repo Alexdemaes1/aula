@@ -1,15 +1,14 @@
 'use client'
 
-import { useActionState, useEffect, useRef } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createCourseAction, updateCourseAction } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Switch } from '@/components/ui/switch'
-import { slugify } from '@/lib/utils/format'
-import { Loader2, Save } from 'lucide-react'
+import { slugify, formatPrice } from '@/lib/utils/format'
+import { Loader2, Save, Lock, LockOpen } from 'lucide-react'
 import type { Course } from '@/types'
 import { toast } from 'sonner'
 
@@ -17,12 +16,21 @@ interface CourseFormProps {
   course?: Course
 }
 
+const SLUG_RE = /^[a-z0-9-]+$/
+
 export function CourseForm({ course }: CourseFormProps) {
   const isEdit = !!course
   const action = isEdit ? updateCourseAction : createCourseAction
   const [state, formAction, pending] = useActionState(action, null)
-  const slugRef = useRef<HTMLInputElement>(null)
   const router = useRouter()
+
+  const [title, setTitle] = useState(course?.title ?? '')
+  const [slug, setSlug] = useState(course?.slug ?? '')
+  const [autoSlug, setAutoSlug] = useState(!isEdit) // en edición no auto-pisar
+  const [description, setDescription] = useState(course?.description ?? '')
+  const [priceCents, setPriceCents] = useState(course?.price_cents ?? 0)
+  const [currency, setCurrency] = useState(course?.currency ?? 'eur')
+  const [touched, setTouched] = useState(false)
 
   useEffect(() => {
     if (state?.error) toast.error(state.error)
@@ -32,14 +40,17 @@ export function CourseForm({ course }: CourseFormProps) {
     }
   }, [state, router])
 
-  function handleTitleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!isEdit && slugRef.current && !slugRef.current.dataset.edited) {
-      slugRef.current.value = slugify(e.target.value)
-    }
+  function handleTitleChange(value: string) {
+    setTitle(value)
+    if (autoSlug) setSlug(slugify(value))
   }
 
+  const titleError = touched && title.trim().length < 3 ? 'Mínimo 3 caracteres' : null
+  const slugError = touched && (slug.length < 2 || !SLUG_RE.test(slug)) ? 'Solo minúsculas, números y guiones' : null
+  const invalid = title.trim().length < 3 || slug.length < 2 || !SLUG_RE.test(slug)
+
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} className="space-y-5" onSubmit={() => setTouched(true)}>
       {isEdit && <input type="hidden" name="id" value={course.id} />}
 
       <div className="space-y-2">
@@ -48,93 +59,100 @@ export function CourseForm({ course }: CourseFormProps) {
           id="title"
           name="title"
           required
-          defaultValue={course?.title}
-          placeholder="Ej: Fotografía digital para principiantes"
-          onChange={handleTitleChange}
+          value={title}
+          onChange={(e) => handleTitleChange(e.target.value)}
+          onBlur={() => setTouched(true)}
+          placeholder="Ej: Fundamentos de Tai Ji"
+          aria-invalid={!!titleError}
         />
+        {titleError && <p className="text-xs text-destructive">{titleError}</p>}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="slug">Slug (URL) *</Label>
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">/courses/</span>
+          <span className="text-sm text-muted-foreground shrink-0">/courses/</span>
           <Input
             id="slug"
             name="slug"
             required
-            ref={slugRef}
-            defaultValue={course?.slug}
-            placeholder="fotografia-digital"
-            pattern="[a-z0-9-]+"
-            title="Solo letras minúsculas, números y guiones"
-            onInput={(e) => {
-              (e.target as HTMLInputElement).dataset.edited = 'true'
+            value={slug}
+            onChange={(e) => {
+              setSlug(slugify(e.target.value))
+              setAutoSlug(false)
             }}
+            placeholder="fundamentos-tai-ji"
             className="flex-1"
+            aria-invalid={!!slugError}
           />
+          <Button
+            type="button"
+            variant="ghost"
+            size="sm"
+            className="h-9 w-9 p-0 shrink-0"
+            onClick={() => {
+              const next = !autoSlug
+              setAutoSlug(next)
+              if (next) setSlug(slugify(title))
+            }}
+            title={autoSlug ? 'Slug automático desde el título (clic para editar a mano)' : 'Edición manual (clic para volver a automático)'}
+          >
+            {autoSlug ? <Lock className="size-4" /> : <LockOpen className="size-4" />}
+          </Button>
         </div>
+        {slugError && <p className="text-xs text-destructive">{slugError}</p>}
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="description">Descripción</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="description">Descripción</Label>
+          <span className="text-xs text-muted-foreground">{description.length}/600</span>
+        </div>
         <Textarea
           id="description"
           name="description"
-          defaultValue={course?.description}
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
           rows={4}
+          maxLength={600}
           placeholder="¿Qué aprenderán los alumnos?"
         />
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="price_cents">Precio (céntimos de €)</Label>
+          <Label htmlFor="price_cents">Precio (céntimos)</Label>
           <Input
             id="price_cents"
             name="price_cents"
             type="number"
             min={0}
-            defaultValue={course?.price_cents ?? 0}
-            placeholder="1999 = 19,99 €"
+            value={priceCents}
+            onChange={(e) => setPriceCents(Math.max(0, Number(e.target.value)))}
+            placeholder="1999"
           />
-          <p className="text-xs text-muted-foreground">0 = curso gratuito</p>
+          <p className="text-xs text-muted-foreground">
+            {priceCents === 0 ? 'Curso gratuito' : `Se mostrará como ${formatPrice(priceCents, currency)}`}
+          </p>
         </div>
         <div className="space-y-2">
           <Label htmlFor="currency">Moneda</Label>
-          <Input
+          <select
             id="currency"
             name="currency"
-            defaultValue={course?.currency ?? 'eur'}
-            placeholder="eur"
-            maxLength={3}
-          />
+            value={currency}
+            onChange={(e) => setCurrency(e.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="eur">EUR (€)</option>
+            <option value="usd">USD ($)</option>
+            <option value="gbp">GBP (£)</option>
+          </select>
         </div>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="cover_url">URL de imagen de portada</Label>
-        <Input
-          id="cover_url"
-          name="cover_url"
-          type="url"
-          defaultValue={course?.cover_url ?? ''}
-          placeholder="https://ejemplo.com/imagen.jpg"
-        />
-        <p className="text-xs text-muted-foreground">Opcional. Imagen en formato 16:9 (ej: 1280×720 px).</p>
-      </div>
-
-      <div className="flex items-center gap-3">
-        <Switch
-          id="is_published"
-          name="is_published"
-          value="true"
-          defaultChecked={course?.is_published}
-        />
-        <Label htmlFor="is_published">Publicar curso (visible en el catálogo)</Label>
-      </div>
-
       <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={pending}>
+        <Button type="submit" disabled={pending || invalid}>
           {pending ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Save className="size-4 mr-2" />}
           {isEdit ? 'Guardar cambios' : 'Crear curso'}
         </Button>

@@ -8,17 +8,18 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { slugify } from '@/lib/utils/format'
 import { getStripe } from '@/lib/stripe'
 import { notify } from '@/lib/notify'
+import { parseQuestions, type ParsedQuestion } from '@/lib/quiz/parse'
 
 // ── Cursos ────────────────────────────────────────────────
 
+// La portada se gestiona en la pestaña Portada y la publicación vía el checklist/toggle;
+// por eso cover_url e is_published NO viajan en este formulario (una sola fuente de verdad).
 const courseSchema = z.object({
   title: z.string().min(3, 'El título debe tener al menos 3 caracteres'),
   slug: z.string().min(2).regex(/^[a-z0-9-]+$/, 'Solo letras minúsculas, números y guiones'),
   description: z.string().default(''),
   price_cents: z.coerce.number().int().min(0),
   currency: z.string().default('eur'),
-  is_published: z.coerce.boolean().default(false),
-  cover_url: z.string().url('URL de imagen inválida').optional().or(z.literal('')).transform(v => v || null),
 })
 
 export async function createCourseAction(_prev: unknown, formData: FormData) {
@@ -32,8 +33,6 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
     description: String(formData.get('description') ?? ''),
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
-    is_published: formData.get('is_published') === 'true',
-    cover_url: String(formData.get('cover_url') ?? ''),
   }
 
   const parsed = courseSchema.safeParse(raw)
@@ -63,8 +62,6 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
     description: String(formData.get('description') ?? ''),
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
-    is_published: formData.get('is_published') === 'true',
-    cover_url: String(formData.get('cover_url') ?? ''),
   }
 
   const parsed = courseSchema.safeParse(raw)
@@ -139,35 +136,82 @@ export async function uploadCoverAction(courseId: string, formData: FormData) {
   return { success: urlData.publicUrl }
 }
 
+export async function setCoverUrlAction(
+  courseId: string,
+  url: string
+): Promise<{ success?: string; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const parsed = z.string().url('URL de imagen inválida').safeParse(url.trim())
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+
+  const { error } = await db.from('courses').update({ cover_url: parsed.data }).eq('id', courseId)
+  if (error) return { error: error.message }
+
+  revalidatePath('/admin/courses')
+  revalidatePath('/')
+  return { success: parsed.data }
+}
+
 // ── Lecciones ─────────────────────────────────────────────
 
+// Schema condicional: vídeo ⇒ youtube_video_id; texto ⇒ body (coherente con el CHECK de la BD).
 const lessonSchema = z.object({
   title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
   description: z.string().default(''),
-  youtube_video_id: z.string().min(5, 'ID de YouTube inválido'),
+  content_type: z.enum(['video', 'text']).default('video'),
+  youtube_video_id: z.string().default(''),
+  body: z.string().default(''),
   position: z.coerce.number().int().min(1),
   min_watch_seconds: z.coerce.number().int().min(0),
+}).superRefine((v, ctx) => {
+  if (v.content_type === 'video' && v.youtube_video_id.trim().length < 5) {
+    ctx.addIssue({ code: 'custom', path: ['youtube_video_id'], message: 'ID de YouTube inválido' })
+  }
+  if (v.content_type === 'text' && v.body.trim().length === 0) {
+    ctx.addIssue({ code: 'custom', path: ['body'], message: 'El contenido de texto no puede estar vacío' })
+  }
 })
+
+type LessonInput = z.infer<typeof lessonSchema>
+
+// Construye el payload de columnas para la BD respetando la coherencia tipo⇄campos.
+function buildLessonPayload(d: LessonInput) {
+  return {
+    title: d.title,
+    description: d.description,
+    content_type: d.content_type,
+    youtube_video_id: d.content_type === 'video' ? d.youtube_video_id.trim() : null,
+    body: d.content_type === 'text' ? d.body : null,
+    position: d.position,
+    min_watch_seconds: d.min_watch_seconds,
+  }
+}
+
+function readLessonForm(formData: FormData) {
+  return {
+    title: String(formData.get('title') ?? ''),
+    description: String(formData.get('description') ?? ''),
+    content_type: String(formData.get('content_type') ?? 'video'),
+    youtube_video_id: String(formData.get('youtube_video_id') ?? ''),
+    body: String(formData.get('body') ?? ''),
+    position: Number(formData.get('position') ?? 1),
+    min_watch_seconds: Number(formData.get('min_watch_minutes') ?? 0) * 60,
+  }
+}
 
 export async function createLessonAction(_prev: unknown, formData: FormData) {
   await requireAdmin()
   const db = createAdminClient()
 
   const courseId = String(formData.get('course_id'))
-  const raw = {
-    title: String(formData.get('title') ?? ''),
-    description: String(formData.get('description') ?? ''),
-    youtube_video_id: String(formData.get('youtube_video_id') ?? ''),
-    position: Number(formData.get('position') ?? 1),
-    min_watch_seconds: Number(formData.get('min_watch_minutes') ?? 0) * 60,
-  }
-
-  const parsed = lessonSchema.safeParse(raw)
+  const parsed = lessonSchema.safeParse(readLessonForm(formData))
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
   const { error } = await db
     .from('lessons')
-    .insert({ ...parsed.data, course_id: courseId })
+    .insert({ ...buildLessonPayload(parsed.data), course_id: courseId })
 
   if (error) {
     if (error.message.includes('unique')) return { error: 'Ya existe una lección en esa posición' }
@@ -184,18 +228,10 @@ export async function updateLessonAction(_prev: unknown, formData: FormData) {
 
   const id = String(formData.get('id'))
   const courseId = String(formData.get('course_id'))
-  const raw = {
-    title: String(formData.get('title') ?? ''),
-    description: String(formData.get('description') ?? ''),
-    youtube_video_id: String(formData.get('youtube_video_id') ?? ''),
-    position: Number(formData.get('position') ?? 1),
-    min_watch_seconds: Number(formData.get('min_watch_minutes') ?? 0) * 60,
-  }
-
-  const parsed = lessonSchema.safeParse(raw)
+  const parsed = lessonSchema.safeParse(readLessonForm(formData))
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { error } = await db.from('lessons').update(parsed.data).eq('id', id)
+  const { error } = await db.from('lessons').update(buildLessonPayload(parsed.data)).eq('id', id)
   if (error) return { error: error.message }
 
   revalidatePath(`/admin/courses/${courseId}`)
@@ -378,4 +414,255 @@ export async function testNotifyAction(): Promise<{ message?: string; error?: st
   } catch {
     return { error: 'No se pudo enviar la notificación. Comprueba el topic de ntfy.' }
   }
+}
+
+// ── Cuestionarios (admin) ─────────────────────────────────
+
+type DbClient = ReturnType<typeof createAdminClient>
+
+const optionInputSchema = z.object({
+  label: z.string().trim().min(1, 'Hay una opción vacía'),
+  isCorrect: z.boolean(),
+})
+
+const questionInputSchema = z.object({
+  prompt: z.string().trim().min(3, 'El enunciado es demasiado corto'),
+  type: z.enum(['single', 'multiple', 'boolean']),
+  explanation: z.string().default(''),
+  options: z.array(optionInputSchema).min(2, 'Se requieren al menos 2 opciones').max(6, 'Máximo 6 opciones'),
+}).superRefine((v, ctx) => {
+  const correct = v.options.filter(o => o.isCorrect).length
+  if (v.type === 'multiple') {
+    if (correct < 1) ctx.addIssue({ code: 'custom', message: 'Marca al menos una opción correcta' })
+  } else if (correct !== 1) {
+    ctx.addIssue({ code: 'custom', message: 'Debe haber exactamente una opción correcta' })
+  }
+})
+
+function readQuestionForm(formData: FormData) {
+  let options: unknown = []
+  try {
+    options = JSON.parse(String(formData.get('options') ?? '[]'))
+  } catch {
+    options = []
+  }
+  return {
+    prompt: String(formData.get('prompt') ?? ''),
+    type: String(formData.get('type') ?? 'single'),
+    explanation: String(formData.get('explanation') ?? ''),
+    options,
+  }
+}
+
+// Devuelve el id del cuestionario del curso, creándolo si no existe.
+async function getOrCreateQuiz(db: DbClient, courseId: string): Promise<string | null> {
+  const { data: existing } = await db
+    .from('quizzes')
+    .select('id')
+    .eq('course_id', courseId)
+    .order('position')
+    .limit(1)
+    .maybeSingle()
+  if (existing) return existing.id
+  const { data: created } = await db.from('quizzes').insert({ course_id: courseId }).select('id').single()
+  return created?.id ?? null
+}
+
+type QuestionPayload = Pick<ParsedQuestion, 'prompt' | 'type' | 'options'> & { explanation?: string }
+
+async function insertQuestionWithOptions(
+  db: DbClient,
+  quizId: string,
+  q: QuestionPayload,
+  position: number
+): Promise<{ message: string } | null> {
+  const { data: question, error } = await db
+    .from('quiz_questions')
+    .insert({ quiz_id: quizId, prompt: q.prompt, type: q.type, explanation: q.explanation ?? '', position })
+    .select('id')
+    .single()
+  if (error || !question) return error ?? { message: 'No se pudo crear la pregunta' }
+
+  const optionRows = q.options.map((o, i) => ({
+    question_id: question.id,
+    label: o.label,
+    is_correct: o.isCorrect,
+    position: i + 1,
+  }))
+  const { error: optErr } = await db.from('quiz_options').insert(optionRows)
+  return optErr ? { message: optErr.message } : null
+}
+
+export async function upsertQuizSettingsAction(
+  _prev: unknown,
+  formData: FormData
+): Promise<{ message?: string; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const courseId = String(formData.get('course_id'))
+  const title = String(formData.get('title') ?? 'Autoevaluación').trim() || 'Autoevaluación'
+  const description = String(formData.get('description') ?? '')
+  const passing = Math.max(0, Math.min(100, Number(formData.get('passing_score') ?? 70)))
+  const maxRaw = String(formData.get('max_attempts') ?? '').trim()
+  const maxAttempts = maxRaw === '' ? null : Math.max(1, Math.floor(Number(maxRaw)) || 1)
+
+  const quizId = await getOrCreateQuiz(db, courseId)
+  if (!quizId) return { error: 'No se pudo crear el cuestionario' }
+
+  const { error } = await db
+    .from('quizzes')
+    .update({ title, description, passing_score: passing, max_attempts: maxAttempts })
+    .eq('id', quizId)
+  if (error) return { error: error.message }
+
+  revalidatePath(`/admin/courses/${courseId}`)
+  return { message: 'Cuestionario guardado correctamente.' }
+}
+
+export async function createQuestionAction(
+  _prev: unknown,
+  formData: FormData
+): Promise<{ success?: string; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const courseId = String(formData.get('course_id'))
+  let quizId = String(formData.get('quiz_id') ?? '')
+  if (!quizId) {
+    const id = await getOrCreateQuiz(db, courseId)
+    if (!id) return { error: 'No se pudo crear el cuestionario' }
+    quizId = id
+  }
+
+  const parsed = questionInputSchema.safeParse(readQuestionForm(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+
+  const { data: last } = await db
+    .from('quiz_questions')
+    .select('position')
+    .eq('quiz_id', quizId)
+    .order('position', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const position = (last?.position ?? 0) + 1
+
+  const err = await insertQuestionWithOptions(db, quizId, parsed.data, position)
+  if (err) return { error: err.message }
+
+  revalidatePath(`/admin/courses/${courseId}`)
+  return { success: 'Pregunta añadida' }
+}
+
+export async function updateQuestionAction(
+  _prev: unknown,
+  formData: FormData
+): Promise<{ success?: string; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const id = String(formData.get('id'))
+  const courseId = String(formData.get('course_id'))
+  const parsed = questionInputSchema.safeParse(readQuestionForm(formData))
+  if (!parsed.success) return { error: parsed.error.issues[0].message }
+
+  const { error } = await db
+    .from('quiz_questions')
+    .update({ prompt: parsed.data.prompt, type: parsed.data.type, explanation: parsed.data.explanation })
+    .eq('id', id)
+  if (error) return { error: error.message }
+
+  // Reemplazar opciones por completo (más simple que diff)
+  await db.from('quiz_options').delete().eq('question_id', id)
+  const optionRows = parsed.data.options.map((o, i) => ({
+    question_id: id,
+    label: o.label,
+    is_correct: o.isCorrect,
+    position: i + 1,
+  }))
+  const { error: optErr } = await db.from('quiz_options').insert(optionRows)
+  if (optErr) return { error: optErr.message }
+
+  revalidatePath(`/admin/courses/${courseId}`)
+  return { success: 'Pregunta actualizada' }
+}
+
+export async function deleteQuestionAction(questionId: string, courseId: string): Promise<void> {
+  await requireAdmin()
+  const db = createAdminClient()
+  await db.from('quiz_questions').delete().eq('id', questionId)
+  revalidatePath(`/admin/courses/${courseId}`)
+}
+
+export async function reorderQuestionAction(
+  questionId: string,
+  direction: 'up' | 'down',
+  courseId: string
+): Promise<void> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const { data: current } = await db
+    .from('quiz_questions')
+    .select('position, quiz_id')
+    .eq('id', questionId)
+    .single()
+  if (!current) return
+
+  const targetPosition = current.position + (direction === 'down' ? 1 : -1)
+  const { data: adjacent } = await db
+    .from('quiz_questions')
+    .select('id')
+    .eq('quiz_id', current.quiz_id)
+    .eq('position', targetPosition)
+    .single()
+  if (!adjacent) return
+
+  await db.rpc('swap_question_positions', { question_a: questionId, question_b: adjacent.id })
+  revalidatePath(`/admin/courses/${courseId}`)
+}
+
+export async function importQuizQuestionsAction(
+  courseId: string,
+  raw: string,
+  replace: boolean
+): Promise<{ imported: number; errors: { block: number; preview: string; message: string }[]; error?: string }> {
+  await requireAdmin()
+  const db = createAdminClient()
+
+  const quizId = await getOrCreateQuiz(db, courseId)
+  if (!quizId) return { imported: 0, errors: [], error: 'No se pudo crear el cuestionario' }
+
+  const { questions, errors } = parseQuestions(raw)
+  if (questions.length === 0) {
+    return { imported: 0, errors, error: 'No se reconoció ninguna pregunta válida.' }
+  }
+
+  // Insertar las nuevas a partir de max+1; en modo reemplazo, borrar las antiguas
+  // SOLO después de insertar con éxito (evita perder todo si una inserción falla a mitad).
+  const { data: last } = await db
+    .from('quiz_questions')
+    .select('position')
+    .eq('quiz_id', quizId)
+    .order('position', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+  const startPos = (last?.position ?? 0) + 1
+  let position = startPos
+
+  let imported = 0
+  for (const q of questions) {
+    const err = await insertQuestionWithOptions(db, quizId, q, position)
+    if (!err) {
+      imported++
+      position++
+    }
+  }
+
+  if (replace && imported > 0) {
+    await db.from('quiz_questions').delete().eq('quiz_id', quizId).lt('position', startPos)
+  }
+
+  revalidatePath(`/admin/courses/${courseId}`)
+  return { imported, errors }
 }

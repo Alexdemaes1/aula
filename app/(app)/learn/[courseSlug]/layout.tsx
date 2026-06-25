@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 }
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole } from '@/lib/data/learn'
+import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole, getCourseQuizzes } from '@/lib/data/learn'
 import { LessonSidebar } from '@/components/lesson-sidebar'
 
 interface LayoutProps {
@@ -22,7 +22,7 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
   const course = await getCourseBySlug(courseSlug)
   if (!course) notFound()
 
-  const [enrollment, role, lessons, allProgress] = await Promise.all([
+  const [enrollment, role, lessons, allProgress, quizzes] = await Promise.all([
     db
       .from('enrollments')
       .select('id')
@@ -34,6 +34,7 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
     getUserRole(user.id),
     getLessonsByCourse(course.id),
     getLessonProgress(user.id),
+    getCourseQuizzes(course.id),
   ])
   const isAdmin = role === 'admin'
 
@@ -49,10 +50,13 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
       id: lesson.id,
       title: lesson.title,
       position: lesson.position,
+      contentType: (lesson.content_type ?? 'video') as 'video' | 'text',
       completed: progressMap.get(lesson.id) ?? false,
       unlocked: isAdmin || idx === 0 || prevCompleted,
     }
   })
+
+  const sidebarQuizzes = quizzes.map((q) => ({ id: q.id, title: q.title }))
 
   return (
     <>
@@ -64,6 +68,7 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
           courseSlug={courseSlug}
           courseTitle={course.title}
           lessons={sidebarLessons}
+          quizzes={sidebarQuizzes}
         />
         <div className="flex-1 overflow-y-auto">
           {children}

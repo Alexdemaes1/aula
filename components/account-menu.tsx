@@ -8,7 +8,6 @@ import {
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 
@@ -27,7 +26,8 @@ export function AccountMenu({ isAdmin, email }: { isAdmin: boolean; email?: stri
       <DropdownMenuContent align="end" sideOffset={8} className="w-56">
         {email && (
           <>
-            <DropdownMenuLabel className="truncate">{email}</DropdownMenuLabel>
+            {/* div simple, NO DropdownMenuLabel: GroupLabel de base-ui exige un <Group> padre (error #31) */}
+            <div className="px-1.5 py-1 text-xs font-medium text-muted-foreground truncate">{email}</div>
             <DropdownMenuSeparator />
           </>
         )}

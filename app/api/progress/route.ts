@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { recordCompletionIfDone } from '@/lib/completion'
 import { notify } from '@/lib/notify'
 import { z } from 'zod'
 
@@ -77,6 +78,7 @@ export async function POST(request: NextRequest) {
       notify('🚨 Error BD — progress', error.message, { priority: 4, tags: ['rotating_light'] })
       return NextResponse.json({ error: 'Error al guardar' }, { status: 500 })
     }
+    await recordCompletionIfDone(user.id, lesson.course_id)
     return NextResponse.json({ completed: true })
   }
 
@@ -105,6 +107,11 @@ export async function POST(request: NextRequest) {
     console.error('[progress]', error)
     notify('🚨 Error BD — progress', error.message, { priority: 4, tags: ['rotating_light'] })
     return NextResponse.json({ error: 'Error al guardar' }, { status: 500 })
+  }
+
+  // La lección acaba de completarse → comprobar si el curso queda completo.
+  if (completed && !current?.completed) {
+    await recordCompletionIfDone(user.id, lesson.course_id)
   }
 
   return NextResponse.json({ watchedSeconds: newWatched, completed })

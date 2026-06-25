@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { slugify, formatPrice } from '@/lib/utils/format'
-import { Loader2, Save, Lock, LockOpen } from 'lucide-react'
+import { Loader2, Save, Lock, LockOpen, Check } from 'lucide-react'
 import type { Course } from '@/types'
 import { toast } from 'sonner'
 
@@ -32,12 +32,19 @@ export function CourseForm({ course }: CourseFormProps) {
   const [currency, setCurrency] = useState(course?.currency ?? 'eur')
   const [touched, setTouched] = useState(false)
 
+  // Snapshot del último estado guardado para detectar cambios sin guardar.
+  const snapshot = JSON.stringify({ title, slug, description, priceCents, currency })
+  const [savedSnapshot, setSavedSnapshot] = useState(snapshot)
+  const dirty = isEdit && snapshot !== savedSnapshot
+
   useEffect(() => {
     if (state?.error) toast.error(state.error)
     if (state?.success) {
       toast.success(state.success)
+      setSavedSnapshot(JSON.stringify({ title, slug, description, priceCents, currency }))
       router.refresh()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state, router])
 
   function handleTitleChange(value: string) {
@@ -151,11 +158,24 @@ export function CourseForm({ course }: CourseFormProps) {
         </div>
       </div>
 
-      <div className="flex gap-3 pt-2">
-        <Button type="submit" disabled={pending || invalid}>
+      <div className="flex items-center gap-3 pt-2">
+        <Button type="submit" disabled={pending || invalid || (isEdit && !dirty)}>
           {pending ? <Loader2 className="size-4 mr-2 animate-spin" /> : <Save className="size-4 mr-2" />}
           {isEdit ? 'Guardar cambios' : 'Crear curso'}
         </Button>
+        {isEdit && (
+          dirty ? (
+            <span className="text-xs text-amber-600 dark:text-amber-400 flex items-center gap-1.5">
+              <span className="size-1.5 rounded-full bg-amber-500" />
+              Cambios sin guardar
+            </span>
+          ) : (
+            <span className="text-xs text-green-600 dark:text-green-400 flex items-center gap-1.5">
+              <Check className="size-3.5" />
+              Guardado
+            </span>
+          )
+        )}
       </div>
     </form>
   )

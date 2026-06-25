@@ -17,10 +17,23 @@ export const getCourseQuizzes = cache(async (courseId: string) => {
   const db = createAdminClient()
   const { data } = await db
     .from('quizzes')
-    .select('id, title, position')
+    .select('id, title, position, required_for_completion')
     .eq('course_id', courseId)
     .order('position')
   return data ?? []
+})
+
+// IDs de cuestionarios que el usuario ha aprobado (de un conjunto dado)
+export const getPassedQuizIds = cache(async (userId: string, quizIds: string[]) => {
+  if (quizIds.length === 0) return new Set<string>()
+  const db = createAdminClient()
+  const { data } = await db
+    .from('quiz_attempts')
+    .select('quiz_id')
+    .eq('user_id', userId)
+    .eq('passed', true)
+    .in('quiz_id', quizIds)
+  return new Set((data ?? []).map((a) => a.quiz_id))
 })
 
 export const getLessonProgress = cache(async (userId: string) => {

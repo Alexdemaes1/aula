@@ -6,6 +6,7 @@ import { CatalogSearch } from '@/components/catalog-search'
 import { CatalogSort } from '@/components/catalog-sort'
 import { CourseCatalog } from '@/components/course-catalog'
 import { Brain, Leaf, Heart, Video, Shield, Flame } from 'lucide-react'
+import { SectionDivider } from '@/components/section-divider'
 
 export const metadata = {
   title: 'Tian Ying Fa — Tai Ji, Qi Gong y Medicina Natural',
@@ -142,13 +143,15 @@ export default async function HomePage({ searchParams }: PageProps) {
             {/* Gradiente sutil tipo pintura china */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_70%_50%_at_30%_50%,oklch(0.28_0.09_165/0.25),transparent)]" />
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_60%_at_80%_50%,oklch(0.72_0.14_85/0.08),transparent)]" />
+            {/* Marca de agua 天 (cielo) */}
+            <span aria-hidden className="pointer-events-none select-none absolute right-4 top-1/2 -translate-y-1/2 font-heading text-[18rem] leading-none text-brand-gold/[0.07] hidden lg:block">天</span>
             <div className="relative max-w-6xl mx-auto px-6 py-24 sm:py-36 grid lg:grid-cols-2 gap-12 items-center">
               {/* Contenido */}
               <div>
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-gold/30 bg-brand-gold/10 text-brand-gold text-xs font-medium mb-8 tracking-wide uppercase">
                   Centro Tian Ying Fa · Algemesí, Valencia
                 </div>
-                <h1 className="text-4xl sm:text-5xl xl:text-6xl font-bold tracking-tight leading-tight mb-6 font-heading">
+                <h1 className="text-5xl sm:text-6xl xl:text-7xl font-bold tracking-tight leading-[1.05] mb-6 font-heading">
                   Transforma tu cuerpo,
                   <br />
                   <span className="text-brand-gold">mente y energía.</span>
@@ -215,10 +218,11 @@ export default async function HomePage({ searchParams }: PageProps) {
           <section className="py-20 bg-background">
             <div className="max-w-6xl mx-auto px-6">
               <div className="text-center mb-14">
-                <h2 className="text-3xl font-bold tracking-tight font-heading">
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-heading">
                   Disciplinas que transforman
                 </h2>
-                <p className="text-muted-foreground mt-3 max-w-xl mx-auto">
+                <SectionDivider />
+                <p className="text-muted-foreground max-w-xl mx-auto">
                   Cada curso está diseñado bajo la filosofía integral de Tian Ying Fa:
                   optimizar cuerpo, mente y energía de forma duradera.
                 </p>
@@ -238,7 +242,7 @@ export default async function HomePage({ searchParams }: PageProps) {
           </section>
 
           {/* Cómo funciona */}
-          <section className="py-20 bg-muted/40">
+          <section className="py-20 section-wash-jade">
             <div className="max-w-4xl mx-auto px-6 text-center">
               <h2 className="text-3xl font-bold tracking-tight mb-4 font-heading">
                 Empieza en tres pasos
@@ -308,12 +312,13 @@ export default async function HomePage({ searchParams }: PageProps) {
       {!user && (
         <>
           {/* Testimonios */}
-          <section className="py-20 bg-muted/40">
+          <section className="py-20 section-wash-gold">
             <div className="max-w-6xl mx-auto px-6">
               <div className="text-center mb-14">
-                <h2 className="text-3xl font-bold tracking-tight font-heading">
+                <h2 className="text-3xl sm:text-4xl font-bold tracking-tight font-heading">
                   Lo que dicen nuestros alumnos
                 </h2>
+                <SectionDivider />
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 {TESTIMONIALS.map(({ body, name, role }) => (

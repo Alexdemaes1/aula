@@ -73,6 +73,9 @@ export function SettingsStripeInfo({ mode, pubKey }: SettingsStripeInfoProps) {
       <p className="text-xs text-muted-foreground">
         Para cambiar entre test/live, actualiza las variables de entorno en Vercel y vuelve a desplegar.
       </p>
+      <p className="text-xs text-muted-foreground">
+        Guía de configuración paso a paso: <code className="bg-muted px-1 py-0.5 rounded">docs/stripe-setup.md</code>
+      </p>
     </div>
   )
 }

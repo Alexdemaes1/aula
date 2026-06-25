@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { Menu, X, BookOpen, LayoutDashboard, User, Settings, LogOut } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logoutAction } from '@/app/actions/auth'
@@ -14,6 +15,7 @@ interface MobileMenuProps {
 
 export function MobileMenu({ isLoggedIn, isAdmin, email }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
 
   useEffect(() => {
     if (!open) return
@@ -85,20 +87,26 @@ export function MobileMenu({ isLoggedIn, isAdmin, email }: MobileMenuProps) {
 
             {/* Links de navegación */}
             <nav className="flex-1 p-4 space-y-0.5" aria-label="Navegación principal">
-              {navLinks.map(({ href, label, icon: Icon }) => (
-                <Link
-                  key={href}
-                  href={href}
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-3.5 rounded-md text-sm font-medium hover:bg-accent hover:text-accent-foreground transition-colors"
-                >
-                  {Icon
-                    ? <Icon className="size-4 text-muted-foreground flex-shrink-0" />
-                    : <span className="size-4 flex-shrink-0" />
-                  }
-                  {label}
-                </Link>
-              ))}
+              {navLinks.map(({ href, label, icon: Icon }) => {
+                const active = href === '/' ? pathname === '/' : pathname.startsWith(href)
+                return (
+                  <Link
+                    key={href}
+                    href={href}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? 'page' : undefined}
+                    className={cn(
+                      'flex items-center gap-3 px-3 py-3.5 rounded-md text-sm font-medium transition-colors',
+                      active ? 'bg-accent text-accent-foreground' : 'hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    {Icon
+                      ? <Icon className="size-4 text-muted-foreground flex-shrink-0" />
+                      : <span className="size-4 flex-shrink-0" />}
+                    {label}
+                  </Link>
+                )
+              })}
             </nav>
 
             {/* Botones de acción (login/logout) */}

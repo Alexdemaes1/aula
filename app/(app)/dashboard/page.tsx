@@ -7,7 +7,8 @@ import { Progress } from '@/components/ui/progress'
 import { Badge } from '@/components/ui/badge'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { BookOpen, ArrowRight, Trophy, Clock, CheckCircle, GraduationCap } from 'lucide-react'
+import { BookOpen, ArrowRight, Trophy, Clock, CheckCircle, GraduationCap, Award } from 'lucide-react'
+import { isCourseCompleted, courseProgressPercent, type CourseQuizGate } from '@/lib/completion'
 
 export const metadata = { title: 'Mis cursos' }
 
@@ -31,6 +32,9 @@ export default async function DashboardPage() {
   let progressMap = new Map<string, { total: number; done: number }>()
   let totalWatchedSeconds = 0
   let totalLessonsCompleted = 0
+  // course_id -> quizId del quiz obligatorio (si lo hay) + set de quizzes aprobados
+  const requiredQuizByCourse = new Map<string, string>()
+  let passedQuizIds = new Set<string>()
 
   if (courseIds.length > 0) {
     // Batch query: todas las lecciones de todos los cursos matriculados
@@ -73,11 +77,35 @@ export default async function DashboardPage() {
       const done = lessonIds.filter((id) => progressByLesson.get(id)?.completed).length
       progressMap.set(courseId, { total, done })
     }
+
+    // Quizzes obligatorios de los cursos matriculados + intentos aprobados del usuario
+    const { data: reqQuizzes } = await db
+      .from('quizzes')
+      .select('id, course_id')
+      .in('course_id', courseIds)
+      .eq('required_for_completion', true)
+    for (const q of reqQuizzes ?? []) requiredQuizByCourse.set(q.course_id, q.id)
+
+    const reqQuizIds = (reqQuizzes ?? []).map((q) => q.id)
+    if (reqQuizIds.length > 0) {
+      const { data: passedAtt } = await db
+        .from('quiz_attempts')
+        .select('quiz_id')
+        .eq('user_id', user.id)
+        .eq('passed', true)
+        .in('quiz_id', reqQuizIds)
+      passedQuizIds = new Set((passedAtt ?? []).map((a) => a.quiz_id))
+    }
+  }
+
+  function gateFor(courseId: string): CourseQuizGate {
+    const qid = requiredQuizByCourse.get(courseId)
+    return { hasRequiredQuiz: !!qid, quizPassed: !!qid && passedQuizIds.has(qid) }
   }
 
   const coursesCompleted = courseIds.filter((id) => {
     const prog = progressMap.get(id)
-    return prog && prog.total > 0 && prog.done === prog.total
+    return prog ? isCourseCompleted(prog.total, prog.done, gateFor(id)) : false
   }).length
 
   const hoursLearned = Math.floor(totalWatchedSeconds / 3600)
@@ -139,8 +167,7 @@ export default async function DashboardPage() {
             const course = e.courses as any
             if (!course) return null
             const prog = progressMap.get(course.id)
-            const percent =
-              prog && prog.total > 0 ? Math.round((prog.done / prog.total) * 100) : 0
+            const percent = prog ? courseProgressPercent(prog.total, prog.done, gateFor(course.id)) : 0
 
             return (
               <Card key={e.id} className="overflow-hidden">
@@ -191,6 +218,18 @@ export default async function DashboardPage() {
                     {percent === 0 ? 'Empezar' : percent === 100 ? 'Repasar' : 'Continuar'}
                     <ArrowRight className="size-4 ml-1.5" />
                   </Link>
+
+                  {percent === 100 && (
+                    <a
+                      href={`/learn/${course.slug}/certificate`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={cn(buttonVariants({ size: 'sm', variant: 'outline' }), 'w-full')}
+                    >
+                      <Award className="size-4 mr-1.5" />
+                      Descargar certificado
+                    </a>
+                  )}
                 </CardContent>
               </Card>
             )

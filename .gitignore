@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# documentación interna (no versionar análisis de costes)
+docs/capacity-and-costs.md

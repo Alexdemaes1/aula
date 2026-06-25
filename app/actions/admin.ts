@@ -125,7 +125,10 @@ export async function uploadCoverAction(courseId: string, formData: FormData) {
     .from('covers')
     .upload(path, buffer, { contentType: file.type, upsert: true })
 
-  if (uploadError) return { error: uploadError.message }
+  if (uploadError) {
+    console.error('[cover] upload error:', uploadError)
+    return { error: uploadError.message }
+  }
 
   const { data: urlData } = db.storage.from('covers').getPublicUrl(path)
 
@@ -506,13 +509,20 @@ export async function upsertQuizSettingsAction(
   const passing = Math.max(0, Math.min(100, Number(formData.get('passing_score') ?? 70)))
   const maxRaw = String(formData.get('max_attempts') ?? '').trim()
   const maxAttempts = maxRaw === '' ? null : Math.max(1, Math.floor(Number(maxRaw)) || 1)
+  const requiredForCompletion = String(formData.get('required_for_completion') ?? '') !== ''
 
   const quizId = await getOrCreateQuiz(db, courseId)
   if (!quizId) return { error: 'No se pudo crear el cuestionario' }
 
   const { error } = await db
     .from('quizzes')
-    .update({ title, description, passing_score: passing, max_attempts: maxAttempts })
+    .update({
+      title,
+      description,
+      passing_score: passing,
+      max_attempts: maxAttempts,
+      required_for_completion: requiredForCompletion,
+    })
     .eq('id', quizId)
   if (error) return { error: error.message }
 

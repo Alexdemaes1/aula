@@ -6,7 +6,7 @@ export const metadata: Metadata = {
 }
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
-import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole, getCourseQuizzes } from '@/lib/data/learn'
+import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole, getCourseQuizzes, getPassedQuizIds } from '@/lib/data/learn'
 import { LessonSidebar } from '@/components/lesson-sidebar'
 
 interface LayoutProps {
@@ -56,7 +56,13 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
     }
   })
 
-  const sidebarQuizzes = quizzes.map((q) => ({ id: q.id, title: q.title }))
+  const passedSet = await getPassedQuizIds(user.id, quizzes.map((q) => q.id))
+  const sidebarQuizzes = quizzes.map((q) => ({
+    id: q.id,
+    title: q.title,
+    required: q.required_for_completion,
+    passed: passedSet.has(q.id),
+  }))
 
   return (
     <>

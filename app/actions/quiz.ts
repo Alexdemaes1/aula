@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache'
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { recordCompletionIfDone } from '@/lib/completion'
 
 export interface QuizSubmitResult {
   ok: boolean
@@ -104,6 +105,11 @@ export async function submitQuizAttempt(
     passed,
     answers,
   })
+
+  // Si aprueba, puede ser el último requisito de un curso (quiz obligatorio).
+  if (passed) {
+    await recordCompletionIfDone(user.id, quiz.course_id)
+  }
 
   revalidatePath(`/learn`, 'layout')
 

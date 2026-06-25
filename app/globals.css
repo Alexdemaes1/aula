@@ -138,3 +138,26 @@
     @apply font-heading;
   }
 }
+
+@layer components {
+  /* Lavados de color sutiles para fondos de sección (alternativa cálida al gris plano) */
+  .section-wash-jade {
+    background:
+      radial-gradient(60% 80% at 12% 0%, oklch(0.28 0.09 165 / 0.06), transparent 70%),
+      radial-gradient(55% 75% at 100% 100%, oklch(0.72 0.14 85 / 0.05), transparent 70%);
+  }
+  .section-wash-gold {
+    background:
+      radial-gradient(55% 70% at 100% 0%, oklch(0.72 0.14 85 / 0.07), transparent 70%),
+      radial-gradient(55% 75% at 0% 100%, oklch(0.28 0.09 165 / 0.05), transparent 70%);
+  }
+  /* Marca de agua con el carácter 天 (cielo) detrás del contenido */
+  .kanji-watermark {
+    position: absolute;
+    pointer-events: none;
+    user-select: none;
+    font-family: var(--font-heading);
+    line-height: 1;
+    color: oklch(0.72 0.14 85 / 0.06);
+  }
+}

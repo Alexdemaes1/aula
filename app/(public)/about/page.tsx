@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Leaf, Heart, Sparkles } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
+import { SectionDivider } from '@/components/section-divider'
 
 export const metadata = {
   title: 'Sobre nosotros',
@@ -70,11 +71,12 @@ export default function AboutPage() {
       {/* Hero */}
       <section className="relative bg-brand-dark text-white overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_50%_0%,oklch(0.28_0.09_165/0.25),transparent)]" />
+        <span aria-hidden className="pointer-events-none select-none absolute -right-8 -top-12 font-heading text-[16rem] leading-none text-brand-gold/[0.06] hidden lg:block">天</span>
         <div className="relative max-w-4xl mx-auto px-6 py-24 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-brand-gold/30 bg-brand-gold/10 text-brand-gold text-xs font-medium mb-8 tracking-wide uppercase">
             Algemesí, Valencia · Fundado hace más de 25 años
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight leading-tight mb-6 font-heading">
+          <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.05] mb-6 font-heading">
             Más de 25 años cultivando<br />
             <span className="text-brand-gold">el equilibrio</span>
           </h1>
@@ -114,20 +116,22 @@ export default function AboutPage() {
                 </p>
               </div>
             </div>
-            <div className="rounded-lg border bg-card p-6 text-center">
-              <p className="text-4xl font-bold text-primary mb-1 font-heading">25+</p>
-              <p className="text-sm text-muted-foreground">Años de experiencia</p>
+            <div className="relative overflow-hidden rounded-2xl border border-brand-gold/20 bg-card p-10 text-center shadow-sm">
+              <span aria-hidden className="pointer-events-none select-none absolute -right-4 -bottom-8 font-heading text-[10rem] leading-none text-brand-gold/[0.07]">天</span>
+              <p className="relative text-6xl font-bold text-primary mb-1 font-heading">25+</p>
+              <p className="relative text-sm text-muted-foreground">Años de experiencia</p>
             </div>
           </div>
         </div>
       </section>
 
       {/* Valores */}
-      <section className="py-16 bg-muted/40">
+      <section className="py-16 section-wash-jade">
         <div className="max-w-5xl mx-auto px-6">
-          <h2 className="text-3xl font-bold text-center mb-14 font-heading">
+          <h2 className="text-3xl sm:text-4xl font-bold text-center font-heading">
             Nuestra filosofía
           </h2>
+          <SectionDivider className="mb-12" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
             {VALUES.map(({ icon: Icon, title, desc }) => (
               <div key={title} className="text-center space-y-4">

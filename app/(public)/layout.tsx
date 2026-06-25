@@ -1,12 +1,14 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { Navbar } from '@/components/navbar'
+import { GlobalNav } from '@/components/global-nav'
+import { getNavData } from '@/lib/nav-data'
 import { WhatsAppButton } from '@/components/whatsapp-button'
 
-export default function PublicLayout({ children }: { children: React.ReactNode }) {
+export default async function PublicLayout({ children }: { children: React.ReactNode }) {
+  const nav = await getNavData()
   return (
     <div className="min-h-screen flex flex-col">
-      <Navbar />
+      <GlobalNav {...nav} />
       <main id="main-content" className="flex-1">{children}</main>
       <WhatsAppButton />
 

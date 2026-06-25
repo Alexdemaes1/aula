@@ -45,6 +45,7 @@ export interface Quiz {
   description: string
   passing_score: number
   max_attempts: number | null
+  required_for_completion: boolean
   position: number
   created_at: string
 }

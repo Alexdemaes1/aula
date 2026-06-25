@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X, Trophy, FileText, HelpCircle } from 'lucide-react'
+import { CheckCircle, Lock, Play, Circle, ChevronLeft, Menu, X, Trophy, FileText, HelpCircle, Award } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Progress } from '@/components/ui/progress'
 
@@ -20,6 +20,8 @@ interface SidebarLesson {
 interface SidebarQuiz {
   id: string
   title: string
+  required: boolean
+  passed: boolean
 }
 
 interface LessonSidebarProps {
@@ -32,8 +34,16 @@ interface LessonSidebarProps {
 export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }: LessonSidebarProps) {
   const pathname = usePathname()
   const [open, setOpen] = useState(false)
-  const completed = lessons.filter((l) => l.completed).length
-  const percent = lessons.length > 0 ? Math.round((completed / lessons.length) * 100) : 0
+
+  const requiredQuiz = quizzes.find((q) => q.required)
+  const optionalQuizzes = quizzes.filter((q) => !q.required)
+  const lessonsDone = lessons.filter((l) => l.completed).length
+  // El quiz obligatorio cuenta como un paso más en el progreso.
+  const denom = lessons.length + (requiredQuiz ? 1 : 0)
+  const numer = lessonsDone + (requiredQuiz?.passed ? 1 : 0)
+  const percent = denom > 0 ? Math.round((numer / denom) * 100) : 0
+  const isComplete = percent === 100
+  const lessonsAllDone = lessons.length > 0 && lessonsDone === lessons.length
 
   useEffect(() => {
     if (!open) return
@@ -51,14 +61,12 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }
         onClick={() => setOpen(true)}
         className={cn(
           'fixed bottom-4 left-4 z-40 md:hidden flex items-center gap-2 px-3 py-2.5 rounded-full shadow-lg text-xs font-medium',
-          percent === 100
-            ? 'bg-green-600 text-white'
-            : 'bg-primary text-primary-foreground'
+          isComplete ? 'bg-green-600 text-white' : 'bg-primary text-primary-foreground'
         )}
         aria-label="Ver lecciones"
       >
-        {percent === 100 ? <Trophy className="size-4" /> : <Menu className="size-4" />}
-        {percent === 100 ? '¡Completado!' : `${completed}/${lessons.length}`}
+        {isComplete ? <Trophy className="size-4" /> : <Menu className="size-4" />}
+        {isComplete ? '¡Completado!' : `${numer}/${denom}`}
       </button>
 
       {/* Overlay en móvil (empieza bajo el header) */}
@@ -99,7 +107,7 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }
           <div className="space-y-1">
             <div className="flex justify-between text-xs text-muted-foreground">
               <span>Progreso</span>
-              <span>{completed}/{lessons.length}</span>
+              <span>{numer}/{denom}</span>
             </div>
             <Progress value={percent} className="h-1.5" />
           </div>
@@ -154,12 +162,46 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }
           })}
         </nav>
 
-        {quizzes.length > 0 && (
+        {/* Evaluación final obligatoria */}
+        {requiredQuiz && (
+          <div className="border-t p-2">
+            <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
+              Evaluación final
+            </p>
+            <Link
+              href={`/learn/${courseSlug}/quiz/${requiredQuiz.id}`}
+              onClick={() => setOpen(false)}
+              className={cn(
+                'flex items-center gap-3 px-3 py-2.5 rounded-md text-sm transition-colors',
+                pathname.includes(requiredQuiz.id)
+                  ? 'bg-primary text-primary-foreground'
+                  : 'hover:bg-accent hover:text-accent-foreground'
+              )}
+            >
+              <span className="flex-shrink-0">
+                {requiredQuiz.passed ? (
+                  <CheckCircle className="size-4 text-green-500" />
+                ) : (
+                  <HelpCircle className="size-4 text-amber-500" />
+                )}
+              </span>
+              <span className="leading-tight line-clamp-2 flex-1">{requiredQuiz.title}</span>
+              {!requiredQuiz.passed && (
+                <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-amber-100 text-amber-700">
+                  Obligatorio
+                </span>
+              )}
+            </Link>
+          </div>
+        )}
+
+        {/* Autoevaluaciones opcionales */}
+        {optionalQuizzes.length > 0 && (
           <div className="border-t p-2">
             <p className="px-3 py-1.5 text-xs font-medium text-muted-foreground uppercase tracking-wide">
               Autoevaluación
             </p>
-            {quizzes.map((q) => {
+            {optionalQuizzes.map((q) => {
               const isCurrent = pathname.includes(q.id)
               return (
                 <Link
@@ -179,13 +221,29 @@ export function LessonSidebar({ courseSlug, courseTitle, lessons, quizzes = [] }
           </div>
         )}
 
-        {percent === 100 && (
-          <div className="p-4 border-t">
+        {/* Estado de completación */}
+        {isComplete ? (
+          <div className="p-4 border-t space-y-2">
             <div className="rounded-lg bg-green-50 border border-green-200 px-3 py-2 text-xs text-green-800 text-center">
               ¡Curso completado!
             </div>
+            <a
+              href={`/learn/${courseSlug}/certificate`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center justify-center gap-1.5 w-full rounded-lg bg-primary text-primary-foreground px-3 py-2 text-xs font-medium hover:opacity-90 transition-opacity"
+            >
+              <Award className="size-3.5" />
+              Descargar certificado
+            </a>
           </div>
-        )}
+        ) : lessonsAllDone && requiredQuiz && !requiredQuiz.passed ? (
+          <div className="p-4 border-t">
+            <div className="rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 text-xs text-amber-800 text-center">
+              Aprueba la evaluación final para completar el curso.
+            </div>
+          </div>
+        ) : null}
       </aside>
     </>
   )

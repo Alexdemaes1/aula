@@ -3,6 +3,11 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   poweredByHeader: false,
+  // Garantiza que el logo y la fuente del certificado se incluyan en el bundle
+  // de la función serverless (public/ no se copia por defecto en Vercel).
+  outputFileTracingIncludes: {
+    '/learn/**': ['./public/logo.png', './public/fonts/PlayfairDisplay-Bold.ttf'],
+  },
   async headers() {
     return [
       {

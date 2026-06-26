@@ -51,7 +51,9 @@ export async function loginAction(
   }
 
   const next = String(formData.get('next') ?? '').trim()
-  const safeNext = next.startsWith('/') ? next : '/dashboard'
+  // Evita open redirect: solo rutas internas (no "//host" ni "/\\host" protocol-relative).
+  const safeNext =
+    next.startsWith('/') && !next.startsWith('//') && !next.startsWith('/\\') ? next : '/dashboard'
   redirect(safeNext)
 }
 

@@ -4,6 +4,14 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export const runtime = 'nodejs'
 
+// Escapa una celda CSV: neutraliza inyección de fórmulas (Excel/LibreOffice
+// ejecutan celdas que empiezan por = + - @ o tab/CR) y duplica comillas.
+function csvCell(value: unknown): string {
+  let s = value == null ? '' : String(value)
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s
+  return '"' + s.replace(/"/g, '""') + '"'
+}
+
 export async function GET(request: NextRequest) {
   await requireAdmin()
   const db = createAdminClient()
@@ -31,12 +39,12 @@ export async function GET(request: NextRequest) {
     const profile = e.profiles as { full_name: string; id: string } | null
     const course = e.courses as { title: string } | null
     return [
-      `"${profile?.full_name ?? ''}"`,
-      emailMap.get(profile?.id ?? '') ?? '',
-      `"${course?.title ?? ''}"`,
-      ((e.amount_paid_cents ?? 0) / 100).toFixed(2),
-      e.status,
-      new Date(e.purchased_at).toLocaleDateString('es-ES'),
+      csvCell(profile?.full_name ?? ''),
+      csvCell(emailMap.get(profile?.id ?? '') ?? ''),
+      csvCell(course?.title ?? ''),
+      csvCell(((e.amount_paid_cents ?? 0) / 100).toFixed(2)),
+      csvCell(e.status),
+      csvCell(new Date(e.purchased_at).toLocaleDateString('es-ES')),
     ].join(',')
   })
 

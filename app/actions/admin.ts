@@ -11,6 +11,39 @@ import { getStripe } from '@/lib/stripe'
 import { notify } from '@/lib/notify'
 import { parseQuestions, type ParsedQuestion } from '@/lib/quiz/parse'
 
+// ── Helpers de seguridad ──────────────────────────────────
+
+// Acepta solo https a hosts públicos (evita SSRF a redes internas/loopback).
+function isSafePublicHttpUrl(raw: string): boolean {
+  try {
+    const u = new URL(raw)
+    if (u.protocol !== 'https:') return false
+    const h = u.hostname.toLowerCase()
+    if (['localhost', '127.0.0.1', '0.0.0.0', '::1', '[::1]'].includes(h)) return false
+    if (/^(10|127)\./.test(h) || /^192\.168\./.test(h) || /^169\.254\./.test(h)) return false
+    if (/^172\.(1[6-9]|2\d|3[01])\./.test(h)) return false
+    return true
+  } catch {
+    return false
+  }
+}
+
+// Comprueba la firma real (magic bytes), no el content-type del cliente.
+function sniffImage(b: Uint8Array): boolean {
+  if (b.length < 12) return false
+  // JPEG FFD8FF · PNG 89504E47 · GIF "GIF8" · WEBP "RIFF"...."WEBP"
+  if (b[0] === 0xff && b[1] === 0xd8 && b[2] === 0xff) return true
+  if (b[0] === 0x89 && b[1] === 0x50 && b[2] === 0x4e && b[3] === 0x47) return true
+  if (b[0] === 0x47 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x38) return true
+  if (b[0] === 0x52 && b[1] === 0x49 && b[2] === 0x46 && b[3] === 0x46 &&
+      b[8] === 0x57 && b[9] === 0x45 && b[10] === 0x42 && b[11] === 0x50) return true
+  return false
+}
+
+function isPdf(b: Uint8Array): boolean {
+  return b.length >= 4 && b[0] === 0x25 && b[1] === 0x50 && b[2] === 0x44 && b[3] === 0x46 // %PDF
+}
+
 // ── Cursos ────────────────────────────────────────────────
 
 // La portada se gestiona en la pestaña Portada y la publicación vía el checklist/toggle;
@@ -139,9 +172,13 @@ export async function uploadCoverAction(courseId: string, formData: FormData) {
   if (!file.type.startsWith('image/')) return { error: 'Solo se permiten imágenes' }
   if (file.size > 5 * 1024 * 1024) return { error: 'La imagen no puede superar 5 MB' }
 
-  const ext = file.name.split('.').pop()
-  const path = `${courseId}/cover.${ext}`
   const buffer = await file.arrayBuffer()
+  if (!sniffImage(new Uint8Array(buffer.slice(0, 16)))) {
+    return { error: 'El archivo no parece una imagen válida (JPG, PNG, WebP o GIF)' }
+  }
+  const ext = (file.name.split('.').pop() ?? '').toLowerCase()
+  const safeExt = ['jpg', 'jpeg', 'png', 'webp', 'gif'].includes(ext) ? ext : 'png'
+  const path = `${courseId}/cover.${safeExt}`
 
   const { error: uploadError } = await db.storage
     .from('covers')
@@ -170,6 +207,9 @@ export async function setCoverUrlAction(
 
   const parsed = z.string().url('URL de imagen inválida').safeParse(url.trim())
   if (!parsed.success) return { error: parsed.error.issues[0].message }
+  if (!isSafePublicHttpUrl(parsed.data)) {
+    return { error: 'La URL debe empezar por https y apuntar a un host público' }
+  }
 
   const { error } = await db.from('courses').update({ cover_url: parsed.data }).eq('id', courseId)
   if (error) return { error: error.message }
@@ -256,7 +296,7 @@ export async function updateLessonAction(_prev: unknown, formData: FormData) {
   const parsed = lessonSchema.safeParse(readLessonForm(formData))
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { error } = await db.from('lessons').update(buildLessonPayload(parsed.data)).eq('id', id)
+  const { error } = await db.from('lessons').update(buildLessonPayload(parsed.data)).eq('id', id).eq('course_id', courseId)
   if (error) return { error: error.message }
 
   revalidatePath(`/admin/courses/${courseId}`)
@@ -268,12 +308,12 @@ export async function deleteLessonAction(id: string, courseId: string) {
   const db = createAdminClient()
 
   // Limpiar apuntes PDF del bucket antes de eliminar la lección
-  const { data: lesson } = await db.from('lessons').select('notes_pdf_path').eq('id', id).single()
+  const { data: lesson } = await db.from('lessons').select('notes_pdf_path').eq('id', id).eq('course_id', courseId).single()
   if (lesson?.notes_pdf_path) {
     await db.storage.from('notes').remove([lesson.notes_pdf_path])
   }
 
-  await db.from('lessons').delete().eq('id', id)
+  await db.from('lessons').delete().eq('id', id).eq('course_id', courseId)
   revalidatePath(`/admin/courses/${courseId}`)
 }
 
@@ -286,8 +326,11 @@ export async function uploadNotesAction(lessonId: string, courseId: string, form
   if (file.type !== 'application/pdf') return { error: 'Solo se permiten archivos PDF' }
   if (file.size > 20 * 1024 * 1024) return { error: 'El PDF no puede superar 20 MB' }
 
-  const path = `${courseId}/${lessonId}/notes.pdf`
   const buffer = await file.arrayBuffer()
+  if (!isPdf(new Uint8Array(buffer.slice(0, 8)))) {
+    return { error: 'El archivo no es un PDF válido' }
+  }
+  const path = `${courseId}/${lessonId}/notes.pdf`
 
   const { error: uploadError } = await db.storage
     .from('notes')

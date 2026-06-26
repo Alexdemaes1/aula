@@ -76,9 +76,10 @@ Los archivos se suben con el `contentType` explícito, no el detectado por el na
 | Header | Valor | Protección |
 |--------|-------|-----------|
 | `X-Content-Type-Options` | `nosniff` | Evita MIME sniffing |
-| `X-Frame-Options` | `SAMEORIGIN` | Previene clickjacking |
+| `X-Frame-Options` | `DENY` | Previene clickjacking |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limita referrer info |
 | `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Deshabilita APIs de dispositivo |
+| `Strict-Transport-Security` | `max-age=31536000; includeSubDomains; preload` | Fuerza HTTPS (HSTS) |
 
 ---
 

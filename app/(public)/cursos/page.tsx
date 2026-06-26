@@ -41,8 +41,9 @@ export default async function CursosPage({ searchParams }: PageProps) {
 
       <div className="mb-8 flex flex-col sm:flex-row sm:items-end gap-4 mt-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Cursos disponibles</h1>
-          <p className="text-muted-foreground mt-1">
+          <p className="kicker mb-2">Formación online</p>
+          <h1 className="font-heading font-semibold text-4xl tracking-tight">Todos los cursos</h1>
+          <p className="text-muted-foreground mt-1.5 text-sm">
             {q ? `Resultados para "${q}"` : 'Tai Ji, Qi Gong, meditación y medicina natural'}
           </p>
         </div>

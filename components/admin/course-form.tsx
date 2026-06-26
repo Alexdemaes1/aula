@@ -7,10 +7,20 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { CourseCover } from '@/components/course-cover'
 import { slugify, formatPrice } from '@/lib/utils/format'
-import { Loader2, Save, Lock, LockOpen, Check } from 'lucide-react'
+import { Loader2, Save, Lock, LockOpen, Check, Star } from 'lucide-react'
 import type { Course } from '@/types'
 import { toast } from 'sonner'
+
+const PALETTES = [
+  { value: 'jade', label: 'Jade' },
+  { value: 'qigong', label: 'Jade claro' },
+  { value: 'cream', label: 'Crema' },
+  { value: 'dark', label: 'Noche' },
+  { value: 'medicina', label: 'Bosque' },
+]
+const CHAR_SUGGESTIONS = ['太', '氣', '禪', '武', '藥', '心', '道', '天']
 
 interface CourseFormProps {
   course?: Course
@@ -30,10 +40,16 @@ export function CourseForm({ course }: CourseFormProps) {
   const [description, setDescription] = useState(course?.description ?? '')
   const [priceCents, setPriceCents] = useState(course?.price_cents ?? 0)
   const [currency, setCurrency] = useState(course?.currency ?? 'eur')
+  const [coverPalette, setCoverPalette] = useState(course?.cover_palette ?? 'jade')
+  const [coverCharacter, setCoverCharacter] = useState(course?.cover_character ?? '')
+  const [isFeatured, setIsFeatured] = useState(course?.is_featured ?? false)
+  const [featuredOrder, setFeaturedOrder] = useState<string>(
+    course?.featured_order != null ? String(course.featured_order) : ''
+  )
   const [touched, setTouched] = useState(false)
 
   // Snapshot del último estado guardado para detectar cambios sin guardar.
-  const snapshot = JSON.stringify({ title, slug, description, priceCents, currency })
+  const snapshot = JSON.stringify({ title, slug, description, priceCents, currency, coverPalette, coverCharacter, isFeatured, featuredOrder })
   const [savedSnapshot, setSavedSnapshot] = useState(snapshot)
   const dirty = isEdit && snapshot !== savedSnapshot
 
@@ -41,7 +57,7 @@ export function CourseForm({ course }: CourseFormProps) {
     if (state?.error) toast.error(state.error)
     if (state?.success) {
       toast.success(state.success)
-      setSavedSnapshot(JSON.stringify({ title, slug, description, priceCents, currency }))
+      setSavedSnapshot(snapshot)
       router.refresh()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -156,6 +172,98 @@ export function CourseForm({ course }: CourseFormProps) {
             <option value="gbp">GBP (£)</option>
           </select>
         </div>
+      </div>
+
+      {/* Apariencia de la portada (sin foto) */}
+      <div className="space-y-3 rounded-lg border bg-muted/20 p-4">
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <Label className="text-sm font-medium">Apariencia de la portada</Label>
+          <span className="text-xs text-muted-foreground">Si subes una imagen en «Portada», esa manda</span>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto] gap-5 items-start">
+          <div className="space-y-3">
+            <div className="space-y-1.5">
+              <Label htmlFor="cover_palette" className="text-xs">Paleta</Label>
+              <select
+                id="cover_palette"
+                name="cover_palette"
+                value={coverPalette}
+                onChange={(e) => setCoverPalette(e.target.value)}
+                className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+              >
+                {PALETTES.map((p) => (
+                  <option key={p.value} value={p.value}>{p.label}</option>
+                ))}
+              </select>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="cover_character" className="text-xs">Carácter (opcional)</Label>
+              <div className="flex items-center gap-2">
+                <Input
+                  id="cover_character"
+                  name="cover_character"
+                  value={coverCharacter}
+                  onChange={(e) => setCoverCharacter(e.target.value)}
+                  maxLength={4}
+                  placeholder="天"
+                  className="w-20 text-center text-lg"
+                />
+                <div className="flex flex-wrap gap-1">
+                  {CHAR_SUGGESTIONS.map((c) => (
+                    <button
+                      type="button"
+                      key={c}
+                      onClick={() => setCoverCharacter(c)}
+                      className="size-8 rounded-md border text-base hover:bg-accent transition-colors"
+                    >
+                      {c}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground">Si lo dejas vacío, se usa 天 por defecto.</p>
+            </div>
+          </div>
+          <CourseCover
+            coverUrl={course?.cover_url ?? null}
+            character={coverCharacter || null}
+            palette={coverPalette}
+            title={title || 'Vista previa'}
+            className="w-44 aspect-video rounded-lg shrink-0"
+            charClassName="text-4xl"
+          />
+        </div>
+      </div>
+
+      {/* Destacado en la home */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <label className="flex items-center gap-3 cursor-pointer select-none">
+          <input
+            type="checkbox"
+            name="is_featured"
+            checked={isFeatured}
+            onChange={(e) => setIsFeatured(e.target.checked)}
+            className="size-4 rounded border-input accent-[var(--primary)]"
+          />
+          <span className="flex items-center gap-1.5 text-sm font-medium">
+            <Star className="size-4 text-brand-gold" /> Destacar en la home
+          </span>
+        </label>
+        {isFeatured && (
+          <div className="space-y-1.5 pl-7">
+            <Label htmlFor="featured_order" className="text-xs">Orden (menor = primero)</Label>
+            <Input
+              id="featured_order"
+              name="featured_order"
+              type="number"
+              min={0}
+              value={featuredOrder}
+              onChange={(e) => setFeaturedOrder(e.target.value)}
+              placeholder="0"
+              className="w-28"
+            />
+          </div>
+        )}
       </div>
 
       <div className="flex items-center gap-3 pt-2">

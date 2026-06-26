@@ -10,17 +10,17 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
   return (
     <div className="min-h-screen grid lg:grid-cols-2">
       {/* Panel izquierdo — jade oscuro */}
-      <div className="hidden lg:flex bg-brand-dark text-white flex-col justify-between p-12 relative overflow-hidden">
+      <div className="hidden lg:flex bg-brand-dark text-cream flex-col justify-between p-12 relative overflow-hidden">
         {/* Decoración sutil */}
-        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand-jade/10 -translate-y-1/2 translate-x-1/2 blur-3xl" />
-        <div className="absolute bottom-0 left-0 w-64 h-64 rounded-full bg-brand-gold/5 translate-y-1/2 -translate-x-1/2 blur-3xl" />
+        <div className="absolute top-0 right-0 w-96 h-96 rounded-full bg-brand-jade/20 -translate-y-1/2 translate-x-1/2 blur-3xl" />
+        <span aria-hidden className="kanji-watermark right-[-30px] bottom-[-50px] text-[15rem]">心</span>
 
         <div className="relative">
           <Link href="/" className="flex items-center gap-3">
-            <Image src="/logo.png" alt="Tian Ying Fa" width={40} height={40} className="size-10 object-contain" />
+            <Image src="/logo-cream.png" alt="Tian Ying Fa" width={40} height={40} className="size-10 object-contain" />
             <div>
-              <span className="font-bold text-lg tracking-tight block font-heading">Tian Ying Fa</span>
-              <span className="text-[10px] text-brand-gold/80 tracking-widest uppercase">Centro de salud natural</span>
+              <span className="font-heading font-semibold text-xl tracking-tight block">Tian Ying Fa</span>
+              <span className="kicker text-brand-gold/80 !text-[10px]">天鷹法</span>
             </div>
           </Link>
         </div>
@@ -28,10 +28,10 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         <div className="relative space-y-8">
           <div className="w-8 h-px bg-brand-gold/40" />
           <blockquote className="space-y-4">
-            <p className="text-xl leading-relaxed text-white/80 font-heading italic">
+            <p className="text-2xl leading-relaxed text-cream/85 font-heading italic">
               "El que conquista a los demás es fuerte; el que se conquista a sí mismo es poderoso."
             </p>
-            <footer className="text-sm text-brand-gold/80 tracking-wide">— Lao Tzu</footer>
+            <footer className="kicker text-brand-gold/80">— Lao Tzu</footer>
           </blockquote>
         </div>
       </div>
@@ -42,8 +42,8 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           {/* Logo móvil */}
           <div className="lg:hidden text-center mb-8">
             <Link href="/" className="inline-flex items-center gap-2">
-              <Image src="/logo.png" alt="Tian Ying Fa" width={32} height={32} className="size-8 object-contain" />
-              <span className="font-bold text-lg tracking-tight font-heading">Tian Ying Fa</span>
+              <Image src="/logo-clean.png" alt="Tian Ying Fa" width={32} height={32} className="size-8 object-contain" />
+              <span className="font-heading font-semibold text-xl tracking-tight">Tian Ying Fa</span>
             </Link>
           </div>
           {children}

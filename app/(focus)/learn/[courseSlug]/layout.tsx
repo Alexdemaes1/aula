@@ -8,6 +8,7 @@ import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole, getCourseQuizzes, getPassedQuizIds } from '@/lib/data/learn'
 import { LessonSidebar } from '@/components/lesson-sidebar'
+import { FocusBar } from '@/components/focus-bar'
 
 interface LayoutProps {
   children: React.ReactNode
@@ -69,15 +70,18 @@ export default async function LearnLayout({ children, params }: LayoutProps) {
       <link rel="preconnect" href="https://www.youtube.com" />
       <link rel="preconnect" href="https://www.youtube-nocookie.com" />
       <link rel="dns-prefetch" href="https://i.ytimg.com" />
-      <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-        <LessonSidebar
-          courseSlug={courseSlug}
-          courseTitle={course.title}
-          lessons={sidebarLessons}
-          quizzes={sidebarQuizzes}
-        />
-        <div className="flex-1 overflow-y-auto">
-          {children}
+      <div className="flex flex-col h-screen overflow-hidden">
+        <FocusBar courseTitle={course.title} lessons={sidebarLessons} />
+        <div className="flex flex-1 min-h-0 overflow-hidden">
+          <LessonSidebar
+            courseSlug={courseSlug}
+            courseTitle={course.title}
+            lessons={sidebarLessons}
+            quizzes={sidebarQuizzes}
+          />
+          <div className="flex-1 overflow-y-auto">
+            {children}
+          </div>
         </div>
       </div>
     </>

@@ -1,6 +1,5 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import Image from 'next/image'
 import { getUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCourse } from '@/lib/data/courses'
@@ -10,9 +9,10 @@ import { Separator } from '@/components/ui/separator'
 import { BuyButton } from '@/components/buy-button'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 import { PurchaseSuccessBanner } from '@/components/purchase-success-banner'
+import { CourseCover } from '@/components/course-cover'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/utils/format'
-import { BookOpen, CheckCircle, Clock, Lock } from 'lucide-react'
+import { Award, CheckCircle, Clock, Lock } from 'lucide-react'
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
@@ -151,19 +151,20 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
           {/* Columna principal */}
           <div className="lg:col-span-2 space-y-6">
-            {course.cover_url ? (
-              <div className="aspect-video relative rounded-xl overflow-hidden">
-                <Image src={course.cover_url} alt={course.title} fill className="object-cover" />
-              </div>
-            ) : (
-              <div className="aspect-video rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                <BookOpen className="size-16 text-primary/20" />
-              </div>
-            )}
+            <CourseCover
+              coverUrl={course.cover_url}
+              character={course.cover_character}
+              palette={course.cover_palette}
+              title={course.title}
+              className="aspect-video rounded-xl"
+              charClassName="text-8xl"
+              sizes="(max-width: 1024px) 100vw, 66vw"
+              priority
+            />
 
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">{course.title}</h1>
-              <div className="flex items-center gap-3 mt-2">
+              <h1 className="font-heading font-semibold text-3xl sm:text-4xl tracking-tight">{course.title}</h1>
+              <div className="flex items-center gap-3 mt-3">
                 <Badge variant="outline">
                   <Clock className="size-3 mr-1" />
                   {course.lesson_count} {course.lesson_count === 1 ? 'lección' : 'lecciones'}
@@ -219,9 +220,12 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
 
           {/* Panel lateral */}
           <div className="lg:col-span-1">
-            <div className="sticky top-20 rounded-xl border p-6 space-y-4 shadow-sm">
-              <div className="text-3xl font-bold">
-                {formatPrice(course.price_cents, course.currency)}
+            <div className="sticky top-20 rounded-xl border bg-card p-6 space-y-4 shadow-sm">
+              <div>
+                <div className="font-heading font-semibold text-4xl leading-none">
+                  {course.price_cents === 0 ? 'Gratis' : formatPrice(course.price_cents, course.currency)}
+                </div>
+                <div className="text-xs text-muted-foreground mt-1.5">Pago único · acceso de por vida</div>
               </div>
 
               <Separator />
@@ -268,25 +272,23 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
 
               <Separator />
 
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="size-4 text-green-600 flex-shrink-0" />
+              <ul className="space-y-2.5 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle className="size-4 text-emerald-600 flex-shrink-0" />
                   Acceso de por vida
                 </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="size-4 text-green-600 flex-shrink-0" />
-                  Vídeo bajo demanda
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle className="size-4 text-emerald-600 flex-shrink-0" />
+                  Vídeo bajo demanda HD
                 </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="size-4 text-green-600 flex-shrink-0" />
+                <li className="flex items-center gap-2.5">
+                  <CheckCircle className="size-4 text-emerald-600 flex-shrink-0" />
                   Apuntes descargables
                 </li>
-                {!isEnrolled && (
-                  <li className="flex items-center gap-2">
-                    <Lock className="size-4 flex-shrink-0" />
-                    Pago único, sin suscripción
-                  </li>
-                )}
+                <li className="flex items-center gap-2.5">
+                  <Award className="size-4 text-brand-gold flex-shrink-0" />
+                  Certificado con sello del centro
+                </li>
               </ul>
             </div>
           </div>

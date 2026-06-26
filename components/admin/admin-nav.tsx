@@ -13,8 +13,32 @@ const links = [
   { href: '/admin/settings',  label: 'Configuración', icon: Settings2 },
 ]
 
-export function AdminNav() {
+export function AdminNav({ orientation = 'vertical' }: { orientation?: 'vertical' | 'horizontal' }) {
   const pathname = usePathname()
+
+  if (orientation === 'horizontal') {
+    return (
+      <nav className="flex gap-1.5 overflow-x-auto px-3 py-2.5">
+        {links.map(({ href, label, icon: Icon, exact }) => {
+          const isActive = exact ? pathname === href : pathname.startsWith(href)
+          return (
+            <Link
+              key={href}
+              href={href}
+              aria-current={isActive ? 'page' : undefined}
+              className={cn(
+                'flex items-center gap-1.5 px-3 py-1.5 text-sm rounded-full whitespace-nowrap transition-colors',
+                isActive ? 'bg-primary text-primary-foreground' : 'bg-muted/60 hover:bg-accent'
+              )}
+            >
+              <Icon className="size-4" />
+              {label}
+            </Link>
+          )
+        })}
+      </nav>
+    )
+  }
 
   return (
     <nav className="flex-1 p-2 space-y-0.5">

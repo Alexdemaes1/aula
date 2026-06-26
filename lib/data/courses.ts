@@ -28,6 +28,36 @@ export const getPublishedCourses = unstable_cache(
   { revalidate: 300 }
 )
 
+/**
+ * Cursos destacados para la home. Devuelve los marcados `is_featured`
+ * ordenados por `featured_order`; si no hay ninguno, los más recientes.
+ */
+export const getFeaturedCourses = unstable_cache(
+  async (limit = 3): Promise<Course[]> => {
+    const db = createAdminClient()
+    const { data: featured } = await db
+      .from('courses')
+      .select('*')
+      .eq('is_published', true)
+      .eq('is_featured', true)
+      .order('featured_order', { ascending: true, nullsFirst: false })
+      .order('created_at', { ascending: false })
+      .limit(limit)
+
+    if (featured && featured.length > 0) return featured as Course[]
+
+    const { data: recent } = await db
+      .from('courses')
+      .select('*')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false })
+      .limit(limit)
+    return (recent as Course[]) ?? []
+  },
+  ['featured-courses'],
+  { revalidate: 300 }
+)
+
 export const getCourse = unstable_cache(
   async (slug: string): Promise<Course | null> => {
     const db = createAdminClient()

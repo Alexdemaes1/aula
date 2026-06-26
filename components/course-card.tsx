@@ -1,8 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
-import { BookOpen, Clock } from 'lucide-react'
+import { Clock } from 'lucide-react'
 import { Card, CardContent } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
+import { CourseCover } from '@/components/course-cover'
 import { formatPrice } from '@/lib/utils/format'
 import type { Course } from '@/types'
 
@@ -12,42 +11,43 @@ interface CourseCardProps {
 }
 
 export function CourseCard({ course, enrolled }: CourseCardProps) {
+  const isFree = course.price_cents === 0
+
   return (
     <Link href={`/courses/${course.slug}`} className="group block">
-      <Card className="overflow-hidden h-full transition-all group-hover:shadow-md group-hover:-translate-y-0.5">
-        <div className="aspect-video relative bg-muted overflow-hidden">
-          {course.cover_url ? (
-            <Image
-              src={course.cover_url}
-              alt={course.title}
-              fill
-              className="object-cover transition-transform group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
-          ) : (
-            <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-brand-dark to-brand-jade gap-2">
-              <span className="text-3xl text-brand-gold/60 font-heading">天</span>
-              <BookOpen className="size-6 text-white/20" />
-            </div>
-          )}
-          {enrolled && (
-            <div className="absolute top-2 right-2">
-              <Badge className="text-xs">Matriculado</Badge>
-            </div>
-          )}
+      <Card className="overflow-hidden h-full border-border/70 transition-all group-hover:shadow-md group-hover:-translate-y-0.5">
+        <div className="relative">
+          <CourseCover
+            coverUrl={course.cover_url}
+            character={course.cover_character}
+            palette={course.cover_palette}
+            title={course.title}
+            className="aspect-video"
+            charClassName="text-6xl"
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+          />
+          {enrolled ? (
+            <span className="absolute top-2.5 right-2.5 rounded-full bg-seal px-2.5 py-0.5 text-[11px] font-semibold text-cream shadow-sm">
+              Matriculado
+            </span>
+          ) : isFree ? (
+            <span className="absolute top-2.5 right-2.5 rounded-full bg-white px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 shadow-sm">
+              Gratis
+            </span>
+          ) : null}
         </div>
         <CardContent className="p-4 space-y-2">
-          <h3 className="font-semibold leading-tight line-clamp-2">{course.title}</h3>
+          <h3 className="font-heading text-xl font-semibold leading-tight line-clamp-2">{course.title}</h3>
           {course.description && (
             <p className="text-sm text-muted-foreground line-clamp-2">{course.description}</p>
           )}
-          <div className="flex items-center justify-between pt-1">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Clock className="size-3" />
+          <div className="flex items-center justify-between pt-2 border-t border-border/60">
+            <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+              <Clock className="size-3.5" />
               <span>{course.lesson_count} {course.lesson_count === 1 ? 'lección' : 'lecciones'}</span>
             </div>
-            <span className="font-bold text-sm">
-              {formatPrice(course.price_cents, course.currency)}
+            <span className={isFree ? 'font-bold text-sm text-emerald-600' : 'font-bold text-base'}>
+              {isFree ? 'Gratis' : formatPrice(course.price_cents, course.currency)}
             </span>
           </div>
         </CardContent>

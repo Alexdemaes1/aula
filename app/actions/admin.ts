@@ -20,7 +20,16 @@ const courseSchema = z.object({
   description: z.string().default(''),
   price_cents: z.coerce.number().int().min(0),
   currency: z.string().default('eur'),
+  cover_palette: z.enum(['jade', 'qigong', 'cream', 'dark', 'medicina']).catch('jade'),
+  cover_character: z.string().max(8).default(''),
+  is_featured: z.boolean().default(false),
+  featured_order: z.number().int().min(0).nullable().default(null),
 })
+
+// Normaliza el payload del curso para la BD (carácter vacío → null).
+function buildCoursePayload(d: z.infer<typeof courseSchema>) {
+  return { ...d, cover_character: d.cover_character.trim() || null }
+}
 
 export async function createCourseAction(_prev: unknown, formData: FormData) {
   await requireAdmin()
@@ -33,12 +42,16 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
     description: String(formData.get('description') ?? ''),
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
+    cover_palette: String(formData.get('cover_palette') ?? 'jade'),
+    cover_character: String(formData.get('cover_character') ?? ''),
+    is_featured: formData.get('is_featured') != null,
+    featured_order: formData.get('featured_order') ? Number(formData.get('featured_order')) : null,
   }
 
   const parsed = courseSchema.safeParse(raw)
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { data, error } = await db.from('courses').insert(parsed.data).select('id').single()
+  const { data, error } = await db.from('courses').insert(buildCoursePayload(parsed.data)).select('id').single()
   if (error) {
     if (error.message.includes('unique')) return { error: 'Ya existe un curso con ese slug' }
     return { error: error.message }
@@ -62,12 +75,16 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
     description: String(formData.get('description') ?? ''),
     price_cents: Number(formData.get('price_cents') ?? 0),
     currency: String(formData.get('currency') ?? 'eur'),
+    cover_palette: String(formData.get('cover_palette') ?? 'jade'),
+    cover_character: String(formData.get('cover_character') ?? ''),
+    is_featured: formData.get('is_featured') != null,
+    featured_order: formData.get('featured_order') ? Number(formData.get('featured_order')) : null,
   }
 
   const parsed = courseSchema.safeParse(raw)
   if (!parsed.success) return { error: parsed.error.issues[0].message }
 
-  const { error } = await db.from('courses').update(parsed.data).eq('id', id)
+  const { error } = await db.from('courses').update(buildCoursePayload(parsed.data)).eq('id', id)
   if (error) return { error: error.message }
 
   revalidatePath('/admin/courses')

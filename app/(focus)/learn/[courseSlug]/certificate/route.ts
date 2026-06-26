@@ -53,7 +53,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
   // Logo como data-URI (las URLs relativas no resuelven en el runtime del PDF).
   let logo: string | undefined
   try {
-    const buf = fs.readFileSync(path.join(process.cwd(), 'public', 'logo.png'))
+    const buf = fs.readFileSync(path.join(process.cwd(), 'public', 'logo-ink.png'))
     logo = `data:image/png;base64,${buf.toString('base64')}`
   } catch {
     logo = undefined

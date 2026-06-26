@@ -9,7 +9,7 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-sans);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-playfair, var(--font-sans));
+  --font-heading: var(--font-cormorant, var(--font-sans));
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -46,46 +46,48 @@
   --radius-2xl: calc(var(--radius) * 1.8);
   --radius-3xl: calc(var(--radius) * 2.2);
   --radius-4xl: calc(var(--radius) * 2.6);
-  /* Colores de marca */
-  --color-brand-dark: oklch(0.10 0.04 165);
-  --color-brand-jade: oklch(0.28 0.09 165);
-  --color-brand-gold: oklch(0.72 0.14 85);
+  /* Colores de marca — jade + oro de templo + cinabrio (afinados del comp) */
+  --color-brand-dark: oklch(0.20 0.028 168);  /* jade noche  #16241F */
+  --color-brand-jade: oklch(0.34 0.045 165);  /* jade        #1F3D34 */
+  --color-brand-gold: oklch(0.72 0.10 80);    /* oro templo  #C79A45 */
+  --color-seal: oklch(0.54 0.15 33);          /* cinabrio    #B5462F */
+  --color-cream: oklch(0.93 0.022 92);        /* crema       #EFE6CF */
 }
 
 :root {
-  /* Paleta Tian Ying Fa — jade profundo + oro de templo */
-  --background: oklch(0.985 0.004 160);
-  --foreground: oklch(0.12 0.02 165);
-  --card: oklch(0.985 0.004 160);
-  --card-foreground: oklch(0.12 0.02 165);
-  --popover: oklch(0.985 0.004 160);
-  --popover-foreground: oklch(0.12 0.02 165);
-  --primary: oklch(0.28 0.09 165);
-  --primary-foreground: oklch(0.97 0 0);
-  --secondary: oklch(0.93 0.018 160);
-  --secondary-foreground: oklch(0.20 0.05 165);
-  --muted: oklch(0.93 0.010 155);
-  --muted-foreground: oklch(0.48 0.025 160);
-  --accent: oklch(0.72 0.14 85);
-  --accent-foreground: oklch(0.10 0.04 165);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.86 0.012 160);
-  --input: oklch(0.86 0.012 160);
-  --ring: oklch(0.28 0.09 165);
-  --chart-1: oklch(0.28 0.09 165);
-  --chart-2: oklch(0.72 0.14 85);
-  --chart-3: oklch(0.50 0.10 165);
-  --chart-4: oklch(0.40 0.08 200);
-  --chart-5: oklch(0.60 0.12 100);
-  --radius: 0.5rem;
-  --sidebar: oklch(0.97 0.006 160);
-  --sidebar-foreground: oklch(0.12 0.02 165);
-  --sidebar-primary: oklch(0.28 0.09 165);
-  --sidebar-primary-foreground: oklch(0.97 0 0);
-  --sidebar-accent: oklch(0.93 0.015 160);
-  --sidebar-accent-foreground: oklch(0.12 0.02 165);
-  --sidebar-border: oklch(0.86 0.012 160);
-  --sidebar-ring: oklch(0.28 0.09 165);
+  /* Paleta Tian Ying Fa — papel cálido + jade + oro de templo + cinabrio */
+  --background: oklch(0.97 0.007 95);        /* papel  #F7F5EF */
+  --foreground: oklch(0.24 0.018 168);       /* tinta  #14211D */
+  --card: oklch(1 0 0);                       /* blanco para tarjetas */
+  --card-foreground: oklch(0.24 0.018 168);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.24 0.018 168);
+  --primary: oklch(0.34 0.045 165);          /* jade  #1F3D34 */
+  --primary-foreground: oklch(0.95 0.018 92); /* crema */
+  --secondary: oklch(0.94 0.010 92);
+  --secondary-foreground: oklch(0.30 0.04 165);
+  --muted: oklch(0.94 0.008 92);
+  --muted-foreground: oklch(0.46 0.014 165); /* gris-jade  #5b655f */
+  --accent: oklch(0.72 0.10 80);             /* oro  #C79A45 */
+  --accent-foreground: oklch(0.24 0.02 168);
+  --destructive: oklch(0.54 0.15 33);        /* cinabrio como destructivo cálido */
+  --border: oklch(0.90 0.006 120);
+  --input: oklch(0.90 0.006 120);
+  --ring: oklch(0.34 0.045 165);
+  --chart-1: oklch(0.34 0.045 165);
+  --chart-2: oklch(0.72 0.10 80);
+  --chart-3: oklch(0.50 0.07 165);
+  --chart-4: oklch(0.54 0.15 33);
+  --chart-5: oklch(0.60 0.10 100);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.20 0.028 168);          /* jade noche (área alumno/admin) */
+  --sidebar-foreground: oklch(0.93 0.022 92);
+  --sidebar-primary: oklch(0.72 0.10 80);
+  --sidebar-primary-foreground: oklch(0.20 0.028 168);
+  --sidebar-accent: oklch(0.30 0.04 165);
+  --sidebar-accent-foreground: oklch(0.93 0.022 92);
+  --sidebar-border: oklch(0.40 0.04 165 / 0.4);
+  --sidebar-ring: oklch(0.72 0.10 80);
 }
 
 .dark {
@@ -143,21 +145,30 @@
   /* Lavados de color sutiles para fondos de sección (alternativa cálida al gris plano) */
   .section-wash-jade {
     background:
-      radial-gradient(60% 80% at 12% 0%, oklch(0.28 0.09 165 / 0.06), transparent 70%),
-      radial-gradient(55% 75% at 100% 100%, oklch(0.72 0.14 85 / 0.05), transparent 70%);
+      radial-gradient(60% 80% at 12% 0%, oklch(0.34 0.045 165 / 0.06), transparent 70%),
+      radial-gradient(55% 75% at 100% 100%, oklch(0.72 0.10 80 / 0.05), transparent 70%);
   }
   .section-wash-gold {
     background:
-      radial-gradient(55% 70% at 100% 0%, oklch(0.72 0.14 85 / 0.07), transparent 70%),
-      radial-gradient(55% 75% at 0% 100%, oklch(0.28 0.09 165 / 0.05), transparent 70%);
+      radial-gradient(55% 70% at 100% 0%, oklch(0.72 0.10 80 / 0.07), transparent 70%),
+      radial-gradient(55% 75% at 0% 100%, oklch(0.34 0.045 165 / 0.05), transparent 70%);
   }
-  /* Marca de agua con el carácter 天 (cielo) detrás del contenido */
+  /* Marca de agua con un carácter (cielo, qi…) detrás del contenido */
   .kanji-watermark {
     position: absolute;
     pointer-events: none;
     user-select: none;
     font-family: var(--font-heading);
     line-height: 1;
-    color: oklch(0.72 0.14 85 / 0.06);
+    color: oklch(0.72 0.10 80 / 0.06);
+  }
+  /* Kicker / eyebrow — etiqueta mono en oro apagado, mayúsculas espaciadas */
+  .kicker {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    line-height: 1;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: oklch(0.58 0.07 80);
   }
 }

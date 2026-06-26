@@ -6,7 +6,11 @@ const nextConfig: NextConfig = {
   // Garantiza que el logo y la fuente del certificado se incluyan en el bundle
   // de la función serverless (public/ no se copia por defecto en Vercel).
   outputFileTracingIncludes: {
-    '/learn/**': ['./public/logo.png', './public/fonts/PlayfairDisplay-Bold.ttf'],
+    '/learn/**': ['./public/logo-ink.png', './public/fonts/CormorantGaramond-SemiBold.ttf'],
+  },
+  async redirects() {
+    // «El centro» se fundió en la home; /about → sección #centro de la home.
+    return [{ source: '/about', destination: '/#centro', permanent: true }]
   },
   async headers() {
     return [

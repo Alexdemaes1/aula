@@ -10,6 +10,9 @@ export interface Profile {
   created_at: string
 }
 
+// Paletas de portada sin foto (carácter chino + degradado por disciplina)
+export type CoverPalette = 'jade' | 'qigong' | 'cream' | 'dark' | 'medicina'
+
 export interface Course {
   id: string
   slug: string
@@ -18,6 +21,10 @@ export interface Course {
   price_cents: number
   currency: string
   cover_url: string | null
+  cover_character: string | null
+  cover_palette: string
+  is_featured: boolean
+  featured_order: number | null
   is_published: boolean
   lesson_count: number
   created_at: string

@@ -1,8 +1,9 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { User, LogOut, Settings, LayoutDashboard, UserCircle } from 'lucide-react'
+import { LogOut, Settings, LayoutDashboard, UserCircle } from 'lucide-react'
 import { logoutAction } from '@/app/actions/auth'
+import { cn } from '@/lib/utils'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -11,17 +12,31 @@ import {
   DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu'
 
-/** Menú de cuenta (arriba-derecha), consistente en todas las zonas. */
-export function AccountMenu({ isAdmin, email }: { isAdmin: boolean; email?: string }) {
+/** Menú de cuenta (avatar arriba-derecha), consistente en público y área de alumno. */
+export function AccountMenu({
+  isAdmin,
+  email,
+  variant = 'public',
+}: {
+  isAdmin: boolean
+  email?: string
+  variant?: 'public' | 'student'
+}) {
   const router = useRouter()
+  const initial = (email?.trim()?.[0] ?? 'U').toUpperCase()
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className="flex items-center justify-center size-9 rounded-full hover:bg-accent transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className={cn(
+          'flex items-center justify-center size-9 rounded-full font-heading text-base font-semibold outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring',
+          variant === 'student'
+            ? 'bg-brand-gold text-brand-dark'
+            : 'bg-cream text-primary border border-brand-gold/40'
+        )}
         aria-label="Menú de cuenta"
       >
-        <User className="size-5" />
+        {initial}
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" sideOffset={8} className="w-56">
         {email && (
@@ -31,7 +46,6 @@ export function AccountMenu({ isAdmin, email }: { isAdmin: boolean; email?: stri
             <DropdownMenuSeparator />
           </>
         )}
-        {/* onClick + router.push: navegación fiable con el manejo de teclado de @base-ui */}
         <DropdownMenuItem onClick={() => router.push('/dashboard')}>
           <LayoutDashboard /> Mi formación
         </DropdownMenuItem>

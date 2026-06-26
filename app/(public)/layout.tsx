@@ -18,8 +18,8 @@ export default async function PublicLayout({ children }: { children: React.React
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-              <Image src="/logo.png" alt="Tian Ying Fa" width={28} height={28} className="size-7 object-contain" />
-              <span className="font-semibold text-sm font-heading group-hover:text-brand-gold transition-colors">
+              <Image src="/logo-cream.png" alt="Tian Ying Fa" width={28} height={28} className="size-7 object-contain" />
+              <span className="font-semibold text-base font-heading group-hover:text-brand-gold transition-colors">
                 Tian Ying Fa
               </span>
             </Link>
@@ -27,7 +27,7 @@ export default async function PublicLayout({ children }: { children: React.React
             {/* Links */}
             <nav className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1.5 text-sm text-white/55">
               <Link href="/cursos" className="hover:text-brand-gold transition-colors">Cursos</Link>
-              <Link href="/about" className="hover:text-brand-gold transition-colors">El centro</Link>
+              <Link href="/#centro" className="hover:text-brand-gold transition-colors">El centro</Link>
               <Link href="/privacidad" className="hover:text-brand-gold transition-colors">Privacidad</Link>
               <Link href="/terminos" className="hover:text-brand-gold transition-colors">Términos</Link>
               <Link href="/cookies" className="hover:text-brand-gold transition-colors">Cookies</Link>

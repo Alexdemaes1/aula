@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useCallback, useState, useId } from 'react'
 import { Progress } from '@/components/ui/progress'
-import { CheckCircle, Clock } from 'lucide-react'
+import { CheckCircle, Clock, VideoOff } from 'lucide-react'
 import { useRouter } from 'next/navigation'
+import { extractYouTubeId } from '@/lib/utils/youtube'
 
 declare global {
   interface Window {
@@ -59,6 +60,8 @@ export function YouTubePlayer({
   const [watched, setWatched] = useState(initialWatched)
   const [completed, setCompleted] = useState(initialCompleted)
   const router = useRouter()
+  // Saneamos el ID por si llega con parámetros pegados (p. ej. "ID&t=30") o como URL.
+  const videoIdClean = extractYouTubeId(videoId)
 
   const sendHeartbeat = useCallback(
     async (deltaSeconds: number, position: number, reachedEnd: boolean) => {
@@ -93,11 +96,13 @@ export function YouTubePlayer({
   }, [lessonId, initialWatched, initialCompleted])
 
   useEffect(() => {
-    let apiReady = false
+    // Sin ID válido no inicializamos el reproductor (evita "Invalid video id").
+    if (!videoIdClean) return
+    const vid: string = videoIdClean
 
     function initPlayer() {
       playerRef.current = new window.YT.Player(playerId, {
-        videoId,
+        videoId: vid,
         playerVars: { rel: 0, modestbranding: 1, fs: 1 },
         events: {
           onStateChange: ({ data }) => {
@@ -151,20 +156,30 @@ export function YouTubePlayer({
       document.removeEventListener('visibilitychange', flushOnHide)
       playerRef.current?.destroy()
     }
-  }, [videoId, sendHeartbeat, playerId])
+  }, [videoIdClean, sendHeartbeat, playerId])
 
   const percent = minWatchSeconds > 0 ? Math.min(100, Math.round((watched / minWatchSeconds) * 100)) : 100
   const remaining = Math.max(0, minWatchSeconds - watched)
 
   return (
     <div className="space-y-3">
-      <div
-        className="aspect-video w-full rounded-xl overflow-hidden bg-black"
-        role="application"
-        aria-label="Reproductor de vídeo"
-      >
-        <div id={playerId} className="w-full h-full" />
-      </div>
+      {videoIdClean ? (
+        <div
+          className="aspect-video w-full rounded-xl overflow-hidden bg-black"
+          role="application"
+          aria-label="Reproductor de vídeo"
+        >
+          <div id={playerId} className="w-full h-full" />
+        </div>
+      ) : (
+        <div className="aspect-video w-full rounded-xl overflow-hidden bg-muted border border-dashed flex flex-col items-center justify-center gap-2 text-center px-6">
+          <VideoOff className="size-8 text-muted-foreground/50" />
+          <p className="text-sm font-medium">Vídeo no disponible</p>
+          <p className="text-xs text-muted-foreground max-w-xs">
+            Esta lección no tiene un ID de YouTube válido. Edítala en el panel y pega el enlace o el ID del vídeo.
+          </p>
+        </div>
+      )}
 
       {completed && (
         <div className="flex items-center gap-2 text-sm text-green-700">

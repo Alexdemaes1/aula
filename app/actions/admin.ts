@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { requireAdmin } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { slugify } from '@/lib/utils/format'
+import { extractYouTubeId } from '@/lib/utils/youtube'
 import { getStripe } from '@/lib/stripe'
 import { notify } from '@/lib/notify'
 import { parseQuestions, type ParsedQuestion } from '@/lib/quiz/parse'
@@ -186,8 +187,8 @@ const lessonSchema = z.object({
   position: z.coerce.number().int().min(1),
   min_watch_seconds: z.coerce.number().int().min(0),
 }).superRefine((v, ctx) => {
-  if (v.content_type === 'video' && v.youtube_video_id.trim().length < 5) {
-    ctx.addIssue({ code: 'custom', path: ['youtube_video_id'], message: 'ID de YouTube inválido' })
+  if (v.content_type === 'video' && !extractYouTubeId(v.youtube_video_id)) {
+    ctx.addIssue({ code: 'custom', path: ['youtube_video_id'], message: 'ID o enlace de YouTube inválido' })
   }
   if (v.content_type === 'text' && v.body.trim().length === 0) {
     ctx.addIssue({ code: 'custom', path: ['body'], message: 'El contenido de texto no puede estar vacío' })
@@ -202,7 +203,7 @@ function buildLessonPayload(d: LessonInput) {
     title: d.title,
     description: d.description,
     content_type: d.content_type,
-    youtube_video_id: d.content_type === 'video' ? d.youtube_video_id.trim() : null,
+    youtube_video_id: d.content_type === 'video' ? (extractYouTubeId(d.youtube_video_id) ?? d.youtube_video_id.trim()) : null,
     body: d.content_type === 'text' ? d.body : null,
     position: d.position,
     min_watch_seconds: d.min_watch_seconds,

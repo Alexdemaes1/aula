@@ -146,7 +146,11 @@ export async function resetPasswordAction(
 }
 
 export async function logoutAction(): Promise<void> {
-  const supabase = await createClient()
-  await supabase.auth.signOut()
-  redirect('/login')
+  try {
+    const supabase = await createClient()
+    await supabase.auth.signOut()
+  } catch {
+    // Si signOut falla (red/cookies), redirigimos igualmente a la home pública.
+  }
+  redirect('/')
 }

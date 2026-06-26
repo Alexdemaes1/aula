@@ -56,8 +56,9 @@ export default async function EditCoursePage({ params }: PageProps) {
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div>
-          <h1 className="text-2xl font-bold">{course.title}</h1>
-          <p className="text-muted-foreground text-sm">/{course.slug}</p>
+          <p className="kicker mb-1.5">Editar curso</p>
+          <h1 className="font-heading text-3xl font-semibold leading-tight">{course.title}</h1>
+          <p className="text-muted-foreground text-sm mt-0.5">/{course.slug}</p>
         </div>
         <TogglePublishedButton courseId={id} isPublished={course.is_published} />
         <div className="ml-auto">

@@ -22,8 +22,9 @@ export default async function SettingsPage() {
   return (
     <div className="space-y-8 max-w-2xl">
       <div>
-        <h1 className="text-2xl font-bold">Configuración</h1>
-        <p className="text-muted-foreground">Ajustes generales de la plataforma</p>
+        <p className="kicker mb-1.5">Ajustes</p>
+        <h1 className="font-heading text-3xl font-semibold">Configuración</h1>
+        <p className="text-muted-foreground mt-0.5">Ajustes generales de la plataforma</p>
       </div>
 
       <Card>

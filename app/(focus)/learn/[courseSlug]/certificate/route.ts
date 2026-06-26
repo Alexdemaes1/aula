@@ -56,6 +56,7 @@ export async function GET(req: NextRequest, { params }: Ctx) {
     const buf = fs.readFileSync(path.join(process.cwd(), 'public', 'logo-ink.png'))
     logo = `data:image/png;base64,${buf.toString('base64')}`
   } catch {
+    console.warn('[certificate] no se encontró public/logo-ink.png; el PDF se genera sin logo')
     logo = undefined
   }
 

@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { buttonVariants } from '@/components/ui/button'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
-import { Plus, Pencil, ExternalLink } from 'lucide-react'
+import { Plus, Pencil, ExternalLink, Star } from 'lucide-react'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 import { TogglePublishedButton } from '@/components/admin/toggle-published-button'
 import { CoursesFilter } from '@/components/admin/courses-filter'
@@ -31,8 +31,9 @@ export default async function AdminCoursesPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex items-center justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold">Cursos</h1>
-          <p className="text-muted-foreground">
+          <p className="kicker mb-1.5">Catálogo</p>
+          <h1 className="font-heading text-3xl font-semibold">Cursos</h1>
+          <p className="text-muted-foreground mt-0.5">
             {courses.length} en total · <span className="text-primary">{publishedCount} publicados</span> · {draftCount} borradores
           </p>
         </div>
@@ -77,7 +78,10 @@ export default async function AdminCoursesPage({ searchParams }: PageProps) {
                         className={`size-2 rounded-full shrink-0 ${c.is_published ? 'bg-green-500' : 'bg-muted-foreground/40'}`}
                         title={c.is_published ? 'Publicado' : 'Borrador'}
                       />
-                      {c.title}
+                      <span>{c.title}</span>
+                      {c.is_featured && (
+                        <Star className="size-3.5 fill-brand-gold text-brand-gold shrink-0" aria-label="Destacado" />
+                      )}
                     </div>
                   </TableCell>
                   <TableCell>{formatPrice(c.price_cents, c.currency)}</TableCell>

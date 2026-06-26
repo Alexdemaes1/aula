@@ -66,8 +66,9 @@ export default async function AdminPage() {
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-2xl font-bold">Panel de administración</h1>
-        <p className="text-muted-foreground">Resumen de la plataforma</p>
+        <p className="kicker mb-1.5">Administración</p>
+        <h1 className="font-heading text-3xl font-semibold">Panel de administración</h1>
+        <p className="text-muted-foreground mt-0.5">Resumen de la plataforma</p>
       </div>
 
       {/* Fila 1 — Stats principales */}
@@ -80,7 +81,7 @@ export default async function AdminPage() {
                 <Icon className="size-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{value}</div>
+                <div className="font-heading text-3xl font-semibold">{value}</div>
               </CardContent>
             </Card>
           </Link>
@@ -97,7 +98,7 @@ export default async function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{formatPrice(thisMonth)}</div>
+            <div className="font-heading text-3xl font-semibold">{formatPrice(thisMonth)}</div>
             {monthDiff !== null && (
               <p className={`text-xs mt-1 ${monthDiff >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-500'}`}>
                 {monthDiff >= 0 ? '↑' : '↓'} {Math.abs(monthDiff)}% vs mes anterior
@@ -114,7 +115,7 @@ export default async function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{activeUsers ?? 0}</div>
+            <div className="font-heading text-3xl font-semibold">{activeUsers ?? 0}</div>
             <p className="text-xs text-muted-foreground mt-1">Últimas 48 horas</p>
           </CardContent>
         </Card>
@@ -127,7 +128,7 @@ export default async function AdminPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{completionRate}%</div>
+            <div className="font-heading text-3xl font-semibold">{completionRate}%</div>
             <div className="mt-2 h-1.5 w-full bg-muted rounded-full overflow-hidden">
               <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${completionRate}%` }} />
             </div>

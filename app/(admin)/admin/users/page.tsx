@@ -37,8 +37,9 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div>
-          <h1 className="text-2xl font-bold">Usuarios</h1>
-          <p className="text-muted-foreground">{users?.length ?? 0} usuarios{sp.q ? ` con "${sp.q}"` : ' registrados'}</p>
+          <p className="kicker mb-1.5">Comunidad</p>
+          <h1 className="font-heading text-3xl font-semibold">Usuarios</h1>
+          <p className="text-muted-foreground mt-0.5">{users?.length ?? 0} usuarios{sp.q ? ` con "${sp.q}"` : ' registrados'}</p>
         </div>
         <UserSearch defaultValue={sp.q} />
       </div>

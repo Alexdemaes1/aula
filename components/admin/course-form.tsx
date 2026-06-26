@@ -224,14 +224,17 @@ export function CourseForm({ course }: CourseFormProps) {
               <p className="text-xs text-muted-foreground">Si lo dejas vacío, se usa 天 por defecto.</p>
             </div>
           </div>
-          <CourseCover
-            coverUrl={course?.cover_url ?? null}
-            character={coverCharacter || null}
-            palette={coverPalette}
-            title={title || 'Vista previa'}
-            className="w-44 aspect-video rounded-lg shrink-0"
-            charClassName="text-4xl"
-          />
+          <div className="space-y-1.5 shrink-0">
+            <span className="kicker">Vista previa</span>
+            <CourseCover
+              coverUrl={course?.cover_url ?? null}
+              character={coverCharacter || null}
+              palette={coverPalette}
+              title={title || 'Vista previa'}
+              className="w-44 aspect-video rounded-lg"
+              charClassName="text-4xl"
+            />
+          </div>
         </div>
       </div>
 

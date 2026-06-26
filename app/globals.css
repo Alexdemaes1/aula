@@ -90,40 +90,8 @@
   --sidebar-ring: oklch(0.72 0.10 80);
 }
 
-.dark {
-  /* Modo oscuro: bosque profundo + jade iluminado */
-  --background: oklch(0.11 0.025 165);
-  --foreground: oklch(0.94 0.008 80);
-  --card: oklch(0.15 0.025 165);
-  --card-foreground: oklch(0.94 0.008 80);
-  --popover: oklch(0.15 0.025 165);
-  --popover-foreground: oklch(0.94 0.008 80);
-  --primary: oklch(0.72 0.14 85);
-  --primary-foreground: oklch(0.10 0.04 165);
-  --secondary: oklch(0.20 0.030 165);
-  --secondary-foreground: oklch(0.88 0.015 80);
-  --muted: oklch(0.18 0.020 165);
-  --muted-foreground: oklch(0.62 0.018 80);
-  --accent: oklch(0.45 0.08 165);
-  --accent-foreground: oklch(0.94 0.008 80);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.72 0.14 85);
-  --chart-1: oklch(0.72 0.14 85);
-  --chart-2: oklch(0.55 0.10 165);
-  --chart-3: oklch(0.45 0.08 200);
-  --chart-4: oklch(0.40 0.08 100);
-  --chart-5: oklch(0.60 0.08 80);
-  --sidebar: oklch(0.15 0.025 165);
-  --sidebar-foreground: oklch(0.94 0.008 80);
-  --sidebar-primary: oklch(0.72 0.14 85);
-  --sidebar-primary-foreground: oklch(0.10 0.04 165);
-  --sidebar-accent: oklch(0.20 0.025 165);
-  --sidebar-accent-foreground: oklch(0.94 0.008 80);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.72 0.14 85);
-}
+/* Modo oscuro: sin toggle en la v1 (diseño "papel" claro). Se omite el bloque
+   .dark para no arrastrar CSS muerto ni contraste por debajo de AA. */
 
 @layer base {
   * {
@@ -137,7 +105,7 @@
     scroll-behavior: smooth;
   }
   h1, h2, h3 {
-    @apply font-heading;
+    @apply font-heading font-semibold;
   }
 }
 

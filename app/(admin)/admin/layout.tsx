@@ -13,7 +13,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <GlobalNav {...nav} variant="student" />
 
       {/* Navegación admin horizontal (solo móvil) */}
-      <div className="md:hidden border-b bg-card sticky top-14 z-30">
+      <div className="md:hidden border-b bg-muted/50 sticky top-14 z-30">
         <AdminNav orientation="horizontal" />
       </div>
 

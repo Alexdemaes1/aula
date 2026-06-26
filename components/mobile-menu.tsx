@@ -80,7 +80,7 @@ export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: M
       <div
         id="mobile-nav-panel"
         className={cn(
-          'fixed top-0 right-0 z-50 h-full w-72 flex flex-col shadow-xl transition-transform duration-200 sm:hidden',
+          'fixed top-0 right-0 z-50 h-full w-72 max-w-[calc(100vw-2.5rem)] flex flex-col shadow-xl transition-transform duration-200 sm:hidden',
           isStudent ? 'bg-brand-dark text-cream border-l border-brand-gold/15' : 'bg-background border-l',
           open ? 'translate-x-0' : 'translate-x-full'
         )}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useTransition } from 'react'
+import { Globe, EyeOff } from 'lucide-react'
 import { toggleCoursePublishedAction } from '@/app/actions/admin'
 import { cn } from '@/lib/utils'
 
@@ -19,7 +20,7 @@ export function TogglePublishedButton({ courseId, isPublished }: Props) {
       }
       disabled={isPending}
       className={cn(
-        'inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
+        'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium transition-colors',
         isPending && 'opacity-60 cursor-wait',
         isPublished
           ? 'bg-primary/10 text-primary hover:bg-destructive/10 hover:text-destructive'
@@ -27,6 +28,7 @@ export function TogglePublishedButton({ courseId, isPublished }: Props) {
       )}
       title={isPublished ? 'Haz clic para ocultar' : 'Haz clic para publicar'}
     >
+      {isPublished ? <Globe className="size-3" /> : <EyeOff className="size-3" />}
       {isPublished ? 'Publicado' : 'Borrador'}
     </button>
   )

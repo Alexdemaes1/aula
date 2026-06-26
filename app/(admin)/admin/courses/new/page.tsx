@@ -6,8 +6,9 @@ export default function NewCoursePage() {
   return (
     <div className="max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Nuevo curso</h1>
-        <p className="text-muted-foreground">Rellena los datos del curso</p>
+        <p className="kicker mb-1.5">Catálogo</p>
+        <h1 className="font-heading text-3xl font-semibold">Nuevo curso</h1>
+        <p className="text-muted-foreground mt-0.5">Rellena los datos del curso</p>
       </div>
       <CourseForm />
     </div>

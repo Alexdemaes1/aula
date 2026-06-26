@@ -22,7 +22,11 @@ const courseSchema = z.object({
   price_cents: z.coerce.number().int().min(0),
   currency: z.string().default('eur'),
   cover_palette: z.enum(['jade', 'qigong', 'cream', 'dark', 'medicina']).catch('jade'),
-  cover_character: z.string().max(8).default(''),
+  cover_character: z
+    .string()
+    .max(8)
+    .default('')
+    .refine((v) => v.trim() === '' || /^[㐀-鿿]{1,2}$/.test(v.trim()), 'Usa uno o dos caracteres chinos, o déjalo vacío'),
   is_featured: z.boolean().default(false),
   featured_order: z.number().int().min(0).nullable().default(null),
 })
@@ -203,7 +207,7 @@ function buildLessonPayload(d: LessonInput) {
     title: d.title,
     description: d.description,
     content_type: d.content_type,
-    youtube_video_id: d.content_type === 'video' ? (extractYouTubeId(d.youtube_video_id) ?? d.youtube_video_id.trim()) : null,
+    youtube_video_id: d.content_type === 'video' ? extractYouTubeId(d.youtube_video_id) : null,
     body: d.content_type === 'text' ? d.body : null,
     position: d.position,
     min_watch_seconds: d.min_watch_seconds,

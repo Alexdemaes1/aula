@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { CourseCover } from '@/components/course-cover'
+import { CATEGORIES, LEVELS } from '@/lib/course-meta'
 import { slugify, formatPrice } from '@/lib/utils/format'
 import { Loader2, Save, Lock, LockOpen, Check, Star } from 'lucide-react'
 import type { Course } from '@/types'
@@ -40,6 +41,10 @@ export function CourseForm({ course }: CourseFormProps) {
   const [description, setDescription] = useState(course?.description ?? '')
   const [priceCents, setPriceCents] = useState(course?.price_cents ?? 0)
   const [currency, setCurrency] = useState(course?.currency ?? 'eur')
+  const [category, setCategory] = useState(course?.category ?? '')
+  const [level, setLevel] = useState(course?.level ?? '')
+  const [durationMin, setDurationMin] = useState<string>(course?.duration_minutes != null ? String(course.duration_minutes) : '')
+  const [objectives, setObjectives] = useState(course?.learning_objectives ?? '')
   const [coverPalette, setCoverPalette] = useState(course?.cover_palette ?? 'jade')
   const [coverCharacter, setCoverCharacter] = useState(course?.cover_character ?? '')
   const [isFeatured, setIsFeatured] = useState(course?.is_featured ?? false)
@@ -49,7 +54,7 @@ export function CourseForm({ course }: CourseFormProps) {
   const [touched, setTouched] = useState(false)
 
   // Snapshot del último estado guardado para detectar cambios sin guardar.
-  const snapshot = JSON.stringify({ title, slug, description, priceCents, currency, coverPalette, coverCharacter, isFeatured, featuredOrder })
+  const snapshot = JSON.stringify({ title, slug, description, priceCents, currency, category, level, durationMin, objectives, coverPalette, coverCharacter, isFeatured, featuredOrder })
   const [savedSnapshot, setSavedSnapshot] = useState(snapshot)
   const dirty = isEdit && snapshot !== savedSnapshot
 
@@ -172,6 +177,66 @@ export function CourseForm({ course }: CourseFormProps) {
             <option value="gbp">GBP (£)</option>
           </select>
         </div>
+      </div>
+
+      {/* Detalles del curso */}
+      <div className="grid grid-cols-2 gap-4">
+        <div className="space-y-2">
+          <Label htmlFor="category">Disciplina</Label>
+          <select
+            id="category"
+            name="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="">Sin especificar</option>
+            {CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>{c.label}</option>
+            ))}
+          </select>
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="level">Nivel</Label>
+          <select
+            id="level"
+            name="level"
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <option value="">Sin especificar</option>
+            {LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>{l.label}</option>
+            ))}
+          </select>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="duration_minutes">Duración estimada (minutos)</Label>
+        <Input
+          id="duration_minutes"
+          name="duration_minutes"
+          type="number"
+          min={0}
+          value={durationMin}
+          onChange={(e) => setDurationMin(e.target.value)}
+          placeholder="Ej: 180"
+          className="w-40"
+        />
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="learning_objectives">Lo que aprenderás (una línea por objetivo)</Label>
+        <Textarea
+          id="learning_objectives"
+          name="learning_objectives"
+          value={objectives}
+          onChange={(e) => setObjectives(e.target.value)}
+          rows={4}
+          placeholder={'Armonizar respiración y movimiento\nReducir el estrés y la ansiedad\nFortalecer la energía vital'}
+        />
       </div>
 
       {/* Apariencia de la portada (sin foto) */}

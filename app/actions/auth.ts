@@ -6,6 +6,7 @@ import { z } from 'zod'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notify } from '@/lib/notify'
+import { sendEmail, welcomeEmail } from '@/lib/email'
 
 // Devuelve la URL base del dominio actual del request (resuelve el problema de PKCE:
 // el code_verifier se guarda en cookie del dominio donde se hace signup, así que
@@ -105,6 +106,9 @@ export async function registerAction(
     priority: 2,
     tags: ['wave'],
   })
+
+  const w = welcomeEmail(parsed.data.full_name)
+  await sendEmail(parsed.data.email, w.subject, w.html)
 
   return { success: 'Revisa tu email y haz clic en el enlace de confirmación.' }
 }

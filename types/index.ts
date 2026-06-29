@@ -23,6 +23,10 @@ export interface Course {
   cover_url: string | null
   cover_character: string | null
   cover_palette: string
+  category: string | null
+  level: string | null
+  duration_minutes: number | null
+  learning_objectives: string | null
   is_featured: boolean
   featured_order: number | null
   is_published: boolean

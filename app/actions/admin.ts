@@ -60,13 +60,23 @@ const courseSchema = z.object({
     .max(8)
     .default('')
     .refine((v) => v.trim() === '' || /^[㐀-鿿]{1,2}$/.test(v.trim()), 'Usa uno o dos caracteres chinos, o déjalo vacío'),
+  category: z.string().max(40).default(''),
+  level: z.string().max(40).default(''),
+  duration_minutes: z.number().int().min(0).nullable().default(null),
+  learning_objectives: z.string().max(2000).default(''),
   is_featured: z.boolean().default(false),
   featured_order: z.number().int().min(0).nullable().default(null),
 })
 
-// Normaliza el payload del curso para la BD (carácter vacío → null).
+// Normaliza el payload del curso para la BD (cadenas vacías → null).
 function buildCoursePayload(d: z.infer<typeof courseSchema>) {
-  return { ...d, cover_character: d.cover_character.trim() || null }
+  return {
+    ...d,
+    cover_character: d.cover_character.trim() || null,
+    category: d.category.trim() || null,
+    level: d.level.trim() || null,
+    learning_objectives: d.learning_objectives.trim() || null,
+  }
 }
 
 export async function createCourseAction(_prev: unknown, formData: FormData) {
@@ -82,6 +92,10 @@ export async function createCourseAction(_prev: unknown, formData: FormData) {
     currency: String(formData.get('currency') ?? 'eur'),
     cover_palette: String(formData.get('cover_palette') ?? 'jade'),
     cover_character: String(formData.get('cover_character') ?? ''),
+    category: String(formData.get('category') ?? ''),
+    level: String(formData.get('level') ?? ''),
+    duration_minutes: formData.get('duration_minutes') ? Number(formData.get('duration_minutes')) : null,
+    learning_objectives: String(formData.get('learning_objectives') ?? ''),
     is_featured: formData.get('is_featured') != null,
     featured_order: formData.get('featured_order') ? Number(formData.get('featured_order')) : null,
   }
@@ -115,6 +129,10 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
     currency: String(formData.get('currency') ?? 'eur'),
     cover_palette: String(formData.get('cover_palette') ?? 'jade'),
     cover_character: String(formData.get('cover_character') ?? ''),
+    category: String(formData.get('category') ?? ''),
+    level: String(formData.get('level') ?? ''),
+    duration_minutes: formData.get('duration_minutes') ? Number(formData.get('duration_minutes')) : null,
+    learning_objectives: String(formData.get('learning_objectives') ?? ''),
     is_featured: formData.get('is_featured') != null,
     featured_order: formData.get('featured_order') ? Number(formData.get('featured_order')) : null,
   }

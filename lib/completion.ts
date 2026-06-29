@@ -1,5 +1,6 @@
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notify } from '@/lib/notify'
+import { sendEmail, completionEmail } from '@/lib/email'
 
 // ── Cálculo puro de completación (fuente de verdad única para la UI) ──────
 
@@ -94,16 +95,33 @@ export async function recordCompletionIfDone(userId: string, courseId: string): 
     const estimatedSeconds = lessonList.reduce((acc, l) => acc + (l.min_watch_seconds ?? 0), 0)
     const secondsSpent = Math.max(realSeconds, estimatedSeconds)
 
-    const { error } = await db
+    const { data: inserted, error } = await db
       .from('course_completions')
       .upsert(
         { user_id: userId, course_id: courseId, seconds_spent: secondsSpent },
         { onConflict: 'user_id,course_id', ignoreDuplicates: true }
       )
+      .select('user_id')
     if (error) {
       console.error('[completion]', error)
       notify('🚨 Error BD — completion', error.message, { priority: 4, tags: ['rotating_light'] })
       return false
+    }
+
+    // Solo en la PRIMERA vez que se registra: email de felicitación (best-effort).
+    if (inserted && inserted.length > 0) {
+      try {
+        const [{ data: u }, { data: c }] = await Promise.all([
+          db.auth.admin.getUserById(userId),
+          db.from('courses').select('title, slug').eq('id', courseId).single(),
+        ])
+        if (u?.user?.email && c?.slug) {
+          const e = completionEmail(c.title ?? 'tu curso', c.slug)
+          await sendEmail(u.user.email, e.subject, e.html)
+        }
+      } catch {
+        // best-effort
+      }
     }
     return true
   } catch (e) {

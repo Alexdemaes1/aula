@@ -7,14 +7,15 @@ import { BookOpen } from 'lucide-react'
 interface Props {
   q?: string
   sort?: string
+  category?: string
   userId?: string
 }
 
-export async function CourseCatalog({ q, sort, userId }: Props) {
+export async function CourseCatalog({ q, sort, category, userId }: Props) {
   const db = createAdminClient()
   const validSort = sort === 'price_asc' || sort === 'price_desc' ? sort : 'newest'
   const [courses, { data: enrollments }] = await Promise.all([
-    getPublishedCourses(q, validSort),
+    getPublishedCourses(q, validSort, category),
     userId
       ? db.from('enrollments').select('course_id').eq('user_id', userId).eq('status', 'active')
       : Promise.resolve({ data: [] as { course_id: string }[] }),

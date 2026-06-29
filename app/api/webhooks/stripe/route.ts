@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getStripe } from '@/lib/stripe'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { notify } from '@/lib/notify'
+import { sendEmail, purchaseEmail } from '@/lib/email'
 
 export const runtime = 'nodejs'
 
@@ -35,8 +36,8 @@ export async function POST(request: NextRequest) {
 
     const adminClient = createAdminClient()
 
-    // Obtener nombre del curso para la notificación
-    const { data: course } = await adminClient.from('courses').select('title').eq('id', course_id).single()
+    // Obtener nombre/slug del curso para la notificación y el email
+    const { data: course } = await adminClient.from('courses').select('title, slug').eq('id', course_id).single()
 
     const { error } = await adminClient.from('enrollments').insert({
       user_id,
@@ -63,6 +64,15 @@ export async function POST(request: NextRequest) {
       `Curso: "${course?.title ?? course_id}"\nSession: ${session.id}`,
       { priority: 4, tags: ['moneybag'] }
     )
+
+    // Email de confirmación de compra al alumno (best-effort)
+    if (course?.slug) {
+      const { data: u } = await adminClient.auth.admin.getUserById(user_id)
+      if (u?.user?.email) {
+        const e = purchaseEmail(course.title ?? 'tu curso', course.slug)
+        await sendEmail(u.user.email, e.subject, e.html)
+      }
+    }
   }
 
   return NextResponse.json({ received: true })

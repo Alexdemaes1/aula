@@ -5,12 +5,16 @@ import type { Course } from '@/types'
 type SortOption = 'newest' | 'price_asc' | 'price_desc'
 
 export const getPublishedCourses = unstable_cache(
-  async (q?: string, sort?: SortOption): Promise<Course[]> => {
+  async (q?: string, sort?: SortOption, category?: string): Promise<Course[]> => {
     const db = createAdminClient()
     let query = db.from('courses').select('*').eq('is_published', true)
 
     if (q?.trim()) {
       query = query.ilike('title', `%${q.trim()}%`)
+    }
+
+    if (category?.trim()) {
+      query = query.eq('category', category.trim())
     }
 
     if (sort === 'price_asc') {

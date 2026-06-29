@@ -29,8 +29,24 @@ export function TextLesson({
   const [completed, setCompleted] = useState(initialCompleted)
   const [watched, setWatched] = useState(initialWatched)
   const [pending, setPending] = useState(false)
+  const [readSize, setReadSize] = useState<'s' | 'm' | 'l'>('m')
   const sinceFlush = useRef(0)
   const router = useRouter()
+
+  // Modo lectura: tamaño de texto persistido.
+  useEffect(() => {
+    try {
+      const v = localStorage.getItem('tyf-read-size')
+      if (v === 's' || v === 'm' || v === 'l') setReadSize(v)
+    } catch {}
+  }, [])
+  function changeReadSize(v: 's' | 'm' | 'l') {
+    setReadSize(v)
+    try {
+      localStorage.setItem('tyf-read-size', v)
+    } catch {}
+  }
+  const READ_PX: Record<'s' | 'm' | 'l', string> = { s: '0.9375rem', m: '1.0625rem', l: '1.2rem' }
 
   // Temporizador de lectura: cuenta segundos y envía heartbeats cada 10 s.
   useEffect(() => {
@@ -86,7 +102,29 @@ export function TextLesson({
 
   return (
     <div className="space-y-6">
-      <Markdown source={body} className="lesson-prose" />
+      {/* Modo lectura: tamaño de texto */}
+      <div className="flex items-center justify-end gap-1">
+        <span className="text-xs text-muted-foreground mr-1">Texto</span>
+        {(['s', 'm', 'l'] as const).map((v, i) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => changeReadSize(v)}
+            aria-label={`Tamaño de texto ${v === 's' ? 'pequeño' : v === 'm' ? 'mediano' : 'grande'}`}
+            aria-pressed={readSize === v}
+            className={
+              'flex items-center justify-center size-7 rounded-md border transition-colors ' +
+              (readSize === v ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-accent')
+            }
+          >
+            <span className="font-heading" style={{ fontSize: `${0.7 + i * 0.18}rem` }}>A</span>
+          </button>
+        ))}
+      </div>
+
+      <div style={{ fontSize: READ_PX[readSize] }}>
+        <Markdown source={body} className="lesson-prose" />
+      </div>
 
       <div className="border-t pt-4">
         {completed ? (

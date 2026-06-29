@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import { getUser } from '@/lib/auth'
 import { CatalogSearch } from '@/components/catalog-search'
 import { CatalogSort } from '@/components/catalog-sort'
+import { CatalogCategoryFilter } from '@/components/catalog-category-filter'
 import { CourseCatalog } from '@/components/course-catalog'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 
@@ -12,7 +13,7 @@ export const metadata = {
 }
 
 interface PageProps {
-  searchParams: Promise<{ q?: string; sort?: string }>
+  searchParams: Promise<{ q?: string; sort?: string; category?: string }>
 }
 
 function CatalogSkeleton() {
@@ -33,7 +34,7 @@ function CatalogSkeleton() {
 }
 
 export default async function CursosPage({ searchParams }: PageProps) {
-  const [{ q, sort }, user] = await Promise.all([searchParams, getUser()])
+  const [{ q, sort, category }, user] = await Promise.all([searchParams, getUser()])
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
@@ -57,8 +58,14 @@ export default async function CursosPage({ searchParams }: PageProps) {
         </div>
       </div>
 
-      <Suspense fallback={<CatalogSkeleton />}>
-        <CourseCatalog q={q} sort={sort} userId={user?.id} />
+      <div className="mb-6">
+        <Suspense>
+          <CatalogCategoryFilter />
+        </Suspense>
+      </div>
+
+      <Suspense key={`${q ?? ''}-${sort ?? ''}-${category ?? ''}`} fallback={<CatalogSkeleton />}>
+        <CourseCatalog q={q} sort={sort} category={category} userId={user?.id} />
       </Suspense>
     </div>
   )

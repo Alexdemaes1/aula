@@ -10,9 +10,13 @@ import { BuyButton } from '@/components/buy-button'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 import { PurchaseSuccessBanner } from '@/components/purchase-success-banner'
 import { CourseCover } from '@/components/course-cover'
+import { getCourseReviews, getMyReview } from '@/lib/data/reviews'
+import { StarRating } from '@/components/star-rating'
+import { ReviewForm } from '@/components/review-form'
 import { cn } from '@/lib/utils'
-import { formatPrice } from '@/lib/utils/format'
-import { Award, CheckCircle, Clock, Lock, ShieldCheck } from 'lucide-react'
+import { formatPrice, formatDate } from '@/lib/utils/format'
+import { categoryLabel, levelLabel, formatDuration, parseObjectives } from '@/lib/course-meta'
+import { Award, CheckCircle, Clock, Lock, ShieldCheck, BarChart3, GraduationCap } from 'lucide-react'
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
@@ -76,6 +80,13 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
   }
 
   const lessons = allLessons ?? []
+  const objectives = parseObjectives(course.learning_objectives)
+  const level = levelLabel(course.level)
+  const duration = formatDuration(course.duration_minutes)
+  const category = categoryLabel(course.category)
+
+  const { reviews, average, count } = await getCourseReviews(course.id)
+  const myReview = user && isEnrolled ? await getMyReview(course.id, user.id) : null
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -164,11 +175,24 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
 
             <div>
               <h1 className="font-heading font-semibold text-3xl sm:text-4xl tracking-tight">{course.title}</h1>
-              <div className="flex items-center gap-3 mt-3">
+              <div className="flex items-center gap-2 mt-3 flex-wrap">
+                {category && <Badge variant="secondary">{category}</Badge>}
                 <Badge variant="outline">
                   <Clock className="size-3 mr-1" />
                   {course.lesson_count} {course.lesson_count === 1 ? 'lección' : 'lecciones'}
                 </Badge>
+                {duration && (
+                  <Badge variant="outline">
+                    <Clock className="size-3 mr-1" />
+                    {duration}
+                  </Badge>
+                )}
+                {level && (
+                  <Badge variant="outline">
+                    <BarChart3 className="size-3 mr-1" />
+                    {level}
+                  </Badge>
+                )}
               </div>
             </div>
 
@@ -176,6 +200,20 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
               <div>
                 <h2 className="font-semibold mb-2">Descripción</h2>
                 <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">{course.description}</p>
+              </div>
+            )}
+
+            {objectives.length > 0 && (
+              <div>
+                <h2 className="font-semibold mb-3">Lo que aprenderás</h2>
+                <ul className="grid sm:grid-cols-2 gap-2.5">
+                  {objectives.map((o, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-sm text-muted-foreground">
+                      <CheckCircle className="size-4 text-emerald-600 mt-0.5 shrink-0" />
+                      <span>{o}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
 
@@ -216,6 +254,64 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                 </div>
               </div>
             )}
+
+            {/* Valoraciones */}
+            <div className="border-t pt-6">
+              <div className="flex items-center gap-3 mb-4 flex-wrap">
+                <h2 className="font-semibold">Valoraciones</h2>
+                {count > 0 && (
+                  <div className="flex items-center gap-2">
+                    <StarRating value={average} />
+                    <span className="text-sm text-muted-foreground">
+                      {average.toFixed(1)} · {count} {count === 1 ? 'reseña' : 'reseñas'}
+                    </span>
+                  </div>
+                )}
+              </div>
+              {isEnrolled && (
+                <div className="mb-5">
+                  <ReviewForm
+                    courseId={course.id}
+                    initialRating={myReview?.rating ?? 0}
+                    initialComment={myReview?.comment ?? ''}
+                  />
+                </div>
+              )}
+              {reviews.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Todavía no hay valoraciones.{isEnrolled ? ' Sé el primero en opinar.' : ''}
+                </p>
+              ) : (
+                <ul className="space-y-4">
+                  {reviews.map((r) => (
+                    <li key={r.id} className="border-b border-border/60 pb-4 last:border-0 last:pb-0">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-medium">{r.full_name}</span>
+                        <span className="text-xs text-muted-foreground">{formatDate(r.created_at)}</span>
+                      </div>
+                      <StarRating value={r.rating} starClassName="size-3.5" className="my-1.5" />
+                      {r.comment && <p className="text-sm text-muted-foreground leading-relaxed">{r.comment}</p>}
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+
+            {/* Instructor */}
+            <div className="rounded-xl border bg-card p-5 flex items-start gap-4">
+              <div className="size-12 rounded-full bg-primary/10 flex items-center justify-center shrink-0">
+                <GraduationCap className="size-6 text-primary" />
+              </div>
+              <div>
+                <p className="kicker mb-1">Tu instructor</p>
+                <h3 className="font-heading text-lg font-semibold">Sifu Salvador Montiel</h3>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                  Más de 25 años enseñando Tai Ji Quan, Qi Gong, Kung Fu tradicional y medicina
+                  china. Creador del sistema Biokinnetic, que integra la tradición oriental con la
+                  salud natural moderna.
+                </p>
+              </div>
+            </div>
 
             <p className="text-xs text-muted-foreground border-t pt-4 leading-relaxed">
               Aviso: los contenidos de este curso tienen fines educativos y de bienestar y no

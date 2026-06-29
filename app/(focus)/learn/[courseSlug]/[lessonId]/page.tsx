@@ -10,6 +10,7 @@ import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
 import { FileDown, Lock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getSignedNotesUrl } from '@/app/actions/notes'
+import { LessonNotes } from '@/components/lesson-notes'
 
 interface PageProps {
   params: Promise<{ courseSlug: string; lessonId: string }>
@@ -76,6 +77,13 @@ export default async function LessonPage({ params }: PageProps) {
     notesUrl = result.url ?? null
   }
 
+  const { data: personalNote } = await db
+    .from('lesson_notes')
+    .select('content')
+    .eq('user_id', user.id)
+    .eq('lesson_id', lessonId)
+    .maybeSingle()
+
   return (
     <>
       {isLocked ? (
@@ -128,6 +136,8 @@ export default async function LessonPage({ params }: PageProps) {
               nextLessonId={nextLesson?.id}
             />
           )}
+
+          <LessonNotes lessonId={lessonId} initialContent={personalNote?.content ?? ''} />
 
           {notesUrl && (
             <>

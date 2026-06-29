@@ -152,6 +152,19 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
         </div>
       </div>
 
+      <label className="flex items-center gap-2.5 cursor-pointer select-none">
+        <input
+          type="checkbox"
+          name="is_preview"
+          defaultChecked={lesson?.is_preview ?? false}
+          className="size-4 rounded border-input accent-[var(--primary)]"
+        />
+        <span className="text-sm font-medium">
+          Vista previa gratuita{' '}
+          <span className="text-muted-foreground font-normal">(visible sin comprar el curso)</span>
+        </span>
+      </label>
+
       <div className="space-y-2">
         <Label>Descripción</Label>
         <Textarea name="description" rows={2} defaultValue={lesson?.description} />

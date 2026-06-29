@@ -1,6 +1,9 @@
+import Link from 'next/link'
+import { LineChart } from 'lucide-react'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
+import { buttonVariants } from '@/components/ui/button'
 import { RoleToggle } from '@/components/admin/role-toggle'
 import { UserSearch } from '@/components/admin/user-search'
 import { EnrollUserForm } from '@/components/admin/enroll-user-form'
@@ -97,6 +100,13 @@ export default async function AdminUsersPage({ searchParams }: PageProps) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
+                        <Link
+                          href={`/admin/users/${user.id}`}
+                          className={buttonVariants({ variant: 'ghost', size: 'sm' })}
+                          title="Ver progreso"
+                        >
+                          <LineChart className="size-4" />
+                        </Link>
                         {user.id !== currentUser.id && (
                           <RoleToggle userId={user.id} currentRole={user.role} />
                         )}

@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { CourseCover } from '@/components/course-cover'
+import { CourseCard } from '@/components/course-card'
+import { getFavoriteCourses } from '@/lib/data/favorites'
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { Card, CardContent } from '@/components/ui/card'
@@ -28,6 +30,9 @@ export default async function DashboardPage() {
 
   const firstName = profile?.full_name?.split(' ')[0] ?? null
   const courseIds = enrollments?.map((e) => (e.courses as any)?.id).filter(Boolean) ?? []
+
+  const favorites = await getFavoriteCourses(user.id)
+  const savedCourses = favorites.filter((c) => !courseIds.includes(c.id))
 
   let progressMap = new Map<string, { total: number; done: number }>()
   let totalWatchedSeconds = 0
@@ -227,6 +232,17 @@ export default async function DashboardPage() {
               </Card>
             )
           })}
+        </div>
+      )}
+
+      {savedCourses.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="font-heading text-2xl font-semibold">Guardados</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {savedCourses.map((c) => (
+              <CourseCard key={c.id} course={c} />
+            ))}
+          </div>
         </div>
       )}
     </div>

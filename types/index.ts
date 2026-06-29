@@ -45,6 +45,7 @@ export interface Lesson {
   position: number
   min_watch_seconds: number
   notes_pdf_path: string | null
+  is_preview: boolean
   created_at: string
 }
 

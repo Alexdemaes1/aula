@@ -11,8 +11,11 @@ import { Breadcrumbs } from '@/components/breadcrumbs'
 import { PurchaseSuccessBanner } from '@/components/purchase-success-banner'
 import { CourseCover } from '@/components/course-cover'
 import { getCourseReviews, getMyReview } from '@/lib/data/reviews'
+import { isFavorite } from '@/lib/data/favorites'
 import { StarRating } from '@/components/star-rating'
 import { ReviewForm } from '@/components/review-form'
+import { FavoriteButton } from '@/components/favorite-button'
+import { LessonPreviewButton } from '@/components/lesson-preview-button'
 import { cn } from '@/lib/utils'
 import { formatPrice, formatDate } from '@/lib/utils/format'
 import { categoryLabel, levelLabel, formatDuration, parseObjectives } from '@/lib/course-meta'
@@ -58,7 +61,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
   const [{ data: allLessons }, profileData, enrollmentData] = await Promise.all([
     adminClient
       .from('lessons')
-      .select('id, title, position')
+      .select('id, title, position, is_preview, content_type, youtube_video_id')
       .eq('course_id', course.id)
       .order('position'),
     user
@@ -87,6 +90,7 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
 
   const { reviews, average, count } = await getCourseReviews(course.id)
   const myReview = user && isEnrolled ? await getMyReview(course.id, user.id) : null
+  const favorited = user ? await isFavorite(user.id, course.id) : false
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -247,7 +251,11 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                           {i + 1}
                         </span>
                         <span className="text-sm text-muted-foreground">{lesson.title}</span>
-                        <Lock className="size-3 ml-auto text-muted-foreground/40 flex-shrink-0" />
+                        {lesson.is_preview ? (
+                          <LessonPreviewButton title={lesson.title} videoId={lesson.youtube_video_id} />
+                        ) : (
+                          <Lock className="size-3 ml-auto text-muted-foreground/40 flex-shrink-0" />
+                        )}
                       </div>
                     )
                   )}
@@ -371,6 +379,8 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                   </Link>
                 </div>
               )}
+
+              {user && <FavoriteButton courseId={course.id} initialFavorited={favorited} />}
 
               <Separator />
 

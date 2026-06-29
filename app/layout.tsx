@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono, Cormorant_Garamond } from 'next/font/google'
 import { Toaster } from '@/components/ui/sonner'
+import { Analytics } from '@/components/analytics'
 import './globals.css'
 
 const geistSans = Geist({
@@ -69,6 +70,7 @@ export default function RootLayout({
         </a>
         {children}
         <Toaster richColors position="top-right" />
+        <Analytics />
       </body>
     </html>
   )

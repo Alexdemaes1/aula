@@ -248,6 +248,7 @@ const lessonSchema = z.object({
   body: z.string().default(''),
   position: z.coerce.number().int().min(1),
   min_watch_seconds: z.coerce.number().int().min(0),
+  is_preview: z.boolean().default(false),
 }).superRefine((v, ctx) => {
   if (v.content_type === 'video' && !extractYouTubeId(v.youtube_video_id)) {
     ctx.addIssue({ code: 'custom', path: ['youtube_video_id'], message: 'ID o enlace de YouTube inválido' })
@@ -269,6 +270,7 @@ function buildLessonPayload(d: LessonInput) {
     body: d.content_type === 'text' ? d.body : null,
     position: d.position,
     min_watch_seconds: d.min_watch_seconds,
+    is_preview: d.is_preview,
   }
 }
 
@@ -281,6 +283,7 @@ function readLessonForm(formData: FormData) {
     body: String(formData.get('body') ?? ''),
     position: Number(formData.get('position') ?? 1),
     min_watch_seconds: Number(formData.get('min_watch_minutes') ?? 0) * 60,
+    is_preview: formData.get('is_preview') != null,
   }
 }
 

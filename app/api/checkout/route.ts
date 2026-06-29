@@ -62,6 +62,7 @@ export async function POST(request: NextRequest) {
     const session = await getStripe().checkout.sessions.create({
       mode: 'payment',
       customer_email: user.email ?? undefined,
+      allow_promotion_codes: true, // permite aplicar códigos de descuento creados en Stripe
       line_items: [
         {
           quantity: 1,

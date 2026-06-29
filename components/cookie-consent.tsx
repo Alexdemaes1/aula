@@ -21,6 +21,7 @@ export function CookieConsent() {
   function decide(value: 'accepted' | 'rejected') {
     try {
       localStorage.setItem(KEY, value)
+      window.dispatchEvent(new Event('tyf-consent'))
     } catch {}
     setShow(false)
   }

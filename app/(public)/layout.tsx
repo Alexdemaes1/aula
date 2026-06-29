@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { GlobalNav } from '@/components/global-nav'
 import { getNavData } from '@/lib/nav-data'
 import { WhatsAppButton } from '@/components/whatsapp-button'
+import { CookieConsent } from '@/components/cookie-consent'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const nav = await getNavData()
@@ -11,6 +12,7 @@ export default async function PublicLayout({ children }: { children: React.React
       <GlobalNav {...nav} />
       <main id="main-content" className="flex-1">{children}</main>
       <WhatsAppButton />
+      <CookieConsent />
 
       <footer className="border-t bg-brand-dark text-white">
         <div className="max-w-7xl mx-auto px-6 py-5">

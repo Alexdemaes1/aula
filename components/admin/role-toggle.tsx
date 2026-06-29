@@ -1,9 +1,8 @@
 'use client'
 
-import { useTransition } from 'react'
 import { updateUserRoleAction } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
-import { Loader2 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { toast } from 'sonner'
 
 interface RoleToggleProps {
@@ -12,29 +11,28 @@ interface RoleToggleProps {
 }
 
 export function RoleToggle({ userId, currentRole }: RoleToggleProps) {
-  const [isPending, startTransition] = useTransition()
   const isAdmin = currentRole === 'admin'
-
-  function toggle() {
-    const newRole = isAdmin ? 'student' : 'admin'
-    const msg = isAdmin ? '¿Quitar permisos de admin a este usuario?' : '¿Hacer admin a este usuario?'
-    if (!confirm(msg)) return
-
-    startTransition(async () => {
-      await updateUserRoleAction(userId, newRole)
-      toast.success(`Rol actualizado a ${newRole}`)
-    })
-  }
+  const newRole = isAdmin ? 'student' : 'admin'
 
   return (
-    <Button
-      variant={isAdmin ? 'destructive' : 'outline'}
-      size="sm"
-      onClick={toggle}
-      disabled={isPending}
-    >
-      {isPending ? <Loader2 className="size-3 animate-spin" /> : null}
-      {isAdmin ? 'Quitar admin' : 'Hacer admin'}
-    </Button>
+    <ConfirmDialog
+      trigger={
+        <Button variant={isAdmin ? 'destructive' : 'outline'} size="sm">
+          {isAdmin ? 'Quitar admin' : 'Hacer admin'}
+        </Button>
+      }
+      title={isAdmin ? '¿Quitar permisos de admin?' : '¿Hacer admin a este usuario?'}
+      description={
+        isAdmin
+          ? 'El usuario dejará de poder acceder al panel de administración.'
+          : 'El usuario tendrá acceso completo al panel de administración.'
+      }
+      confirmText={isAdmin ? 'Quitar admin' : 'Hacer admin'}
+      variant={isAdmin ? 'destructive' : 'default'}
+      onConfirm={async () => {
+        await updateUserRoleAction(userId, newRole)
+        toast.success(`Rol actualizado a ${newRole}`)
+      }}
+    />
   )
 }

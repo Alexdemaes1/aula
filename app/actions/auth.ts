@@ -71,6 +71,10 @@ export async function registerAction(
     return { error: parsed.error.issues[0].message }
   }
 
+  if (formData.get('accept_terms') == null) {
+    return { error: 'Debes aceptar los términos y la política de privacidad' }
+  }
+
   const siteUrl = await getSiteUrl()
   const supabase = await createClient()
   const { data: signUpData, error } = await supabase.auth.signUp({
@@ -91,7 +95,10 @@ export async function registerAction(
     const admin = createAdminClient()
     await admin
       .from('profiles')
-      .upsert({ id: signUpData.user.id, full_name: parsed.data.full_name }, { onConflict: 'id' })
+      .upsert(
+        { id: signUpData.user.id, full_name: parsed.data.full_name, terms_accepted_at: new Date().toISOString() },
+        { onConflict: 'id' }
+      )
   }
 
   notify('👤 Nuevo registro', `${parsed.data.email} (${parsed.data.full_name})`, {

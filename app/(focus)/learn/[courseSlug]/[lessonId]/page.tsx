@@ -8,7 +8,7 @@ import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { cn } from '@/lib/utils'
-import { FileDown, Lock } from 'lucide-react'
+import { FileDown, Lock, ChevronLeft, ChevronRight } from 'lucide-react'
 import { getSignedNotesUrl } from '@/app/actions/notes'
 
 interface PageProps {
@@ -65,8 +65,10 @@ export default async function LessonPage({ params }: PageProps) {
     lessonIndex > 0 &&
     progressMap.get(allLessons[lessonIndex - 1].id)?.completed !== true
 
+  const prevLesson = lessonIndex > 0 ? allLessons[lessonIndex - 1] : undefined
   const nextLesson = allLessons[lessonIndex + 1]
   const currentProgress = progressMap.get(lessonId)
+  const canGoNext = !!nextLesson && (isAdmin || currentProgress?.completed === true)
 
   let notesUrl: string | null = null
   if (lesson.notes_pdf_path) {
@@ -120,6 +122,7 @@ export default async function LessonPage({ params }: PageProps) {
               lessonId={lessonId}
               minWatchSeconds={lesson.min_watch_seconds}
               initialWatched={currentProgress?.watched_seconds ?? 0}
+              initialPosition={currentProgress?.last_position ?? 0}
               initialCompleted={currentProgress?.completed ?? false}
               courseSlug={courseSlug}
               nextLessonId={nextLesson?.id}
@@ -146,6 +149,36 @@ export default async function LessonPage({ params }: PageProps) {
               </div>
             </>
           )}
+
+          {/* Navegación entre lecciones */}
+          <div className="flex items-center justify-between gap-3 pt-5 border-t">
+            {prevLesson ? (
+              <a
+                href={`/learn/${courseSlug}/${prevLesson.id}`}
+                className={cn(buttonVariants({ variant: 'outline', size: 'sm' }))}
+              >
+                <ChevronLeft className="size-4 mr-1" /> Anterior
+              </a>
+            ) : (
+              <span />
+            )}
+            {nextLesson ? (
+              canGoNext ? (
+                <a
+                  href={`/learn/${courseSlug}/${nextLesson.id}`}
+                  className={cn(buttonVariants({ size: 'sm' }))}
+                >
+                  Siguiente <ChevronRight className="size-4 ml-1" />
+                </a>
+              ) : (
+                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Lock className="size-3" /> Completa esta lección para continuar
+                </span>
+              )
+            ) : (
+              <span />
+            )}
+          </div>
         </div>
       )}
     </>

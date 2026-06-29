@@ -69,6 +69,21 @@ export default function RegisterPage() {
               placeholder="Mínimo 6 caracteres"
             />
           </div>
+          <div className="flex items-start gap-2.5 pt-1">
+            <input
+              id="accept_terms"
+              name="accept_terms"
+              type="checkbox"
+              required
+              className="mt-0.5 size-4 rounded border-input accent-[var(--primary)]"
+            />
+            <Label htmlFor="accept_terms" className="text-xs font-normal leading-snug text-muted-foreground">
+              Acepto los{' '}
+              <Link href="/terminos" target="_blank" className="underline hover:text-foreground">términos</Link>
+              {' '}y la{' '}
+              <Link href="/privacidad" target="_blank" className="underline hover:text-foreground">política de privacidad</Link>.
+            </Label>
+          </div>
         </CardContent>
         <CardFooter className="flex flex-col gap-4">
           <Button type="submit" className="w-full" disabled={pending || !!state?.success}>

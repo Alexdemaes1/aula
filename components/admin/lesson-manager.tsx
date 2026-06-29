@@ -19,6 +19,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { MarkdownEditor } from '@/components/admin/markdown-editor'
 import { Plus, Trash2, ChevronDown, ChevronUp, FileText, Video, X, Loader2 } from 'lucide-react'
+import { ConfirmDialog } from '@/components/ui/confirm-dialog'
 import { cn } from '@/lib/utils'
 import type { Lesson, LessonContentType } from '@/types'
 import { toast } from 'sonner'
@@ -211,7 +212,6 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
   )
 
   async function handleDelete(lessonId: string) {
-    if (!confirm('¿Eliminar esta lección?')) return
     await deleteLessonAction(lessonId, courseId)
     toast.success('Lección eliminada')
     router.refresh()
@@ -296,17 +296,22 @@ export function LessonManager({ courseId, lessons: initialLessons }: LessonManag
                 {lesson.content_type === 'text' ? 'Texto' : 'Vídeo'}
               </Badge>
               {lesson.notes_pdf_path && <FileText className="size-3.5 text-muted-foreground" />}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 w-7 p-0 text-destructive hover:text-destructive"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  handleDelete(lesson.id)
-                }}
-              >
-                <Trash2 className="size-3.5" />
-              </Button>
+              <ConfirmDialog
+                trigger={
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <Trash2 className="size-3.5" />
+                  </Button>
+                }
+                title="¿Eliminar esta lección?"
+                description="Se eliminará la lección y sus apuntes. No se puede deshacer."
+                confirmText="Eliminar"
+                onConfirm={() => handleDelete(lesson.id)}
+              />
               <ChevronDown
                 className={cn('size-4 text-muted-foreground transition-transform', expanded === lesson.id && 'rotate-180')}
               />

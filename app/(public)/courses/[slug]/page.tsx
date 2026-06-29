@@ -12,7 +12,7 @@ import { PurchaseSuccessBanner } from '@/components/purchase-success-banner'
 import { CourseCover } from '@/components/course-cover'
 import { cn } from '@/lib/utils'
 import { formatPrice } from '@/lib/utils/format'
-import { Award, CheckCircle, Clock, Lock } from 'lucide-react'
+import { Award, CheckCircle, Clock, Lock, ShieldCheck } from 'lucide-react'
 
 const SITE_URL =
   process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tianyingfa.vercel.app'
@@ -216,6 +216,12 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                 </div>
               </div>
             )}
+
+            <p className="text-xs text-muted-foreground border-t pt-4 leading-relaxed">
+              Aviso: los contenidos de este curso tienen fines educativos y de bienestar y no
+              sustituyen el diagnóstico, tratamiento ni el consejo de un profesional sanitario.
+              Consulta a tu médico antes de iniciar cualquier práctica física.
+            </p>
           </div>
 
           {/* Panel lateral */}
@@ -289,6 +295,12 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                   <Award className="size-4 text-brand-gold flex-shrink-0" />
                   Certificado con sello del centro
                 </li>
+                {course.price_cents > 0 && (
+                  <li className="flex items-center gap-2.5">
+                    <ShieldCheck className="size-4 text-emerald-600 flex-shrink-0" />
+                    Garantía de devolución de 14 días
+                  </li>
+                )}
               </ul>
             </div>
           </div>

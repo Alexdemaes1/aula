@@ -40,7 +40,7 @@ export const getLessonProgress = cache(async (userId: string) => {
   const db = createAdminClient()
   const { data } = await db
     .from('lesson_progress')
-    .select('lesson_id, watched_seconds, completed')
+    .select('lesson_id, watched_seconds, last_position, completed')
     .eq('user_id', userId)
   return data ?? []
 })

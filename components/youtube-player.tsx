@@ -28,6 +28,7 @@ declare global {
     getCurrentTime(): number
     getDuration(): number
     getPlayerState(): number
+    seekTo(seconds: number, allowSeekAhead?: boolean): void
     destroy(): void
   }
 }
@@ -37,6 +38,7 @@ interface YouTubePlayerProps {
   lessonId: string
   minWatchSeconds: number
   initialWatched: number
+  initialPosition?: number
   initialCompleted: boolean
   courseSlug: string
   nextLessonId?: string
@@ -47,6 +49,7 @@ export function YouTubePlayer({
   lessonId,
   minWatchSeconds,
   initialWatched,
+  initialPosition = 0,
   initialCompleted,
   courseSlug,
   nextLessonId,
@@ -105,6 +108,12 @@ export function YouTubePlayer({
         videoId: vid,
         playerVars: { rel: 0, modestbranding: 1, fs: 1 },
         events: {
+          onReady: ({ target }) => {
+            // Reanudar donde lo dejó (si no estaba ya completada).
+            if (initialPosition > 1 && !completedRef.current) {
+              target.seekTo(initialPosition, true)
+            }
+          },
           onStateChange: ({ data }) => {
             const PLAYING = 1
             const ENDED = 0
@@ -156,7 +165,7 @@ export function YouTubePlayer({
       document.removeEventListener('visibilitychange', flushOnHide)
       playerRef.current?.destroy()
     }
-  }, [videoIdClean, sendHeartbeat, playerId])
+  }, [videoIdClean, initialPosition, sendHeartbeat, playerId])
 
   const percent = minWatchSeconds > 0 ? Math.min(100, Math.round((watched / minWatchSeconds) * 100)) : 100
   const remaining = Math.max(0, minWatchSeconds - watched)

@@ -252,7 +252,12 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                         </span>
                         <span className="text-sm text-muted-foreground">{lesson.title}</span>
                         {lesson.is_preview ? (
-                          <LessonPreviewButton title={lesson.title} videoId={lesson.youtube_video_id} />
+                          <LessonPreviewButton
+                            lessonId={lesson.id}
+                            title={lesson.title}
+                            contentType={lesson.content_type}
+                            videoId={lesson.youtube_video_id}
+                          />
                         ) : (
                           <Lock className="size-3 ml-auto text-muted-foreground/40 flex-shrink-0" />
                         )}

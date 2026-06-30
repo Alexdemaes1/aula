@@ -3,7 +3,9 @@ import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { getCourseBySlug, getLessonsByCourse, getLessonProgress, getUserRole } from '@/lib/data/learn'
 import { YouTubePlayer } from '@/components/youtube-player'
+import { AudioPlayer } from '@/components/audio-player'
 import { TextLesson } from '@/components/text-lesson'
+import { getSignedMediaUrl } from '@/app/actions/media'
 import { buttonVariants } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -84,6 +86,9 @@ export default async function LessonPage({ params }: PageProps) {
     .eq('lesson_id', lessonId)
     .maybeSingle()
 
+  const mediaUrl =
+    lesson.content_type === 'audio' ? (await getSignedMediaUrl(lessonId)).url ?? null : null
+
   return (
     <>
       {isLocked ? (
@@ -120,6 +125,17 @@ export default async function LessonPage({ params }: PageProps) {
               lessonId={lessonId}
               minWatchSeconds={lesson.min_watch_seconds}
               initialWatched={currentProgress?.watched_seconds ?? 0}
+              initialCompleted={currentProgress?.completed ?? false}
+              courseSlug={courseSlug}
+              nextLessonId={nextLesson?.id}
+            />
+          ) : lesson.content_type === 'audio' ? (
+            <AudioPlayer
+              url={mediaUrl}
+              lessonId={lessonId}
+              minWatchSeconds={lesson.min_watch_seconds}
+              initialWatched={currentProgress?.watched_seconds ?? 0}
+              initialPosition={currentProgress?.last_position ?? 0}
               initialCompleted={currentProgress?.completed ?? false}
               courseSlug={courseSlug}
               nextLessonId={nextLesson?.id}

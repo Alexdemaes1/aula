@@ -1,6 +1,6 @@
 export type UserRole = 'admin' | 'student'
 export type EnrollmentStatus = 'active' | 'refunded'
-export type LessonContentType = 'video' | 'text'
+export type LessonContentType = 'video' | 'text' | 'audio'
 export type QuizQuestionType = 'single' | 'multiple' | 'boolean'
 
 export interface Profile {
@@ -46,6 +46,8 @@ export interface Lesson {
   min_watch_seconds: number
   notes_pdf_path: string | null
   is_preview: boolean
+  media_path: string | null
+  media_provider: string
   created_at: string
 }
 

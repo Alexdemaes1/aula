@@ -243,7 +243,7 @@ export async function setCoverUrlAction(
 const lessonSchema = z.object({
   title: z.string().min(2, 'El título debe tener al menos 2 caracteres'),
   description: z.string().default(''),
-  content_type: z.enum(['video', 'text']).default('video'),
+  content_type: z.enum(['video', 'text', 'audio']).default('video'),
   youtube_video_id: z.string().default(''),
   body: z.string().default(''),
   position: z.coerce.number().int().min(1),
@@ -271,6 +271,8 @@ function buildLessonPayload(d: LessonInput) {
     position: d.position,
     min_watch_seconds: d.min_watch_seconds,
     is_preview: d.is_preview,
+    // El archivo (media_path) se gestiona aparte (setLessonMediaAction); aquí solo el proveedor.
+    media_provider: d.content_type === 'audio' ? 'supabase' : 'youtube',
   }
 }
 

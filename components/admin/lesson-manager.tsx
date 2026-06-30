@@ -18,8 +18,9 @@ import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { MarkdownEditor } from '@/components/admin/markdown-editor'
-import { Plus, Trash2, ChevronDown, ChevronUp, FileText, Video, X, Loader2 } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ChevronUp, FileText, Video, Music, X, Loader2 } from 'lucide-react'
 import { ConfirmDialog } from '@/components/ui/confirm-dialog'
+import { MediaUpload } from '@/components/media-upload'
 import { cn } from '@/lib/utils'
 import type { Lesson, LessonContentType } from '@/types'
 import { toast } from 'sonner'
@@ -89,7 +90,7 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
       <div className="space-y-2">
         <Label>Tipo de contenido</Label>
         <div className="inline-flex rounded-lg border p-0.5">
-          {(['video', 'text'] as const).map((t) => (
+          {(['video', 'audio', 'text'] as const).map((t) => (
             <button
               key={t}
               type="button"
@@ -99,8 +100,8 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
                 type === t ? 'bg-muted font-medium' : 'text-muted-foreground hover:text-foreground'
               )}
             >
-              {t === 'video' ? <Video className="size-4" /> : <FileText className="size-4" />}
-              {t === 'video' ? 'Vídeo' : 'Texto'}
+              {t === 'video' ? <Video className="size-4" /> : t === 'audio' ? <Music className="size-4" /> : <FileText className="size-4" />}
+              {t === 'video' ? 'Vídeo' : t === 'audio' ? 'Audio' : 'Texto'}
             </button>
           ))}
         </div>
@@ -127,6 +128,17 @@ function LessonForm({ courseId, lesson, nextPosition, onDone }: LessonFormProps)
               allow="accelerometer; autoplay; clipboard-write; encrypted-media"
               allowFullScreen
             />
+          )}
+        </div>
+      ) : type === 'audio' ? (
+        <div className="space-y-2">
+          <Label>Audio (MP3)</Label>
+          {isEdit ? (
+            <MediaUpload courseId={courseId} lessonId={lesson.id} kind="audio" currentPath={lesson.media_path} />
+          ) : (
+            <p className="text-xs text-muted-foreground rounded-md border border-dashed p-3">
+              Crea primero la lección y luego sube el audio desde su edición.
+            </p>
           )}
         </div>
       ) : (

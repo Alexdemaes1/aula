@@ -151,7 +151,7 @@ export async function updateCourseAction(_prev: unknown, formData: FormData) {
   return { success: 'Curso actualizado' }
 }
 
-export async function deleteCourseAction(id: string) {
+export async function deleteCourseAction(id: string): Promise<{ error?: string }> {
   await requireAdmin()
   const db = createAdminClient()
 
@@ -161,24 +161,37 @@ export async function deleteCourseAction(id: string) {
     await db.storage.from('covers').remove(coverFiles.map((f) => `${id}/${f.name}`))
   }
 
-  // Obtener los paths de notas de todas las lecciones del curso
-  const { data: lessons } = await db
+  // Apuntes PDF de todas las lecciones del curso
+  const { data: noteLessons } = await db
     .from('lessons')
     .select('notes_pdf_path')
     .eq('course_id', id)
     .not('notes_pdf_path', 'is', null)
-
-  const notePaths = (lessons ?? []).map((l) => l.notes_pdf_path).filter(Boolean) as string[]
+  const notePaths = (noteLessons ?? []).map((l) => l.notes_pdf_path).filter(Boolean) as string[]
   if (notePaths.length) {
     await db.storage.from('notes').remove(notePaths)
   }
 
-  await db.from('courses').delete().eq('id', id)
+  // Audio/vídeo subido (best-effort; si la columna media_path aún no existe, no pasa nada)
+  const { data: mediaLessons } = await db
+    .from('lessons')
+    .select('media_path')
+    .eq('course_id', id)
+    .not('media_path', 'is', null)
+  const mediaPaths = (mediaLessons ?? [])
+    .map((l) => (l as { media_path: string | null }).media_path)
+    .filter(Boolean) as string[]
+  if (mediaPaths.length) {
+    await db.storage.from('media').remove(mediaPaths)
+  }
+
+  const { error } = await db.from('courses').delete().eq('id', id)
+  if (error) return { error: error.message }
+
   revalidatePath('/admin/courses')
   revalidatePath('/')
   revalidatePath('/cursos')
-
-  redirect('/admin/courses')
+  return {}
 }
 
 export async function uploadCoverAction(courseId: string, formData: FormData) {

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useTransition } from 'react'
+import { useRouter } from 'next/navigation'
 import { deleteCourseAction } from '@/app/actions/admin'
 import { Button } from '@/components/ui/button'
 import {
@@ -17,11 +18,21 @@ import { toast } from 'sonner'
 export function DeleteCourseButton({ courseId, courseTitle }: { courseId: string; courseTitle: string }) {
   const [open, setOpen] = useState(false)
   const [isPending, startTransition] = useTransition()
+  const router = useRouter()
 
   function handleDelete() {
     startTransition(async () => {
       try {
-        await deleteCourseAction(courseId)
+        const result = await deleteCourseAction(courseId)
+        if (result?.error) {
+          toast.error(result.error)
+          setOpen(false)
+          return
+        }
+        toast.success('Curso eliminado')
+        setOpen(false)
+        router.push('/admin/courses')
+        router.refresh()
       } catch {
         toast.error('Error al eliminar el curso')
         setOpen(false)

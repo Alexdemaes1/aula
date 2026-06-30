@@ -10,12 +10,14 @@ interface GlobalNavProps {
   isLoggedIn: boolean
   isAdmin: boolean
   email?: string
+  fullName?: string
+  avatarUrl?: string | null
   /** 'public' = web pública (papel) · 'student' = área de alumno (jade) */
   variant?: 'public' | 'student'
 }
 
 /** Barra de navegación global con dos contextos: web pública y área de alumno. */
-export function GlobalNav({ isLoggedIn, isAdmin, email, variant = 'public' }: GlobalNavProps) {
+export function GlobalNav({ isLoggedIn, isAdmin, email, fullName, avatarUrl, variant = 'public' }: GlobalNavProps) {
   if (variant === 'student') {
     return (
       <header className="sticky top-0 z-50 bg-brand-dark text-cream border-b border-brand-gold/15">
@@ -37,9 +39,9 @@ export function GlobalNav({ isLoggedIn, isAdmin, email, variant = 'public' }: Gl
               <ArrowLeft className="size-3" /> Web pública
             </Link>
             <div className="hidden sm:block">
-              <AccountMenu isAdmin={isAdmin} email={email} variant="student" />
+              <AccountMenu isAdmin={isAdmin} email={email} fullName={fullName} avatarUrl={avatarUrl} variant="student" />
             </div>
-            <MobileMenu isLoggedIn={isLoggedIn} isAdmin={isAdmin} email={email} variant="student" />
+            <MobileMenu isLoggedIn={isLoggedIn} isAdmin={isAdmin} email={email} fullName={fullName} avatarUrl={avatarUrl} variant="student" />
           </div>
         </div>
       </header>
@@ -72,7 +74,7 @@ export function GlobalNav({ isLoggedIn, isAdmin, email, variant = 'public' }: Gl
               >
                 <GraduationCap className="size-4 text-brand-gold" /> Mi formación
               </Link>
-              <AccountMenu isAdmin={isAdmin} email={email} variant="public" />
+              <AccountMenu isAdmin={isAdmin} email={email} fullName={fullName} avatarUrl={avatarUrl} variant="public" />
             </div>
           ) : (
             <div className="hidden sm:flex items-center gap-1">
@@ -88,7 +90,7 @@ export function GlobalNav({ isLoggedIn, isAdmin, email, variant = 'public' }: Gl
             </div>
           )}
 
-          <MobileMenu isLoggedIn={isLoggedIn} isAdmin={isAdmin} email={email} variant="public" />
+          <MobileMenu isLoggedIn={isLoggedIn} isAdmin={isAdmin} email={email} fullName={fullName} avatarUrl={avatarUrl} variant="public" />
         </div>
       </div>
     </header>

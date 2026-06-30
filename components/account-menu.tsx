@@ -1,9 +1,10 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
-import { LogOut, Settings, LayoutDashboard, UserCircle } from 'lucide-react'
+import Link from 'next/link'
+import { LogOut, Settings, UserCircle } from 'lucide-react'
 import { logoutAction } from '@/app/actions/auth'
 import { cn } from '@/lib/utils'
+import { UserAvatar } from '@/components/user-avatar'
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -16,44 +17,53 @@ import {
 export function AccountMenu({
   isAdmin,
   email,
+  fullName,
+  avatarUrl,
   variant = 'public',
 }: {
   isAdmin: boolean
   email?: string
+  fullName?: string
+  avatarUrl?: string | null
   variant?: 'public' | 'student'
 }) {
-  const router = useRouter()
-  const initial = (email?.trim()?.[0] ?? 'U').toUpperCase()
-
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        className={cn(
-          'flex items-center justify-center size-9 rounded-full font-heading text-base font-semibold outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring',
-          variant === 'student'
-            ? 'bg-brand-gold text-brand-dark'
-            : 'bg-cream text-primary border border-brand-gold/40'
-        )}
+        className="rounded-full outline-none transition-opacity hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring"
         aria-label="Menú de cuenta"
       >
-        {initial}
+        <UserAvatar
+          name={fullName}
+          email={email}
+          avatarUrl={avatarUrl}
+          className={cn(
+            'size-9 text-sm',
+            variant === 'student'
+              ? 'bg-brand-gold text-brand-dark'
+              : 'bg-cream text-primary border border-brand-gold/40'
+          )}
+        />
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" sideOffset={8} className="w-56">
-        {email && (
-          <>
-            {/* div simple, NO DropdownMenuLabel: GroupLabel de base-ui exige un <Group> padre (error #31) */}
-            <div className="px-1.5 py-1 text-xs font-medium text-muted-foreground truncate">{email}</div>
-            <DropdownMenuSeparator />
-          </>
-        )}
-        <DropdownMenuItem onClick={() => router.push('/dashboard')}>
-          <LayoutDashboard /> Mi formación
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push('/account')}>
+      <DropdownMenuContent align="end" sideOffset={8} className="w-60">
+        <div className="flex items-center gap-2.5 px-1.5 py-1.5">
+          <UserAvatar
+            name={fullName}
+            email={email}
+            avatarUrl={avatarUrl}
+            className="size-9 text-sm bg-primary/10 text-primary border border-border shrink-0"
+          />
+          <div className="min-w-0">
+            {fullName && <p className="text-sm font-medium truncate">{fullName}</p>}
+            {email && <p className="text-xs text-muted-foreground truncate">{email}</p>}
+          </div>
+        </div>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem render={<Link href="/account" />}>
           <UserCircle /> Mi cuenta
         </DropdownMenuItem>
         {isAdmin && (
-          <DropdownMenuItem onClick={() => router.push('/admin')}>
+          <DropdownMenuItem render={<Link href="/admin" />}>
             <Settings /> Administración
           </DropdownMenuItem>
         )}

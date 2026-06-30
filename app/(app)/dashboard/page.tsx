@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { CourseCover } from '@/components/course-cover'
 import { CourseCard } from '@/components/course-card'
+import { UserAvatar } from '@/components/user-avatar'
 import { getFavoriteCourses } from '@/lib/data/favorites'
 import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -18,15 +19,22 @@ export default async function DashboardPage() {
   const user = await requireUser()
   const db = createAdminClient()
 
-  const [{ data: enrollments }, { data: profile }] = await Promise.all([
+  const [{ data: enrollments }, profileRes] = await Promise.all([
     db
       .from('enrollments')
       .select('*, courses(*)')
       .eq('user_id', user.id)
       .eq('status', 'active')
       .order('purchased_at', { ascending: false }),
-    db.from('profiles').select('full_name').eq('id', user.id).single(),
+    db.from('profiles').select('full_name, avatar_url').eq('id', user.id).single(),
   ])
+
+  // Defensivo: si avatar_url aún no existe (migración 015 sin aplicar), reintenta sin ella.
+  let profile = profileRes.data as { full_name?: string; avatar_url?: string | null } | null
+  if (profileRes.error) {
+    const fb = await db.from('profiles').select('full_name').eq('id', user.id).single()
+    profile = fb.data as { full_name?: string; avatar_url?: string | null } | null
+  }
 
   const firstName = profile?.full_name?.split(' ')[0] ?? null
   const courseIds = enrollments?.map((e) => (e.courses as any)?.id).filter(Boolean) ?? []
@@ -122,15 +130,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold">
-          {firstName ? `Hola, ${firstName}` : 'Mis cursos'}
-        </h1>
-        <p className="text-muted-foreground mt-0.5">
-          {enrollments?.length
-            ? `Tienes ${enrollments.length} ${enrollments.length === 1 ? 'curso adquirido' : 'cursos adquiridos'}`
-            : 'Todavía no tienes ningún curso'}
-        </p>
+      <div className="flex items-center gap-3.5">
+        <UserAvatar
+          name={profile?.full_name}
+          email={user.email}
+          avatarUrl={profile?.avatar_url ?? null}
+          className="size-12 text-lg bg-primary/10 text-primary border border-border shrink-0"
+        />
+        <div>
+          <h1 className="text-2xl font-bold">
+            {firstName ? `Hola, ${firstName}` : 'Mis cursos'}
+          </h1>
+          <p className="text-muted-foreground mt-0.5">
+            {enrollments?.length
+              ? `Tienes ${enrollments.length} ${enrollments.length === 1 ? 'curso adquirido' : 'cursos adquiridos'}`
+              : 'Todavía no tienes ningún curso'}
+          </p>
+        </div>
       </div>
 
       {/* Estadísticas (solo si hay cursos) */}

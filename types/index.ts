@@ -7,6 +7,9 @@ export interface Profile {
   id: string
   full_name: string
   role: UserRole
+  avatar_url: string | null
+  notify_news: boolean
+  notify_course_reminders: boolean
   created_at: string
 }
 

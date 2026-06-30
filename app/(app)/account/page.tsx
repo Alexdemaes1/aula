@@ -3,6 +3,8 @@ import { requireUser } from '@/lib/auth'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { AccountForm } from '@/components/account-form'
 import { AccountSecurity } from '@/components/account-security'
+import { AccountNotifications } from '@/components/account-notifications'
+import { AccountSessions } from '@/components/account-sessions'
 import { AccountDanger } from '@/components/account-danger'
 import { Breadcrumbs } from '@/components/breadcrumbs'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -16,16 +18,30 @@ export default async function AccountPage() {
   const user = await requireUser()
   const db = createAdminClient()
 
-  const [{ data: profile }, { data: enrollments }] = await Promise.all([
-    db.from('profiles').select('full_name, role, created_at').eq('id', user.id).single(),
-    db
-      .from('enrollments')
-      .select('id, amount_paid_cents, status, purchased_at, courses(title, slug, currency)')
-      .eq('user_id', user.id)
-      .order('purchased_at', { ascending: false }),
-  ])
+  // Defensivo: si la migración 015 aún no está aplicada, reintenta sin columnas nuevas.
+  let profileRes = await db
+    .from('profiles')
+    .select('full_name, avatar_url, notify_news, notify_course_reminders')
+    .eq('id', user.id)
+    .single()
+  if (profileRes.error) {
+    profileRes = await db.from('profiles').select('full_name').eq('id', user.id).single()
+  }
+  const profile = profileRes.data as {
+    full_name?: string
+    avatar_url?: string | null
+    notify_news?: boolean
+    notify_course_reminders?: boolean
+  } | null
+
+  const { data: enrollments } = await db
+    .from('enrollments')
+    .select('id, amount_paid_cents, status, purchased_at, courses(title, slug, currency)')
+    .eq('user_id', user.id)
+    .order('purchased_at', { ascending: false })
 
   const emailVerified = Boolean(user.email_confirmed_at)
+  const emailEnabled = Boolean(process.env.RESEND_API_KEY && process.env.EMAIL_FROM)
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 py-10 space-y-8">
@@ -35,9 +51,22 @@ export default async function AccountPage() {
         <p className="text-muted-foreground mt-0.5">{user.email}</p>
       </div>
 
-      <AccountForm userId={user.id} fullName={profile?.full_name ?? ''} />
+      <AccountForm
+        userId={user.id}
+        fullName={profile?.full_name ?? ''}
+        email={user.email ?? ''}
+        avatarUrl={profile?.avatar_url ?? null}
+      />
 
       <AccountSecurity emailVerified={emailVerified} />
+
+      <AccountSessions lastSignInAt={user.last_sign_in_at ?? null} />
+
+      <AccountNotifications
+        news={profile?.notify_news ?? true}
+        reminders={profile?.notify_course_reminders ?? true}
+        emailEnabled={emailEnabled}
+      />
 
       {/* Mis compras */}
       <Card>

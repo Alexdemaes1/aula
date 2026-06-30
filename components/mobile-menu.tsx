@@ -1,25 +1,35 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Menu, X, BookOpen, LayoutDashboard, User, Settings, LogOut, Globe } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { logoutAction } from '@/app/actions/auth'
+import { UserAvatar } from '@/components/user-avatar'
 
 interface MobileMenuProps {
   isLoggedIn: boolean
   isAdmin?: boolean
   email?: string
+  fullName?: string
+  avatarUrl?: string | null
   variant?: 'public' | 'student'
 }
 
 type LinkItem = { href: string; label: string; icon: React.ElementType | null }
 
-export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: MobileMenuProps) {
+export function MobileMenu({ isLoggedIn, isAdmin, email, fullName, avatarUrl, variant = 'public' }: MobileMenuProps) {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
   const pathname = usePathname()
   const isStudent = variant === 'student'
+
+  // El panel se renderiza en un portal a <body>: así escapa del header con
+  // backdrop-filter (que, si no, lo convertiría en el bloque contenedor del
+  // position:fixed y rompería la altura del panel).
+  useEffect(() => setMounted(true), [])
 
   useEffect(() => {
     if (!open) return
@@ -51,21 +61,8 @@ export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: M
           { href: '/#centro', label: 'El centro', icon: null },
         ]
 
-  return (
+  const panel = (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className={cn(
-          'sm:hidden flex items-center justify-center size-9 rounded-md transition-colors',
-          isStudent ? 'text-cream hover:bg-white/10' : 'hover:bg-accent'
-        )}
-        aria-label="Abrir menú"
-        aria-expanded={open}
-        aria-controls="mobile-nav-panel"
-      >
-        <Menu className="size-5" />
-      </button>
-
       {/* Overlay */}
       <div
         className={cn(
@@ -88,12 +85,7 @@ export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: M
         aria-modal="true"
         aria-label="Menú de navegación"
       >
-        <div
-          className={cn(
-            'flex items-center justify-between px-4 h-14 border-b',
-            isStudent ? 'border-brand-gold/15' : ''
-          )}
-        >
+        <div className={cn('flex items-center justify-between px-4 h-14 border-b', isStudent ? 'border-brand-gold/15' : '')}>
           <span className="font-heading font-semibold text-base">Menú</span>
           <button
             onClick={() => setOpen(false)}
@@ -108,11 +100,26 @@ export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: M
         </div>
 
         {isLoggedIn && email && (
-          <div className={cn('px-4 py-3 border-b', isStudent ? 'bg-white/5 border-brand-gold/15' : 'bg-muted/40')}>
-            <p className={cn('text-[10px] uppercase tracking-wider mb-0.5', isStudent ? 'text-cream/55' : 'text-muted-foreground')}>
-              Conectado como
-            </p>
-            <p className="text-sm font-medium truncate">{email}</p>
+          <div className={cn('px-4 py-3 border-b flex items-center gap-3', isStudent ? 'bg-white/5 border-brand-gold/15' : 'bg-muted/40')}>
+            <UserAvatar
+              name={fullName}
+              email={email}
+              avatarUrl={avatarUrl}
+              className={cn('size-10 text-sm shrink-0', isStudent ? 'bg-brand-gold text-brand-dark' : 'bg-primary/10 text-primary border border-border')}
+            />
+            <div className="min-w-0">
+              {fullName ? (
+                <>
+                  <p className="text-sm font-medium truncate">{fullName}</p>
+                  <p className={cn('text-xs truncate', isStudent ? 'text-cream/55' : 'text-muted-foreground')}>{email}</p>
+                </>
+              ) : (
+                <>
+                  <p className={cn('text-[10px] uppercase tracking-wider mb-0.5', isStudent ? 'text-cream/55' : 'text-muted-foreground')}>Conectado como</p>
+                  <p className="text-sm font-medium truncate">{email}</p>
+                </>
+              )}
+            </div>
           </div>
         )}
 
@@ -182,6 +189,25 @@ export function MobileMenu({ isLoggedIn, isAdmin, email, variant = 'public' }: M
           )}
         </div>
       </div>
+    </>
+  )
+
+  return (
+    <>
+      <button
+        onClick={() => setOpen(true)}
+        className={cn(
+          'sm:hidden flex items-center justify-center size-9 rounded-md transition-colors',
+          isStudent ? 'text-cream hover:bg-white/10' : 'hover:bg-accent'
+        )}
+        aria-label="Abrir menú"
+        aria-expanded={open}
+        aria-controls="mobile-nav-panel"
+      >
+        <Menu className="size-5" />
+      </button>
+
+      {mounted ? createPortal(panel, document.body) : null}
     </>
   )
 }

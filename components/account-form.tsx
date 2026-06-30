@@ -2,6 +2,7 @@
 
 import { useActionState, useEffect } from 'react'
 import { updateProfileAction } from '@/app/actions/profile'
+import { AvatarUploader } from '@/components/avatar-uploader'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -9,7 +10,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Loader2, Save } from 'lucide-react'
 import { toast } from 'sonner'
 
-export function AccountForm({ userId, fullName }: { userId: string; fullName: string }) {
+export function AccountForm({
+  userId,
+  fullName,
+  email,
+  avatarUrl,
+}: {
+  userId: string
+  fullName: string
+  email: string
+  avatarUrl: string | null
+}) {
   const [state, formAction, pending] = useActionState(updateProfileAction, null)
 
   useEffect(() => {
@@ -22,7 +33,9 @@ export function AccountForm({ userId, fullName }: { userId: string; fullName: st
       <CardHeader>
         <CardTitle className="text-base">Datos personales</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-5">
+        <AvatarUploader fullName={fullName} email={email} avatarUrl={avatarUrl} />
+        <div className="h-px bg-border" />
         <form action={formAction} className="space-y-4">
           <input type="hidden" name="user_id" value={userId} />
           <div className="space-y-2">

@@ -14,6 +14,7 @@ import { getCourseReviews, getMyReview } from '@/lib/data/reviews'
 import { isFavorite } from '@/lib/data/favorites'
 import { StarRating } from '@/components/star-rating'
 import { ReviewForm } from '@/components/review-form'
+import { UserAvatar } from '@/components/user-avatar'
 import { FavoriteButton } from '@/components/favorite-button'
 import { LessonPreviewButton } from '@/components/lesson-preview-button'
 import { cn } from '@/lib/utils'
@@ -298,12 +299,21 @@ export default async function CourseDetailPage({ params, searchParams }: PagePro
                 <ul className="space-y-4">
                   {reviews.map((r) => (
                     <li key={r.id} className="border-b border-border/60 pb-4 last:border-0 last:pb-0">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-medium">{r.full_name}</span>
-                        <span className="text-xs text-muted-foreground">{formatDate(r.created_at)}</span>
+                      <div className="flex items-center gap-2.5">
+                        <UserAvatar
+                          name={r.full_name}
+                          avatarUrl={r.avatar_url}
+                          className="size-8 text-xs bg-primary/10 text-primary shrink-0"
+                        />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-sm font-medium truncate">{r.full_name}</span>
+                            <span className="text-xs text-muted-foreground shrink-0">{formatDate(r.created_at)}</span>
+                          </div>
+                          <StarRating value={r.rating} starClassName="size-3.5" className="mt-1" />
+                        </div>
                       </div>
-                      <StarRating value={r.rating} starClassName="size-3.5" className="my-1.5" />
-                      {r.comment && <p className="text-sm text-muted-foreground leading-relaxed">{r.comment}</p>}
+                      {r.comment && <p className="text-sm text-muted-foreground leading-relaxed mt-2">{r.comment}</p>}
                     </li>
                   ))}
                 </ul>
